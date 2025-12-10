@@ -1,598 +1,532 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>皇家德州扑克 V2 (修复版)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --table-green: #2e5936;
-            --table-dark: #1a3320;
-            --gold: #d4af37;
-            --chip-red: #d63031;
-            --chip-blue: #0984e3;
-            --chip-green: #00b894;
-            --card-w: 48px;
-            --card-h: 70px;
-        }
-
-        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-        
-        body {
-            height: 100vh; width: 100vw; overflow: hidden;
-            background: #111;
-            font-family: 'Roboto Condensed', sans-serif;
-            display: flex; flex-direction: column;
-            color: white;
-        }
-
-        #table {
-            position: relative; flex: 1; margin: 10px;
-            background: radial-gradient(circle at center, var(--table-green) 0%, var(--table-dark) 80%);
-            border: 6px solid #3e2723; border-radius: 60px;
-            box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
-            display: flex; justify-content: center; align-items: center;
-        }
-
-        /* 公共牌 */
-        #board-area {
-            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
-            display: flex; gap: 6px; z-index: 10;
-        }
-        .slot {
-            width: var(--card-w); height: var(--card-h);
-            border: 2px dashed rgba(255,255,255,0.1); border-radius: 4px;
-        }
-
-        /* 底池 */
-        #pot-display {
-            position: absolute; top: 58%; left: 50%; transform: translate(-50%, 0);
-            background: rgba(0,0,0,0.6); padding: 4px 12px; border-radius: 12px;
-            border: 1px solid var(--gold); color: var(--gold); font-size: 14px;
-        }
-
-        /* 座位布局 */
-        .seat { position: absolute; width: 80px; height: 90px; display: flex; flex-direction: column; align-items: center; }
-        #seat-0 { bottom: 30px; left: 50%; transform: translateX(-50%); } 
-        #seat-1 { left: 10px; top: 35%; transform: translateY(-50%); }
-        #seat-2 { top: 10px; left: 50%; transform: translateX(-50%); }
-        #seat-3 { right: 10px; top: 35%; transform: translateY(-50%); }
-
-        .avatar {
-            width: 54px; height: 54px; background: #333; border-radius: 50%;
-            border: 3px solid #555; overflow: hidden; position: relative; z-index: 2;
-            transition: all 0.3s;
-        }
-        .active-turn .avatar { border-color: var(--gold); box-shadow: 0 0 15px var(--gold); transform: scale(1.1); }
-        
-        .dealer-btn {
-            position: absolute; width: 16px; height: 16px; background: white; color: black;
-            border-radius: 50%; font-size: 10px; font-weight: bold; display: flex;
-            justify-content: center; align-items: center; bottom: 30px; right: 0; z-index: 5;
-            display: none; box-shadow: 0 1px 2px #000;
-        }
-
-        .player-info {
-            background: rgba(0,0,0,0.8); border-radius: 4px; padding: 2px 0;
-            margin-top: -12px; z-index: 3; text-align: center; width: 80px;
-        }
-        .p-name { font-size: 10px; color: #aaa; }
-        .p-chips { font-size: 12px; color: var(--gold); font-weight: bold; }
-
-        .hand-cards {
-            position: absolute; display: flex; justify-content: center; top: 0; z-index: 1; 
-        }
-        #seat-0 .hand-cards { top: -50px; transform: scale(1.1); }
-        .bot .hand-cards .card { transform: scale(0.8); margin-left: -20px; }
-        .bot .hand-cards .card:first-child { margin-left: 0; }
-
-        .action-bubble {
-            position: absolute; top: -20px; background: #fff; color: #000;
-            padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold;
-            opacity: 0; transition: all 0.3s; z-index: 20;
-        }
-        .action-bubble.show { opacity: 1; top: -30px; }
-
-        /* 卡牌 */
-        .card {
-            width: var(--card-w); height: var(--card-h);
-            background: #fff; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.5);
-            position: relative; display: flex; flex-direction: column; align-items: center;
-            font-family: 'Playfair Display', serif; margin: 0 2px;
-        }
-        .card.back {
-            background: repeating-linear-gradient(45deg, #2c3e50, #2c3e50 5px, #34495e 5px, #34495e 10px);
-            border: 2px solid #ecf0f1;
-        }
-        .card.red { color: #c0392b; }
-        .card.black { color: #2d3436; }
-        .card .rank { font-size: 20px; line-height: 1; margin-top: 2px; font-weight:bold; }
-        .card .suit { font-size: 16px; }
-        .card .big-suit { position: absolute; bottom: 2px; right: 2px; font-size: 22px; opacity: 0.2; }
-        .winner-card { border: 2px solid var(--gold); box-shadow: 0 0 15px var(--gold); z-index: 100; transform: scale(1.1) !important;}
-
-        /* 控制区 */
-        #controls {
-            height: 140px; background: #000; padding: 10px;
-            display: flex; flex-direction: column; justify-content: space-between;
-        }
-        .slider-row { display: flex; align-items: center; gap: 10px; padding: 0 10px; visibility: hidden; }
-        #raise-range { flex: 1; accent-color: var(--gold); height: 20px; }
-        #raise-val { color: var(--gold); width: 60px; text-align: right; font-size: 14px; }
-
-        .btn-row { display: flex; justify-content: space-between; gap: 8px; height: 50px; }
-        .btn {
-            flex: 1; border: none; border-radius: 4px;
-            font-size: 14px; font-weight: bold; color: #fff;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            cursor: pointer; box-shadow: 0 3px 0 rgba(255,255,255,0.2);
-        }
-        .btn:active { transform: translateY(2px); box-shadow: none; }
-        .btn:disabled { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
-        .btn-fold { background: #d63031; }
-        .btn-check { background: #0984e3; }
-        .btn-raise { background: #00b894; }
-        .sub { font-size: 9px; opacity: 0.8; font-weight: normal; }
-
-        /* 筹码动画 */
-        .chip {
-            position: absolute; width: 18px; height: 18px; border-radius: 50%;
-            border: 2px dashed #fff; font-size: 7px; display: flex; 
-            justify-content: center; align-items: center; color: #fff; z-index: 99;
-        }
-        .chip.red { background: var(--chip-red); }
-        .chip.blue { background: var(--chip-blue); }
-        .chip.green { background: var(--chip-green); }
-
-        #overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.9); z-index: 200;
-            display: none; justify-content: center; align-items: center; flex-direction: column;
-        }
-    </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>德州扑克 — 单页 完整版（玩家 vs AI）</title>
+<style>
+  :root{
+    --bg:#062017; --table:#0c4b2a; --panel:#083b29; --accent:#ffd166;
+    --card-bg:#ffffff; --card-color:#111;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;background:linear-gradient(180deg,#03120a,#04251a);color:#e9f6ef;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:24px}
+  .wrap{width:100%;max-width:1100px}
+  header{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+  h1{margin:0;font-size:20px}
+  .controls{margin-left:auto;display:flex;gap:8px}
+  button{background:var(--accent);border:none;padding:8px 12px;border-radius:8px;color:#07211a;font-weight:700;cursor:pointer}
+  button.ghost{background:transparent;color:var(--accent);border:1px solid rgba(255,209,102,0.14)}
+  .table{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border-radius:14px;padding:16px;display:grid;grid-template-columns:1fr 360px;gap:12px}
+  .board{background:var(--table);border-radius:12px;padding:16px;min-height:420px;position:relative;overflow:hidden}
+  .sidebar{background:var(--panel);padding:12px;border-radius:12px}
+  .community{display:flex;gap:12px;justify-content:center;margin-top:20px}
+  .card{width:72px;height:100px;border-radius:8px;background:var(--card-bg);color:var(--card-color);display:flex;align-items:center;justify-content:center;font-weight:800;box-shadow:0 6px 18px rgba(0,0,0,0.4);transform-origin:center;transition:transform .35s,opacity .35s}
+  .card.back{background:linear-gradient(180deg,#093,#060);color:transparent}
+  .seat-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:space-between}
+  .seat{width:32%;min-width:180px;background:rgba(0,0,0,0.15);padding:10px;border-radius:10px}
+  .seat .name{font-weight:700}
+  .cards{display:flex;gap:8px;margin-top:8px}
+  .chips{display:flex;gap:6px;align-items:center;margin-top:8px}
+  .chip{width:44px;height:26px;border-radius:14px;background:var(--accent);color:#07211a;display:inline-flex;align-items:center;justify-content:center;font-weight:800}
+  .pot{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.25);padding:10px 16px;border-radius:999px;font-weight:800}
+  .log{height:120px;overflow:auto;margin-top:14px;background:rgba(0,0,0,0.25);padding:8px;border-radius:8px;font-size:13px}
+  .actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  input[type=number]{width:96px;padding:8px;border-radius:8px;border:none}
+  .small{font-size:13px;color:rgba(230,238,248,0.8)}
+  .fadein{animation:fadein .4s ease both}
+  @keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @media(max-width:980px){.table{grid-template-columns:1fr}.seat{width:48%}}
+</style>
 </head>
 <body>
+<div class="wrap">
+  <header>
+    <h1>德州扑克 — 单页 完整版</h1>
+    <div class="controls">
+      <label class="small">小盲<input id="sb" type="number" value="10" style="width:64px;margin-left:6px"></label>
+      <label class="small">大盲<input id="bb" type="number" value="20" style="width:64px;margin-left:6px"></label>
+      <button id="newBtn">新局</button>
+      <button id="autoBtn" class="ghost">AI 强度: 中</button>
+    </div>
+  </header>
 
-<div id="table">
-    <div id="board-area">
-        <div class="slot" id="c-0"></div>
-        <div class="slot" id="c-1"></div>
-        <div class="slot" id="c-2"></div>
-        <div class="slot" id="c-3"></div>
-        <div class="slot" id="c-4"></div>
-    </div>
-    <div id="pot-display">Pot: <span id="pot-val">0</span></div>
+  <div class="table">
+    <div class="board">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div class="small">阶段 <span id="stage">等待</span></div>
+          <div class="small">当前行动: <span id="current">—</span></div>
+        </div>
+        <div>
+          <div class="small">桌面底池</div>
+          <div style="font-weight:800;font-size:18px" id="potView">0</div>
+        </div>
+      </div>
 
-    <div class="seat" id="seat-0">
-        <div class="hand-cards" id="hand-0"></div>
-        <div class="avatar"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" width="100%"></div>
-        <div class="dealer-btn" id="d-0">D</div>
-        <div class="player-info"><div class="p-name">YOU</div><div class="p-chips" id="ch-0">0</div></div>
-        <div class="action-bubble" id="act-0"></div>
-    </div>
-    <div class="seat bot" id="seat-1">
-        <div class="hand-cards" id="hand-1"></div>
-        <div class="avatar"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Jack" width="100%"></div>
-        <div class="dealer-btn" id="d-1">D</div>
-        <div class="player-info"><div class="p-name">Jack</div><div class="p-chips" id="ch-1">0</div></div>
-        <div class="action-bubble" id="act-1"></div>
-    </div>
-    <div class="seat bot" id="seat-2">
-        <div class="hand-cards" id="hand-2"></div>
-        <div class="avatar"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Nala" width="100%"></div>
-        <div class="dealer-btn" id="d-2">D</div>
-        <div class="player-info"><div class="p-name">Nala</div><div class="p-chips" id="ch-2">0</div></div>
-        <div class="action-bubble" id="act-2"></div>
-    </div>
-    <div class="seat bot" id="seat-3">
-        <div class="hand-cards" id="hand-3"></div>
-        <div class="avatar"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Bob" width="100%"></div>
-        <div class="dealer-btn" id="d-3">D</div>
-        <div class="player-info"><div class="p-name">Bob</div><div class="p-chips" id="ch-3">0</div></div>
-        <div class="action-bubble" id="act-3"></div>
-    </div>
-</div>
+      <div class="community" id="community"></div>
 
-<div id="controls">
-    <div class="slider-row" id="slider-box">
-        <span style="font-size:12px; color:#aaa">加注额:</span>
-        <input type="range" id="raise-range" min="0" max="0" step="10">
-        <span id="raise-val">0</span>
-    </div>
-    <div class="btn-row">
-        <button class="btn btn-fold" id="btn-fold" onclick="game.humanAct('fold')">弃牌<span class="sub">Fold</span></button>
-        <button class="btn btn-check" id="btn-check" onclick="game.humanAct('check')">过牌<span class="sub">Check</span></button>
-        <button class="btn btn-raise" id="btn-raise" onclick="game.humanAct('raise')">加注<span class="sub">Raise</span></button>
-    </div>
-</div>
+      <div style="margin-top:20px">
+        <div class="seat-row">
+          <div class="seat" id="aiSeat">
+            <div class="name">AI</div>
+            <div class="small">状态: <span id="aiState">准备</span></div>
+            <div class="cards" id="aiCards"></div>
+            <div class="chips">筹码: <div class="chip" id="aiChips">1000</div></div>
+          </div>
 
-<div id="overlay" onclick="location.reload()">
-    <h1 style="color:#d4af37; margin-bottom:10px;">GAME OVER</h1>
-    <div style="color:#fff">点击屏幕重新开始</div>
+          <div class="seat" id="playerSeat">
+            <div class="name">你</div>
+            <div class="small">状态: <span id="playerState">准备</span></div>
+            <div class="cards" id="playerCards"></div>
+            <div class="chips">筹码: <div class="chip" id="playerChips">1000</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pot" id="potBubble">底池: 0</div>
+
+      <div class="log" id="log"></div>
+    </div>
+
+    <aside class="sidebar">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <strong>行动区</strong>
+          <div class="small">下注量 <input id="betInput" type="number" value="50"></div>
+        </div>
+
+        <div class="actions">
+          <button id="checkBtn">Check</button>
+          <button id="callBtn">Call</button>
+          <button id="raiseBtn">Raise</button>
+          <button id="foldBtn" style="background:#ef476f;color:white">Fold</button>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="small">信息</div>
+          <div id="info" class="small">点击 <strong>新局</strong> 开始</div>
+        </div>
+
+        <div style="margin-top:12px">
+          <strong>AI 胜率估算</strong>
+          <div class="small" id="aiEval">—</div>
+        </div>
+
+        <div style="margin-top:12px">
+          <strong>说明</strong>
+          <div class="small">此演示支持完整牌型评估与基于蒙特卡洛的 AI 胜率估算。多人在线需后端（可扩展）。</div>
+        </div>
+      </div>
+    </aside>
+  </div>
 </div>
 
 <script>
-const SUITS = ['♠', '♥', '♣', '♦'];
-const RANKS = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
-const VALS = {'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14};
+/*
+  主要功能：
+   - 7 张牌完整牌型判断（通过枚举 5 张组合取最大）
+   - 下注轮：preflop/flop/turn/river + 简化盲注、check/call/raise/fold、all-in（简单处理）
+   - AI 使用蒙特卡洛模拟估算胜率并基于阈值决策（可设强度）
+   - 简单发牌/翻牌动画（CSS transform）
+*/
 
-class Card {
-    constructor(r, s) { this.r = r; this.s = s; this.v = VALS[r]; }
-    get color() { return (this.s==='♥'||this.s==='♦')?'red':'black'; }
+const RANKS = ['2','3','4','5','6','7','8','9','T','J','Q','K','A'];
+const SUITS = ['s','h','d','c'];
+
+function createDeck(){
+  const d = [];
+  for(const r of RANKS) for(const s of SUITS) d.push(r+s);
+  return shuffle(d);
+}
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
 }
 
-/* --- 牌型计算器 (简化版) --- */
-const Eval = {
-    rank: (cards) => {
-        if (!cards || cards.length<5) return 0;
-        cards.sort((a,b)=>b.v - a.v);
-        // 简单评估：只看最大牌型权重 (用于Bot AI)
-        // 8:同花顺, 7:四条, 6:葫芦, 5:同花, 4:顺子, 3:三条, 2:两对, 1:对子, 0:高牌
-        let flush = Eval.isFlush(cards);
-        let straight = Eval.isStraight(cards);
-        let groups = Eval.groups(cards);
-        let gKeys = Object.keys(groups);
-        let maxG = Math.max(...Object.values(groups));
-        
-        if (flush && straight) return 800 + straight;
-        if (maxG === 4) return 700 + parseInt(gKeys.find(k=>groups[k]===4));
-        if (maxG === 3 && gKeys.length >= 2 && Object.values(groups).includes(2)) return 600;
-        if (flush) return 500 + flush;
-        if (straight) return 400 + straight;
-        if (maxG === 3) return 300;
-        if (gKeys.length === 3 && maxG === 2) return 200; // 3 groups with max 2 = 2 pairs
-        if (maxG === 2) return 100;
-        return cards[0].v;
-    },
-    isFlush: (c) => {
-        let s = {}; c.forEach(x=>s[x.s]=(s[x.s]||0)+1);
-        for(let k in s) if(s[k]>=5) return c.find(x=>x.s==k).v; // Return high card of flush
-        return 0;
-    },
-    isStraight: (c) => {
-        let v = [...new Set(c.map(x=>x.v))];
-        if(v[0]===14) v.push(1); // A low
-        for(let i=0; i<=v.length-5; i++) if(v[i]-v[i+4]===4) return v[i];
-        return 0;
-    },
-    groups: (c) => {
-        let m={}; c.forEach(x=>m[x.v]=(m[x.v]||0)+1);
-        return m;
-    }
+function el(id){ return document.getElementById(id) }
+function log(s){ el('log').innerHTML = (new Date()).toLocaleTimeString() + ' — ' + s + '<br>' + el('log').innerHTML; }
+
+let state = {
+  deck: [],
+  players: [
+    {id:'ai', name:'AI', chips:1000, hand:[], folded:false, allin:false},
+    {id:'me', name:'You', chips:1000, hand:[], folded:false, allin:false}
+  ],
+  community: [],
+  pot: 0,
+  currentBet: 0,
+  toAct: 0, // index in players
+  stage: 'waiting', // waiting, preflop, flop, turn, river, showdown
+  sb: 10, bb:20,
+  minRaise: 20,
+  aiStrength: 2, // 1=弱,2=中,3=强
 };
 
-class Game {
-    constructor() {
-        this.players = [
-            { id:0, name:'YOU', chips:2000, hand:[], folded:false, bet:0, active:true },
-            { id:1, name:'Jack', chips:2000, hand:[], folded:false, bet:0, active:true },
-            { id:2, name:'Nala', chips:2000, hand:[], folded:false, bet:0, active:true },
-            { id:3, name:'Bob', chips:2000, hand:[], folded:false, bet:0, active:true }
-        ];
-        this.dealer = 0;
-        this.pot = 0;
-        this.comm = [];
-        this.deck = [];
-        this.stage = 0; // 0:Pre, 1:Flop, 2:Turn, 3:River
-        this.curBet = 0; // Current highest bet
-        this.turn = 0;
-        
-        this.init();
-    }
-
-    init() {
-        this.deck = [];
-        for(let s of SUITS) for(let r of RANKS) this.deck.push(new Card(r,s));
-        this.deck.sort(()=>Math.random()-0.5);
-
-        this.pot = 0;
-        this.comm = [];
-        this.curBet = 0;
-        this.players.forEach(p => {
-            p.hand = []; p.folded = false; p.bet = 0; p.active = p.chips>0; p.acted = false;
-            this.updateUI(p.id);
-            document.getElementById(`act-${p.id}`).classList.remove('show');
-            document.getElementById(`hand-${p.id}`).innerHTML = '';
-        });
-        document.getElementById('board-area').innerHTML = '<div class="slot"></div>'.repeat(5);
-
-        // Blinds
-        this.dealer = (this.dealer+1)%4;
-        document.querySelectorAll('.dealer-btn').forEach(e=>e.style.display='none');
-        document.getElementById(`d-${this.dealer}`).style.display='flex';
-
-        let sb = (this.dealer+1)%4;
-        let bb = (this.dealer+2)%4;
-        this.bet(sb, 10);
-        this.bet(bb, 20);
-        this.curBet = 20;
-        this.turn = (bb+1)%4;
-
-        // Deal
-        this.players.forEach(p => {
-            if(p.active) {
-                p.hand = [this.deck.pop(), this.deck.pop()];
-                if(p.id===0) this.renderHand(0);
-                else {
-                    let h = document.getElementById(`hand-${p.id}`);
-                    h.innerHTML = '<div class="card back"></div><div class="card back"></div>';
-                }
-            }
-        });
-
-        this.stage = 0;
-        this.cycle();
-    }
-
-    cycle() {
-        if(this.isRoundEnd()) {
-            this.nextStage();
-            return;
-        }
-
-        let p = this.players[this.turn];
-        if(p.folded || p.chips===0) {
-            this.nextTurn();
-            return;
-        }
-
-        document.querySelectorAll('.seat').forEach(e=>e.classList.remove('active-turn'));
-        document.getElementById(`seat-${this.turn}`).classList.add('active-turn');
-
-        if(this.turn === 0) this.enableHuman();
-        else setTimeout(() => this.botTurn(), 800);
-    }
-
-    humanAct(act) {
-        let p = this.players[0];
-        let diff = this.curBet - p.bet;
-
-        if(act === 'fold') {
-            p.folded = true;
-            document.getElementById('hand-0').style.opacity = 0.5;
-        } 
-        else if(act === 'check' || act === 'call') {
-            this.bet(0, diff);
-        } 
-        else if(act === 'raise') {
-            // 关键修复：强制类型转换，防止字符串拼接
-            let val = Number(document.getElementById('raise-range').value);
-            // 最小加注逻辑
-            if(val <= 0) val = 20; 
-            let totalBet = this.curBet + val;
-            let cost = totalBet - p.bet;
-            
-            if(cost > p.chips) cost = p.chips; // All in
-            
-            this.bet(0, cost);
-            this.curBet = p.bet; // Update global high bet
-            // Reset actions for others
-            this.players.forEach(pl => { if(!pl.folded && pl.id!==0) pl.acted = false; });
-        }
-
-        this.showBubble(0, act.toUpperCase());
-        p.acted = true;
-        this.disableHuman();
-        this.nextTurn();
-    }
-
-    botTurn() {
-        let p = this.players[this.turn];
-        let diff = this.curBet - p.bet;
-        let act = 'fold';
-
-        // 简单的AI决策
-        let score = p.hand[0].v + p.hand[1].v;
-        if(this.stage > 0) score = Eval.rank([...p.hand, ...this.comm]);
-
-        // 随机决策因子
-        let roll = Math.random();
-        
-        if (diff === 0) {
-            if (score > 10 && roll > 0.7) act = 'raise';
-            else act = 'check';
-        } else {
-            if (score > 15 || roll > 0.4) act = 'call';
-            else act = 'fold';
-        }
-
-        if(act === 'raise') {
-            let raiseAmt = 20;
-            if(p.chips >= diff + raiseAmt) {
-                this.bet(p.id, diff + raiseAmt);
-                this.curBet = p.bet;
-                this.players.forEach(pl => { if(!pl.folded && pl.id!==p.id) pl.acted = false; });
-                this.showBubble(p.id, 'RAISE');
-            } else {
-                this.bet(p.id, p.chips);
-                this.showBubble(p.id, 'ALL IN');
-            }
-        } else if (act === 'call') {
-            this.bet(p.id, Math.min(diff, p.chips));
-            this.showBubble(p.id, 'CALL');
-        } else if (act === 'check') {
-            this.showBubble(p.id, 'CHECK');
-        } else {
-            p.folded = true;
-            document.getElementById(`hand-${p.id}`).style.opacity = 0.5;
-            this.showBubble(p.id, 'FOLD');
-        }
-
-        p.acted = true;
-        this.nextTurn();
-    }
-
-    nextTurn() {
-        this.turn = (this.turn+1)%4;
-        this.cycle();
-    }
-
-    isRoundEnd() {
-        let active = this.players.filter(p=>!p.folded);
-        if(active.length === 1) return true; // Win by fold
-        // 所有人已行动且注码相等（或Allin）
-        return active.every(p => (p.acted && (p.bet === this.curBet || p.chips === 0)));
-    }
-
-    nextStage() {
-        // Clear bets
-        this.players.forEach(p => { p.bet = 0; p.acted = false; });
-        this.curBet = 0;
-        
-        let active = this.players.filter(p=>!p.folded);
-        if(active.length === 1) { this.winner([active[0]]); return; }
-
-        this.stage++;
-        this.turn = (this.dealer+1)%4; // SB starts
-
-        if(this.stage === 1) this.dealComm(3);
-        else if(this.stage === 2 || this.stage === 3) this.dealComm(1);
-        else if(this.stage === 4) { this.showdown(); return; }
-
-        this.cycle();
-    }
-
-    bet(pid, amt) {
-        let p = this.players[pid];
-        if(amt > p.chips) amt = p.chips;
-        p.chips -= amt;
-        p.bet += amt;
-        this.pot += amt;
-        this.updateUI(pid);
-        
-        // Anim
-        let chip = document.createElement('div');
-        chip.className = `chip ${amt>=50?'red':(amt>=20?'blue':'green')}`;
-        chip.innerText = amt;
-        let rect = document.getElementById(`seat-${pid}`).getBoundingClientRect();
-        chip.style.left = (rect.left+30)+'px'; chip.style.top = (rect.top+30)+'px';
-        document.body.appendChild(chip);
-        setTimeout(()=>{
-            chip.style.left='50%'; chip.style.top='50%'; chip.style.opacity=0;
-        },50);
-        setTimeout(()=>chip.remove(),500);
-    }
-
-    dealComm(n) {
-        let area = document.getElementById('board-area');
-        let idx = this.comm.length;
-        for(let i=0; i<n; i++) {
-            let c = this.deck.pop();
-            this.comm.push(c);
-            let slot = document.getElementById(`c-${idx+i}`);
-            slot.innerHTML = this.getCardHtml(c);
-        }
-    }
-
-    showdown() {
-        let active = this.players.filter(p=>!p.folded);
-        // Show hands
-        active.forEach(p => {
-            if(p.id !== 0) {
-                let h = document.getElementById(`hand-${p.id}`);
-                h.innerHTML = '';
-                p.hand.forEach(c => {
-                    let d = document.createElement('div');
-                    d.className = `card ${c.color}`;
-                    d.innerHTML = this.getCardHtml(c);
-                    h.appendChild(d);
-                });
-            }
-        });
-
-        // Find winner
-        let best = -1;
-        let winners = [];
-        active.forEach(p => {
-            let score = Eval.rank([...p.hand, ...this.comm]);
-            if(score > best) { best = score; winners = [p]; }
-            else if(score === best) winners.push(p);
-        });
-        
-        this.winner(winners);
-    }
-
-    winner(ws) {
-        let share = Math.floor(this.pot / ws.length);
-        ws.forEach(w => {
-            w.chips += share;
-            this.showBubble(w.id, 'WINNER');
-            this.updateUI(w.id);
-            // Highlight
-            let h = document.getElementById(`hand-${w.id}`);
-            Array.from(h.children).forEach(c=>c.classList.add('winner-card'));
-        });
-        
-        setTimeout(()=> {
-            if(this.players[0].chips <= 0) document.getElementById('overlay').style.display='flex';
-            else this.init();
-        }, 3000);
-    }
-
-    /* --- UI Helpers --- */
-    enableHuman() {
-        let p = this.players[0];
-        let diff = this.curBet - p.bet;
-        let maxRaise = p.chips - diff;
-
-        document.getElementById('btn-fold').disabled = false;
-        
-        let ck = document.getElementById('btn-check');
-        ck.innerHTML = diff===0 ? '过牌<div class="sub">Check</div>' : `跟注 ${diff}<div class="sub">Call</div>`;
-        ck.onclick = () => this.humanAct(diff===0 ? 'check' : 'call');
-        ck.disabled = false;
-
-        let rs = document.getElementById('btn-raise');
-        let sl = document.getElementById('slider-box');
-        let rng = document.getElementById('raise-range');
-        
-        if(maxRaise >= 20) {
-            rs.disabled = false;
-            sl.style.visibility = 'visible';
-            rng.max = maxRaise;
-            rng.value = 20;
-            document.getElementById('raise-val').innerText = 20;
-            rng.oninput = (e) => document.getElementById('raise-val').innerText = e.target.value;
-        } else {
-            rs.disabled = true;
-            sl.style.visibility = 'hidden';
-        }
-    }
-
-    disableHuman() {
-        document.querySelectorAll('.btn').forEach(b=>b.disabled=true);
-        document.getElementById('slider-box').style.visibility = 'hidden';
-    }
-
-    updateUI(pid) {
-        document.getElementById(`ch-${pid}`).innerText = this.players[pid].chips;
-        document.getElementById(`pot-val`).innerText = this.pot;
-    }
-
-    renderHand(pid) {
-        let div = document.getElementById(`hand-${pid}`);
-        div.innerHTML = '';
-        this.players[pid].hand.forEach(c => {
-            let d = document.createElement('div');
-            d.className = `card ${c.color}`;
-            d.innerHTML = this.getCardHtml(c);
-            div.appendChild(d);
-        });
-    }
-
-    getCardHtml(c) {
-        return `<div class="rank">${c.r}</div><div class="suit">${c.s}</div><div class="big-suit">${c.s}</div>`;
-    }
-
-    showBubble(pid, txt) {
-        let b = document.getElementById(`act-${pid}`);
-        b.innerText = txt; b.classList.add('show');
-        setTimeout(()=>b.classList.remove('show'), 2000);
-    }
+// ------- UI helpers -------
+function render(){
+  // community
+  const c = el('community'); c.innerHTML='';
+  state.community.forEach((cd, i)=> {
+    const div = document.createElement('div'); div.className='card fadein';
+    div.style.transitionDelay = (i*80)+'ms'; div.innerHTML = cardText(cd); c.appendChild(div);
+  });
+  // players
+  const ai = state.players[0], me = state.players[1];
+  renderCards('aiCards', ai.hand, state.stage === 'showdown' || ai.allin ? false : true); // hide unless showdown or allin
+  renderCards('playerCards', me.hand, false);
+  el('playerChips').textContent = me.chips;
+  el('aiChips').textContent = ai.chips;
+  el('potView').textContent = state.pot;
+  el('potBubble').textContent = '底池: ' + state.pot;
+  el('stage').textContent = state.stage;
+  el('current').textContent = state.players[state.toAct].name;
 }
 
-const game = new Game();
+function renderCards(id, arr, hide){
+  const wrap = el(id); wrap.innerHTML='';
+  if(!arr) return;
+  arr.forEach((c,i)=>{
+    const div = document.createElement('div'); div.className='card';
+    if(hide) { div.classList.add('back'); div.textContent=''; }
+    else div.innerHTML = cardText(c);
+    div.style.marginLeft = i? '6px' : '0';
+    wrap.appendChild(div);
+  });
+}
+
+function cardText(code){
+  if(!code) return '';
+  const rank = code[0], suit = code[1];
+  const map = {s:'♠',h:'♥',d:'♦',c:'♣'};
+  return rank + map[suit];
+}
+
+// ------- Hand evaluation (7 -> best 5) -------
+/* Evaluate 5-card hand returning a comparable score array.
+   Higher better. Score format: [category, tiebreaker...]
+   categories: 8 straight flush,7 four,6 full house,5 flush,4 straight,3 trips,2 two pair,1 pair,0 high card
+*/
+function evaluate5(cards){ // cards: array of 5 codes like 'As'
+  // map to ranks idx and suits
+  const ranks = cards.map(c=>c[0]);
+  const suits = cards.map(c=>c[1]);
+  const counts = {};
+  for(const r of ranks) counts[r] = (counts[r]||0)+1;
+  const byCount = {};
+  for(const [r,c] of Object.entries(counts)){ byCount[c] = byCount[c]||[]; byCount[c].push(RANKS.indexOf(r)); }
+  for(const k in byCount) byCount[k].sort((a,b)=>b-a);
+  // flush
+  const suitCounts = {};
+  for(const s of suits) suitCounts[s]=(suitCounts[s]||0)+1;
+  const isFlush = Object.values(suitCounts).some(v=>v>=5);
+  // straight
+  const uniqRanks = Array.from(new Set(ranks.map(r=>RANKS.indexOf(r)))).sort((a,b)=>a-b);
+  let isStraight = false, topStraight = -1;
+  for(let i=0;i<uniqRanks.length;i++){
+    let seq=1, last=uniqRanks[i];
+    for(let j=i+1;j<uniqRanks.length;j++){
+      if(uniqRanks[j]===last+1){seq++; last=uniqRanks[j];}
+      else break;
+    }
+    if(seq>=5){ isStraight=true; topStraight=last; break; }
+  }
+  // wheel A-2-3-4-5
+  if(!isStraight){
+    const wheel = ['A','2','3','4','5'];
+    if(wheel.every(r=>ranks.includes(r))){ isStraight=true; topStraight = RANKS.indexOf('5'); }
+  }
+  // straight flush (brute force by suit)
+  let isSF=false, topSF=-1;
+  for(const s of SUITS){
+    const rc = cards.filter(c=>c[1]===s).map(c=>c[0]);
+    const idxs = Array.from(new Set(rc.map(r=>RANKS.indexOf(r)))).sort((a,b)=>a-b);
+    for(let i=0;i<idxs.length;i++){
+      let seq=1, last=idxs[i];
+      for(let j=i+1;j<idxs.length;j++){
+        if(idxs[j]===last+1){seq++; last=idxs[j]} else break;
+      }
+      if(seq>=5){ isSF=true; topSF=last; break; }
+    }
+    if(!isSF){
+      const wheel = ['A','2','3','4','5'];
+      if(wheel.every(r=>rc.includes(r))){ isSF=true; topSF = RANKS.indexOf('5'); }
+    }
+  }
+
+  if(isSF) return [8, topSF];
+  if(byCount[4]) return [7, byCount[4][0], ...(byCount[1]||[])];
+  if(byCount[3] && byCount[2]) return [6, byCount[3][0], byCount[2][0]];
+  if(isFlush){
+    // top flush ranks
+    const flushRanks = cards.filter(c=>suitCounts[c[1]]>=5).map(c=>RANKS.indexOf(c[0])).sort((a,b)=>b-a).slice(0,5);
+    return [5, ...flushRanks];
+  }
+  if(isStraight) return [4, topStraight];
+  if(byCount[3]) return [3, byCount[3][0], ...(byCount[1]||[]).slice(0,2)];
+  if(byCount[2] && byCount[2].length>=2) return [2, byCount[2][0], byCount[2][1], ...(byCount[1]||[])];
+  if(byCount[2]) return [1, byCount[2][0], ...(byCount[1]||[]).slice(0,3)];
+  // high card
+  const high = ranks.map(r=>RANKS.indexOf(r)).sort((a,b)=>b-a).slice(0,5);
+  return [0,...high];
+}
+
+function cmpScore(a,b){
+  for(let i=0;i<Math.max(a.length,b.length);i++){
+    const av=a[i]||0, bv=b[i]||0;
+    if(av!==bv) return av-bv;
+  }
+  return 0;
+}
+
+function bestHandFrom7(cards7){
+  // enumerate 21 combos choose 5
+  let best = null;
+  const n = cards7.length;
+  for(let i=0;i<n-4;i++) for(let j=i+1;j<n-3;j++) for(let k=j+1;k<n-2;k++) for(let l=k+1;l<n-1;l++) for(let m=l+1;m<n;m++){
+    const hand = [cards7[i],cards7[j],cards7[k],cards7[l],cards7[m]];
+    const score = evaluate5(hand);
+    if(!best || cmpScore(score, best.score) > 0) best = {score, hand};
+  }
+  return best;
+}
+
+// ------- AI: Monte Carlo estimate -------
+// Simulate N random completions to estimate equity vs unknown opponent hands (assumes single opponent)
+function estimateEquity(myHand, board, iterations=800){
+  // build known cards set
+  const known = new Set([...myHand, ...board]);
+  const deck = [];
+  for(const r of RANKS) for(const s of SUITS) {
+    const code = r+s; if(!known.has(code)) deck.push(code);
+  }
+  let wins=0, ties=0;
+  const need = 5 - board.length;
+  for(let it=0; it<iterations; it++){
+    shuffle(deck);
+    // sample opponent two cards from deck (top)
+    const opp = [deck[0], deck[1]];
+    // sample rest of board
+    const rest = deck.slice(2, 2 + need);
+    const finalBoard = board.concat(rest);
+    const myBest = bestHandFrom7(myHand.concat(finalBoard)).score;
+    const oppBest = bestHandFrom7(opp.concat(finalBoard)).score;
+    const cmp = cmpScore(myBest, oppBest);
+    if(cmp>0) wins++;
+    else if(cmp===0) ties++;
+    // rotate deck a bit for randomness
+    if(deck.length>5) deck.push(deck.shift());
+  }
+  return (wins + ties*0.5) / iterations;
+}
+
+// ------- Game flow -------
+
+function resetTable(){
+  state.deck = createDeck();
+  state.community = [];
+  state.pot = 0;
+  state.currentBet = 0;
+  state.players.forEach(p=>{ p.hand = []; p.folded=false; p.allin=false; });
+  // rotate dealer - here we keep AI as dealer for simplicity: AI small blind, player big blind? We'll set SB/BB manual
+  state.stage = 'waiting';
+  render();
+  el('info').textContent = '准备就绪，点击 新局 开始。';
+}
+
+function startHand(){
+  state.deck = createDeck();
+  state.community = [];
+  state.pot = 0;
+  state.currentBet = 0;
+  state.players.forEach(p=>{ p.hand = []; p.folded=false; p.allin=false; });
+  // deal
+  state.players[0].hand = [state.deck.pop(), state.deck.pop()]; // AI
+  state.players[1].hand = [state.deck.pop(), state.deck.pop()]; // me
+  // blinds
+  const sb = Number(el('sb').value)||10, bb = Number(el('bb').value)||20;
+  state.sb = sb; state.bb = bb;
+  // deduct blinds (AI sb, me bb)
+  let ai = state.players[0], me = state.players[1];
+  const sbAmt = Math.min(sb, ai.chips); ai.chips -= sbAmt; state.pot += sbAmt;
+  const bbAmt = Math.min(bb, me.chips); me.chips -= bbAmt; state.pot += bbAmt;
+  state.currentBet = bbAmt;
+  state.toAct = 0; // AI acts first preflop (left of big blind)
+  state.stage = 'preflop';
+  log(`新局：AI 支付小盲 ${sbAmt}, 你支付大盲 ${bbAmt}`);
+  render();
+  el('info').textContent = '发牌完成，进行下注。';
+  // AI may act immediately
+  setTimeout(()=> { if(state.toAct===0) aiAct(); }, 600);
+}
+
+// player actions
+function playerCheck(){
+  if(state.players[state.toAct].id !== 'me') { log('不是你的回合'); return; }
+  log('你 选择 Check');
+  nextToAct();
+}
+function playerCall(){
+  if(state.players[state.toAct].id !== 'me') { log('不是你的回合'); return; }
+  const toCall = state.currentBet;
+  const me = state.players[1];
+  const pay = Math.min(toCall, me.chips);
+  me.chips -= pay; state.pot += pay;
+  log('你 跟注 ' + pay);
+  nextToAct();
+}
+function playerRaise(){
+  if(state.players[state.toAct].id !== 'me') { log('不是你的回合'); return; }
+  const amt = Number(el('betInput').value) || state.minRaise;
+  const me = state.players[1];
+  if(amt <= state.currentBet) { el('info').textContent='加注必须大于当前注'; return; }
+  const pay = Math.min(amt, me.chips);
+  me.chips -= pay; state.pot += pay; state.currentBet = pay;
+  log('你 加注 ' + pay);
+  nextToAct();
+}
+function playerFold(){
+  if(state.players[state.toAct].id !== 'me') { log('不是你的回合'); return; }
+  state.players[1].folded = true;
+  log('你 弃牌');
+  endHand();
+}
+
+// advance turn or stage
+function nextToAct(){
+  state.toAct = (state.toAct + 1) % state.players.length;
+  render();
+  // check if everyone acted -> move stage
+  // For simplicity: after both acted once per stage, we move progress. We'll track a simple counter:
+  if(state.toAct === 0){
+    // both acted -> advance stage
+    setTimeout(()=> advanceStage(), 400);
+  } else {
+    // AI turn
+    setTimeout(()=> aiAct(), 500);
+  }
+}
+
+// AI decision-making: use equity to decide check/call/raise/fold
+async function aiAct(){
+  const ai = state.players[0], me = state.players[1];
+  if(ai.folded || ai.allin) { nextToAct(); return; }
+  el('info').textContent = 'AI 思考中...';
+  // estimate equity for AI
+  const equity = estimateEquity(ai.hand, state.community, 600);
+  el('aiEval').textContent = 'AI 胜率估算: ' + Math.round(equity*100) + '%';
+  // decision thresholds depend on strength
+  let raiseThresh = 0.60, callThresh = 0.40;
+  if(state.aiStrength===1){ raiseThresh = 0.68; callThresh = 0.35; }
+  else if(state.aiStrength===3){ raiseThresh = 0.52; callThresh = 0.28; }
+  // If preflop, be slightly more conservative
+  if(state.stage==='preflop'){ raiseThresh += 0.08; callThresh += 0.05; }
+
+  // AI logic:
+  const rnd = Math.random();
+  const toCall = state.currentBet;
+  if(equity > raiseThresh && ai.chips>0 && rnd<0.9){
+    // raise
+    const raiseAmt = Math.min(ai.chips, Math.max(state.minRaise, Math.round(state.currentBet * (1 + equity))));
+    const pay = Math.min(raiseAmt, ai.chips);
+    ai.chips -= pay; state.pot += pay; state.currentBet = pay;
+    log(`AI 加注 ${pay}（估算胜率 ${Math.round(equity*100)}%）`);
+  } else if(equity > callThresh || rnd < 0.12){
+    // call or check
+    const pay = Math.min(toCall, ai.chips);
+    ai.chips -= pay; state.pot += pay;
+    log(`AI 跟注 ${pay}（估算胜率 ${Math.round(equity*100)}%）`);
+  } else {
+    // fold
+    ai.folded = true;
+    log(`AI 弃牌（估算胜率 ${Math.round(equity*100)}%）`);
+    endHand();
+    return;
+  }
+  // continue
+  nextToAct();
+}
+
+function advanceStage(){
+  if(state.stage==='preflop'){ // deal flop
+    state.community.push(state.deck.pop(), state.deck.pop(), state.deck.pop());
+    state.stage='flop';
+    state.currentBet = 0;
+    log('翻牌: ' + state.community.map(cardText).join(' '));
+    state.toAct = 0; render(); setTimeout(()=> aiAct(), 400);
+  } else if(state.stage==='flop'){
+    state.community.push(state.deck.pop()); state.stage='turn';
+    state.currentBet = 0;
+    log('转牌: ' + cardText(state.community[state.community.length-1]));
+    state.toAct = 0; render(); setTimeout(()=> aiAct(), 400);
+  } else if(state.stage==='turn'){
+    state.community.push(state.deck.pop()); state.stage='river';
+    state.currentBet = 0;
+    log('河牌: ' + cardText(state.community[state.community.length-1]));
+    state.toAct = 0; render(); setTimeout(()=> aiAct(), 400);
+  } else if(state.stage==='river'){
+    state.stage='showdown';
+    log('到摊牌阶段');
+    showdown();
+  }
+}
+
+// showdown: evaluate remaining players
+function showdown(){
+  const active = state.players.filter(p=>!p.folded);
+  if(active.length===1){
+    // the other wins
+    const winner = active[0];
+    winner.chips += state.pot;
+    log(`${winner.name} 赢得底池 ${state.pot}`);
+    state.pot = 0;
+    render();
+    return;
+  }
+  // evaluate both
+  const p0 = state.players[0], p1 = state.players[1];
+  const best0 = bestHandFrom7(p0.hand.concat(state.community)).score;
+  const best1 = bestHandFrom7(p1.hand.concat(state.community)).score;
+  const cmp = cmpScore(best0, best1);
+  // reveal all cards (force show)
+  renderCards('aiCards', p0.hand, false);
+  if(cmp>0){ p0.chips += state.pot; log(`AI 获胜，底池 ${state.pot}`); }
+  else if(cmp<0){ p1.chips += state.pot; log(`你 获胜，底池 ${state.pot}`); }
+  else { p0.chips += Math.floor(state.pot/2); p1.chips += Math.ceil(state.pot/2); log('平局，底池均分'); }
+  state.pot=0; render();
+}
+
+// end hand after fold or showdown
+function endHand(){
+  state.stage='waiting'; render();
+  el('info').textContent = '本局结束，点击 新局 开始下一局。';
+}
+
+// ------- UI events -------
+el('newBtn').addEventListener('click', ()=> {
+  // reset if first; else start new hand
+  if(state.stage !== 'waiting') resetTable();
+  startHand();
+});
+el('checkBtn').addEventListener('click', playerCheck);
+el('callBtn').addEventListener('click', playerCall);
+el('raiseBtn').addEventListener('click', playerRaise);
+el('foldBtn').addEventListener('click', playerFold);
+el('autoBtn').addEventListener('click', ()=>{
+  state.aiStrength = state.aiStrength % 3 + 1;
+  const labels = {1:'弱',2:'中',3:'强'};
+  el('autoBtn').textContent = 'AI 强度: ' + labels[state.aiStrength];
+});
+
+// init
+resetTable();
+render();
+
+/* Notes:
+ - 本页面实现了较完整的 1v1 游戏体验，AI 使用蒙特卡洛估算（iteration 控制在 600 次，运行速度受浏览器影响）。
+ - 边池与多玩家 all-in 的复杂情况未做完全实现（可进一步扩展）。
+ - 若希望多人在线，请告诉我你要用的后端（Node.js + socket.io），我可以把服务器 + 客户端版本一起生成并给出部署步骤。
+*/
 </script>
 </body>
 </html>
