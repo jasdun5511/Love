@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="zh">
+<!DOCTYPE html><html lang="zh">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -30,18 +29,12 @@
   </style>
 </head>
 <body>
-  <h1>地形生态系统地形信息面板</h1>
-
-  <div id="biome-list"></div>
-
-  <div id="info-panel">
+  <h1>地形生态系统地形信息面板</h1>  <div id="biome-list"></div>  <div id="info-panel">
     <h2 id="biome-name">请选择一个地形</h2>
     <div class="section"><span class="label">友好生物：</span><span id="friendly"></span></div>
     <div class="section"><span class="label">敌对生物：</span><span id="hostile"></span>（点击敌对生物进入战斗）</div>
     <div class="section"><span class="label">矿物自然资源：</span><span id="resources"></span></div>
-  </div>
-
-<script>
+  </div><script>
 const biomes = {
   "森林": {
     friendly: ["鹿", "兔子", "蜂群"],
@@ -112,10 +105,7 @@ function loadBiome(name) {
   document.getElementById("hostile").textContent = b.hostile.join("、");
   document.getElementById("resources").textContent = b.resources.join("、");
 }
-</script>
-
-  <!-- Battle System -->
-  <div id="battle-panel" style="display:none; margin:20px auto; width:min(600px,90%); background:#300; padding:20px; border-radius:12px; border:1px solid #a33;">
+</script>  <!-- Battle System -->  <div id="battle-panel" style="display:none; margin:20px auto; width:min(600px,90%); background:#300; padding:20px; border-radius:12px; border:1px solid #a33;">
     <h2>⚔ 战斗中</h2>
     <div class="section"><span class="label">你的生命：</span><span id="player-hp"></span></div>
     <div class="section"><span class="label">敌人生命：</span><span id="enemy-hp"></span></div>
@@ -123,9 +113,7 @@ function loadBiome(name) {
     <br>
     <button onclick="attack()">攻击</button>
     <button onclick="tryEscape()">逃跑</button>
-  </div>
-
-<script>
+  </div><script>
 let playerHP = 100;
 let enemyHP = 0;
 let escapeRate = 0;
@@ -184,7 +172,5 @@ function tryEscape() {
   }
   updateBattleUI();
 }
-</script>
-
-</body>
+</script></body>
 </html>
