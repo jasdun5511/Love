@@ -1,0 +1,117 @@
+body {
+    margin: 0;
+    overflow: hidden; /* 防止滚动条出现 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #333;
+    font-family: monospace;
+}
+
+#game-container {
+    position: relative;
+    width: 800px; /* 游戏区域宽度 */
+    height: 600px; /* 游戏区域高度 */
+    border: 2px solid #555;
+    overflow: hidden; /* 确保方块和生物不会超出边界 */
+    background-color: #77aaff; /* 默认天空颜色 */
+}
+
+#sky {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, #87CEEB, #B0E0E6); /* 白天天空 */
+    transition: background-color 5s linear, background 5s linear; /* 昼夜过渡动画 */
+    z-index: 0; /* 确保在最底层 */
+}
+
+#world {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: grid;
+    /* grid-template-columns 会在JS中设置 */
+    z-index: 1; /* 在天空之上 */
+}
+
+.tile {
+    width: 40px; /* 方块大小 */
+    height: 40px;
+    box-sizing: border-box; /* 包含padding和border在内 */
+    position: relative; /* 用于生物定位 */
+}
+
+/* 地形方块样式 */
+.tile.grass {
+    background-color: #7CFC00; /* 草地 */
+    border: 1px solid #5C9F00;
+}
+.tile.dirt {
+    background-color: #8B4513; /* 泥土 */
+    border: 1px solid #6F360E;
+}
+.tile.stone {
+    background-color: #808080; /* 石头 */
+    border: 1px solid #606060;
+}
+.tile.tree {
+    background-color: #228B22; /* 树叶 */
+    border: 1px solid #1A6B1A;
+}
+.tile.tree::before { /* 树干 */
+    content: '';
+    position: absolute;
+    width: 50%;
+    height: 50%;
+    background-color: #A0522D;
+    top: 50%;
+    left: 25%;
+    transform: translateY(-50%);
+    z-index: 2;
+}
+
+/* 玩家和生物样式 */
+#player {
+    position: absolute;
+    width: 36px; /* 略小于方块 */
+    height: 36px;
+    background-color: #FFD700; /* 金色小方块代表玩家 */
+    border: 2px solid #FFA500;
+    z-index: 3; /* 在地形和生物之上 */
+    transition: left 0.1s linear, top 0.1s linear; /* 平滑移动 */
+}
+
+.mob {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%; /* 圆形生物 */
+    background-color: #FFFFFF; /* 默认白色 */
+    border: 2px solid #CCCCCC;
+    z-index: 2; /* 在地形之上，在玩家之下 */
+    transition: left 0.1s linear, top 0.1s linear;
+}
+
+.mob.sheep {
+    background-color: #E0E0E0; /* 绵羊 */
+    border-color: #C0C0C0;
+}
+.mob.pig {
+    background-color: #FFC0CB; /* 猪 */
+    border-color: #FF69B4;
+}
+
+#time-display {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 5px 10px;
+    border-radius: 5px;
+    z-index: 10;
+}
