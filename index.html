@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文字方块生存 (迷雾探索版)</title>
+    <title>文字方块生存 (核心交互版)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -16,21 +16,33 @@
             </div>
             <div class="status-row">
                 <span>📍 坐标: [<span id="coord-x">0</span>, <span id="coord-y">0</span>]</span>
-                <span>🏞️ 地形: <b id="biome">未知</b></span>
                 <span>🕒 时间: <b id="time">白天</b></span>
             </div>
         </header>
 
         <main class="main-display">
-            <div class="map-container" onclick="toggleMapSize()">
-                <div class="map-header">🗺️ 小地图 (点击放大)</div>
-                <div class="map-window" id="map-window">
-                    <div id="grid-map" class="grid-map"></div>
+            <div class="map-window">
+                <div id="grid-map" class="grid-map"></div>
+            </div>
+
+            <div class="current-location">
+                <h2 id="current-biome">🏞️ 正在探索: 未知之地</h2>
+                
+                <div class="info-block">
+                    <h4>🛠️ 可采集资源:</h4>
+                    <div id="action-resources" class="action-buttons">
+                        </div>
+                </div>
+
+                <div class="info-block">
+                    <h4>⚔️ 附近生物:</h4>
+                    <div id="action-mobs" class="action-buttons">
+                        </div>
                 </div>
             </div>
-            
+
             <div class="log-window" id="game-log">
-                <p>> 欢迎来到方块世界！迷雾笼罩着大地...</p>
+                <p>> 欢迎来到核心交互世界！</p>
             </div>
         </main>
 
@@ -46,7 +58,7 @@
                     <button onclick="move(0, -1)">⬆️ 北</button>
                     <div></div>
                     <button onclick="move(-1, 0)">⬅️ 西</button>
-                    <button onclick="action()">⛏️ 探索/采集</button>
+                    <div class="center-spacer"></div>
                     <button onclick="move(1, 0)">东 ➡️</button>
                     <div></div>
                     <button onclick="move(0, 1)">⬇️ 南</button>
@@ -56,23 +68,33 @@
         </section>
     </div>
 
-    <div id="biome-modal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modal-title">地形名称</h2>
-                <span class="close-btn" onclick="closeModal()">&times;</span>
+    <div id="battle-ui" class="modal hidden">
+        <div class="modal-content battle-content">
+            <h2 class="battle-title">⚔️ 战斗中！</h2>
+            
+            <div class="combatant-status">
+                <div class="player-combat">
+                    <h3>玩家</h3>
+                    <div class="health-bar-container">
+                        <div id="player-battle-hp" class="health-bar" style="width: 100%;"></div>
+                    </div>
+                    <span id="player-hp-text">100/100</span>
+                </div>
+                <div class="enemy-combat">
+                    <h3 id="enemy-name">敌人</h3>
+                    <div class="health-bar-container">
+                        <div id="enemy-battle-hp" class="health-bar" style="width: 100%;"></div>
+                    </div>
+                    <span id="enemy-hp-text">100/100</span>
+                </div>
             </div>
-            <div class="modal-body">
-                <p><b>📍 当前坐标:</b> <span id="modal-coords"></span></p>
-                <div class="info-section">
-                    <h4>🌿 潜在资源:</h4>
-                    <div id="modal-resources" class="tag-container"></div>
+
+            <div class="battle-log" id="battle-log">
                 </div>
-                <div class="info-section">
-                    <h4>👾 潜在威胁:</h4>
-                    <div id="modal-mobs" class="tag-container"></div>
-                </div>
-                <button class="confirm-btn" onclick="closeModal()">我知道了</button>
+
+            <div class="battle-actions">
+                <button onclick="playerAttack()">攻击</button>
+                <button onclick="runAway()">逃跑</button>
             </div>
         </div>
     </div>
