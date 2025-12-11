@@ -127,14 +127,12 @@
   }
 
   function tileLabel(tileType,tile){
-    if(tileType==='player') return '我';
-    if(tileType==='grass') return '草';
-    if(tileType==='desert') return '沙';
-    if(tileType==='mountain') return '山';
-    if(tileType==='water') return '水';
-    if(tileType==='wall') return '';
-    return '';
-  }
+  if(tileType==='player') return '我';
+  const map={
+    forest:'森林', plains:'平原', desert:'沙漠', taiga:'针叶', swamp:'沼泽', snow:'雪地', mountain:'山地', beach:'沙滩', ocean:'海洋'
+  };
+  return map[tileType]||'';
+}
 
   function move(dx,dy){
     const nx = state.player.x+dx, ny = state.player.y+dy;
