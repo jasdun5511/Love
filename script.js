@@ -1,91 +1,84 @@
-// --- 游戏配置 (沿用上一个版本，略作简化) ---
+// --- 游戏配置 (增加怪物数据) ---
 const BIOMES = {
-    PLAINS: { name: "广阔草原", color: "biome-plains", resources: [{name: "杂草", type: 'plant'}, {name: "种子", type: 'plant'}], mobs: [{name: "野牛", hp: 20, atk: 5}, {name: "史莱姆", hp: 15, atk: 3}] },
-    FOREST: { name: "幽暗森林", color: "biome-forest", resources: [{name: "橡木", type: 'wood'}, {name: "树枝", type: 'wood'}], mobs: [{name: "森林狼", hp: 30, atk: 8}, {name: "僵尸", hp: 25, atk: 6}] },
-    MOUNTAIN: { name: "险峻高山", color: "biome-mountain", resources: [{name: "石块", type: 'stone'}, {name: "铁矿石", type: 'ore'}], mobs: [{name: "山地骷髅", hp: 40, atk: 10}] }
-    // ... 其他地形数据
+    PLAINS: { name: "广阔草原", color: "biome-plains", resources: ["杂草", "种子", "泥土块"], mobs: ["野牛", "史莱姆"], mobStats: { 野牛: {hp: 15, dmg: 4}, 史莱姆: {hp: 8, dmg: 2} } },
+    FOREST: { name: "幽暗森林", color: "biome-forest", resources: ["橡木", "树枝", "苹果"], mobs: ["森林狼", "僵尸"], mobStats: { 森林狼: {hp: 20, dmg: 6}, 僵尸: {hp: 10, dmg: 3} } },
+    DESERT: { name: "灼热沙漠", color: "biome-desert", resources: ["仙人掌", "沙子", "枯灌木"], mobs: ["沙虫", "尸壳"], mobStats: { 沙虫: {hp: 25, dmg: 8}, 尸壳: {hp: 12, dmg: 4} } },
+    MOUNTAIN: { name: "险峻高山", color: "biome-mountain", resources: ["石块", "铁矿石", "煤炭"], mobs: ["山地骷髅", "巨鹰"], mobStats: { 山地骷髅: {hp: 30, dmg: 10}, 巨鹰: {hp: 18, dmg: 5} } }
 };
 
+// 玩家基础攻击力 (简单化)
+const PLAYER_BASE_DMG = 5;
+
 // --- 游戏状态 ---
-let player = { x: 50, y: 50, hp: 100, maxHp: 100, atk: 10, hunger: 100, inventory: {} };
-let gameTime = 0; 
+let player = { x: 50, y: 50, hp: 100, hunger: 100, inventory: {} };
+let gameTime = 0;
 let worldMap = {}; 
-let isMapEnlarged = false; // 保持地图缩放状态变量
+let isMapEnlarged = false;
+let lastBiomeType = null;
+let currentEnemy = null; // 新增：当前遭遇的怪物对象 {name: '...', hp: 20, dmg: 5}
+let inCombat = false; // 新增：是否处于战斗状态
 
-// **关键：战斗状态**
-let isFighting = false;
-let currentEnemy = null; 
-
-// --- 初始化 ---
+// --- 核心初始化 ---
 function initGame() {
     revealSurroundings(player.x, player.y);
-    log(`你醒来了，位于 ${BIOMES[getTile(player.x, player.y).type].name}。`);
+    updateBiomePanel(player.x, player.y); // 初始加载地形信息面板
     updateUI();
 }
 
-// --- 移动与探索 (保持不变) ---
-function getTile(x, y) {
-    const key = `${x},${y}`;
-    if (worldMap[key]) return worldMap[key];
-    
-    // 伪随机地形生成逻辑
-    const types = Object.keys(BIOMES);
-    const hash = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
-    const typeIndex = Math.floor((Math.abs(hash) % 1) * types.length);
-    
-    worldMap[key] = { type: types[typeIndex], explored: false };
-    return worldMap[key];
-}
-
-function revealSurroundings(x, y) {
-    // 中心点和东南西北揭示逻辑
-    const tiles = [getTile(x, y), getTile(x+1, y), getTile(x-1, y), getTile(x, y+1), getTile(x, y-1)];
-    tiles.forEach(t => t.explored = true);
-}
+// ----------------------------------------------------
+// --- 地形与移动逻辑 (大部分保留) ---
+// ----------------------------------------------------
 
 function move(dx, dy) {
-    if (player.hp <= 0 || isFighting) {
-        log("请先处理当前状态！");
-        return;
-    }
+    if (player.hp <= 0 || inCombat) return; 
 
     player.x += dx;
     player.y += dy;
     player.hunger = Math.max(0, player.hunger - 1);
-    
-    if (player.hunger === 0) player.hp -= 2;
+
+    if (player.hunger === 0) {
+        player.hp -= 2;
+        log("你饿得生命值下降！");
+    }
 
     passTime();
     revealSurroundings(player.x, player.y);
-    log(`你移动到了 ${BIOMES[getTile(player.x, player.y).type].name}。`);
-    
+    updateBiomePanel(player.x, player.y); // 移动后更新地形信息面板
     updateUI();
 }
 
-function passTime() {
-    gameTime = (gameTime + 1) % 24;
+// **新增：常驻地形信息面板更新**
+function updateBiomePanel(x, y) {
+    const currentTile = getTile(x, y);
+    const data = BIOMES[currentTile.type];
+    
+    document.getElementById('panel-title').innerText = data.name;
+    
+    const resContainer = document.getElementById('panel-resources');
+    resContainer.innerHTML = data.resources.map(r => `<span>${r}</span>`).join('');
+    
+    const mobContainer = document.getElementById('panel-mobs');
+    mobContainer.innerHTML = data.mobs.map(m => `<span>${m}</span>`).join('');
 }
 
-// --- 采集/战斗交互逻辑 ---
 
-// **关键：采集资源**
-function gatherResource(resourceName) {
-    if (isFighting) return;
-    
+// ----------------------------------------------------
+// --- 交互动作 (采集/搜索/战斗) ---
+// ----------------------------------------------------
+
+// **新增：采集动作**
+function gatherAction() {
+    if (inCombat) return;
+
     const tile = getTile(player.x, player.y);
     const biomeData = BIOMES[tile.type];
     
-    // 简单检查资源是否匹配当前地形
-    if (!biomeData.resources.find(r => r.name === resourceName)) {
-        log(`在 ${biomeData.name} 无法采集 ${resourceName}。`);
-        return;
-    }
-
-    if (Math.random() > 0.4) {
-        addItem(resourceName, 1);
-        log(`⛏️ 采集成功！获得了 [${resourceName}] x1`);
+    if (Math.random() > 0.5) {
+        const item = biomeData.resources[Math.floor(Math.random() * biomeData.resources.length)];
+        addItem(item, 1);
+        log(`🌳 采集获得: [${item}] +1`);
     } else {
-        log("你努力采集，但一无所获。");
+        log("你四处搜寻，但一无所获。");
     }
     
     player.hunger = Math.max(0, player.hunger - 2);
@@ -93,154 +86,142 @@ function gatherResource(resourceName) {
     updateUI();
 }
 
-// **关键：进入战斗**
-function initiateCombat(mobName) {
-    if (isFighting) return;
+// **新增：搜索/攻击动作 (进入战斗)**
+function searchAction() {
+    if (inCombat) return;
     
     const tile = getTile(player.x, player.y);
-    const mobData = BIOMES[tile.type].mobs.find(m => m.name === mobName);
-    
-    if (!mobData) {
-        log("没有找到目标生物。");
-        return;
+    const biomeData = BIOMES[tile.type];
+
+    // 随机遭遇生物
+    if (Math.random() > 0.4) {
+        const mobName = biomeData.mobs[Math.floor(Math.random() * biomeData.mobs.length)];
+        const stats = biomeData.mobStats[mobName];
+
+        currentEnemy = {
+            name: mobName,
+            hp: stats.hp,
+            dmg: stats.dmg
+        };
+        
+        enterCombat();
+    } else {
+        log("⚔️ 你仔细搜索了周围，没有发现任何生物。");
+        player.hunger = Math.max(0, player.hunger - 1);
+        passTime();
+        updateUI();
     }
-
-    isFighting = true;
-    currentEnemy = {...mobData, hp: mobData.hp}; // 创建怪物实例
-    log(`⚔️ 你遭遇了 [${mobName}]，进入战斗！`);
-    
-    document.getElementById('battle-ui').classList.remove('hidden');
-    updateBattleUI();
 }
 
-// --- 战斗系统逻辑 ---
+// **新增：进入战斗UI**
+function enterCombat() {
+    inCombat = true;
+    document.getElementById('main-game-container').classList.add('hidden');
+    document.getElementById('combat-ui').classList.remove('hidden');
 
-function updateBattleUI() {
-    const pHP = player.hp;
-    const pMaxHP = player.maxHp;
-    const eHP = currentEnemy.hp;
-    const eMaxHP = currentEnemy.maxHp || currentEnemy.hp; // 初始血量即为Max
-
-    // 玩家状态
-    document.getElementById('player-hp-text').innerText = `${pHP}/${pMaxHP}`;
-    document.getElementById('player-battle-hp').style.width = `${(pHP / pMaxHP) * 100}%`;
-
-    // 敌人状态
-    document.getElementById('enemy-name').innerText = currentEnemy.name;
-    document.getElementById('enemy-hp-text').innerText = `${eHP}/${eMaxHP}`;
-    document.getElementById('enemy-battle-hp').style.width = `${(eHP / eMaxHP) * 100}%`;
+    combatLog(`你遭遇了可怕的 ${currentEnemy.name}! 战斗开始!`);
+    updateCombatUI();
 }
 
-function battleLog(msg) {
-    const logEl = document.getElementById('battle-log');
-    const p = document.createElement('p');
-    p.innerText = msg;
-    logEl.prepend(p);
+// **新增：退出战斗UI**
+function exitCombat() {
+    inCombat = false;
+    currentEnemy = null;
+    document.getElementById('main-game-container').classList.remove('hidden');
+    document.getElementById('combat-ui').classList.add('hidden');
+    updateUI(); // 确保主界面状态刷新
 }
 
-// 玩家回合
+// **新增：玩家攻击逻辑**
 function playerAttack() {
-    if (!isFighting) return;
+    if (!inCombat) return;
 
-    // 玩家攻击
-    const dmg = player.atk + Math.floor(Math.random() * 5);
-    currentEnemy.hp -= dmg;
-    battleLog(`> 你对 ${currentEnemy.name} 造成了 ${dmg} 点伤害！`);
+    // 玩家伤害计算 (简单随机)
+    const playerDmg = PLAYER_BASE_DMG + Math.floor(Math.random() * 5);
+    currentEnemy.hp -= playerDmg;
+    combatLog(`你攻击了 ${currentEnemy.name}，造成了 ${playerDmg} 点伤害。`);
 
     if (currentEnemy.hp <= 0) {
-        endCombat(true); // 胜利
+        combatLog(`🎉 恭喜你，击败了 ${currentEnemy.name}!`);
+        log(`你击败了 ${currentEnemy.name}，获得了经验！`);
+        // 战利品/经验逻辑可以加在这里
+        exitCombat();
         return;
     }
 
-    // 敌方反击 (延迟模拟回合制)
-    setTimeout(enemyAttack, 1000);
-    updateBattleUI();
+    // 怪物反击
+    setTimeout(enemyAttack, 1000); // 延迟反击，让玩家看清伤害
+    updateCombatUI();
 }
 
-// 敌人回合
+// **新增：怪物攻击逻辑**
 function enemyAttack() {
-    if (!isFighting) return;
-    
-    const dmg = currentEnemy.atk + Math.floor(Math.random() * 3);
-    player.hp -= dmg;
-    battleLog(`> ${currentEnemy.name} 反击，你损失了 ${dmg} 点生命！`);
+    if (!inCombat) return;
+
+    const enemyDmg = currentEnemy.dmg + Math.floor(Math.random() * 3);
+    player.hp -= enemyDmg;
+    combatLog(`${currentEnemy.name} 反击，对你造成了 ${enemyDmg} 点伤害。`);
 
     if (player.hp <= 0) {
-        endCombat(false); // 失败
+        combatLog(`☠️ 你被 ${currentEnemy.name} 击败了... 游戏结束!`);
+        log(`☠️ 你死了。`);
+        exitCombat();
         return;
     }
-    updateBattleUI();
+    updateCombatUI();
 }
 
-// 逃跑
+// **新增：逃跑逻辑**
 function runAway() {
-    if (Math.random() > 0.5) {
-        battleLog("🏃 逃跑成功！");
-        log(`你成功逃离了 ${currentEnemy.name} 的战斗。`);
-        endCombat(false, true);
-    } else {
-        battleLog("❌ 逃跑失败！敌人立刻进行了反击。");
-        enemyAttack(); // 逃跑失败，敌人立即攻击
-    }
-}
-
-// 结束战斗
-function endCombat(isWin, isRun = false) {
-    document.getElementById('battle-ui').classList.add('hidden');
-    isFighting = false;
+    if (!inCombat) return;
     
-    if (player.hp <= 0) {
-        log("☠️ 你的生命值归零了！游戏结束。");
-        updateUI();
-        return;
+    if (Math.random() > 0.5) {
+        combatLog("你成功逃离了战斗!");
+        log("你成功逃跑了。");
+        exitCombat();
+    } else {
+        combatLog("逃跑失败! 怪物发起攻击!");
+        enemyAttack(); // 失败则被攻击一次
     }
-
-    if (isWin) {
-        log(`🎉 恭喜！你击败了 ${currentEnemy.name}，获得了经验！`);
-        // 战斗胜利奖励
-        addItem("肉", 1);
-    } else if (!isRun) {
-        log(`你从 ${currentEnemy.name} 的战斗中撤退了。`);
-    }
-
-    currentEnemy = null;
-    updateUI();
 }
 
+// **新增：战斗日志**
+function combatLog(msg) {
+    const logEl = document.getElementById('combat-log');
+    const p = document.createElement('p');
+    p.innerText = `> ${msg}`;
+    logEl.appendChild(p);
+    // 自动滚到底部
+    logEl.scrollTop = logEl.scrollHeight;
+}
 
-// --- UI 渲染 ---
+// **新增：更新战斗UI**
+function updateCombatUI() {
+    document.getElementById('combat-player-hp').innerText = Math.max(0, player.hp);
+    document.getElementById('combat-enemy-name').innerText = currentEnemy.name;
+    document.getElementById('combat-enemy-hp').innerText = Math.max(0, currentEnemy.hp);
+}
+
+// ----------------------------------------------------
+// --- 主UI渲染 (更新整合) ---
+// ----------------------------------------------------
+
 function updateUI() {
-    // 状态栏更新 (保持不变)
+    // 状态更新
     document.getElementById('hp').innerText = player.hp;
     document.getElementById('hunger').innerText = player.hunger;
     document.getElementById('time').innerText = gameTime < 12 ? "白天" : "黑夜";
     document.getElementById('coord-x').innerText = player.x;
     document.getElementById('coord-y').innerText = player.y;
+    document.getElementById('biome').innerText = BIOMES[getTile(player.x, player.y).type].name;
 
-    const currentTile = getTile(player.x, player.y);
-    const biomeData = BIOMES[currentTile.type];
-    
-    // **关键：更新主画面地形信息**
-    document.getElementById('current-biome').innerText = `🏞️ 正在探索: ${biomeData.name}`;
-
-    // 资源按钮
-    const resButtons = biomeData.resources.map(r => 
-        `<button onclick="gatherResource('${r.name}')">采集 ${r.name}</button>`
-    ).join('');
-    document.getElementById('action-resources').innerHTML = resButtons;
-
-    // 怪物按钮 (随机显示 1-2 个怪物)
-    const mobButtons = biomeData.mobs
-        .slice(0, Math.min(2, biomeData.mobs.length)) // 最多显示2种
-        .map(m => 
-            `<button onclick="initiateCombat('${m.name}')">攻击 ${m.name}</button>`
-        ).join('');
-    document.getElementById('action-mobs').innerHTML = mobButtons || "（暂无明显威胁）";
-    
-    // 地图渲染 (保持迷雾和缩小的7x7视野)
+    // 地图渲染 (保持不变)
     const mapEl = document.getElementById('grid-map');
     mapEl.innerHTML = '';
-    const viewDistance = 3; 
+    const viewDistance = isMapEnlarged ? 6 : 3;
+    const gridSize = viewDistance * 2 + 1;
+    mapEl.style.gridTemplateColumns = `repeat(${gridSize}, 24px)`;
+    mapEl.style.gridTemplateRows = `repeat(${gridSize}, 24px)`;
 
     for (let y = player.y - viewDistance; y <= player.y + viewDistance; y++) {
         for (let x = player.x - viewDistance; x <= player.x + viewDistance; x++) {
@@ -251,7 +232,7 @@ function updateUI() {
                 cell.className = 'cell fog';
                 cell.innerText = '?';
             } else {
-                cell.className = `cell ${BIOMES[tile.type].color}`;
+                cell.className = `cell ${BIOMES[tile.type].color} explored`;
                 cell.innerText = BIOMES[tile.type].name[0];
                 
                 if (x === player.x && y === player.y) {
@@ -262,11 +243,12 @@ function updateUI() {
             mapEl.appendChild(cell);
         }
     }
-    
-    // 背包更新
+
+    // 背包更新 (保持不变)
     const invEl = document.getElementById('inv-list');
     invEl.innerHTML = Object.entries(player.inventory).map(([k,v]) => `<span>${k} x${v}</span>`).join('');
 }
+
 
 // 启动游戏
 initGame();
