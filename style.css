@@ -1,50 +1,42 @@
 :root {
     --bg-color: #f0f0f0;
     --text-color: #333;
-    --accent: #5d9e5a; /* MC草地绿 */
-    --night-bg: #2c3e50;
-    --night-text: #ecf0f1;
+    --modal-bg: rgba(0, 0, 0, 0.6);
 }
 
 body {
-    font-family: 'Courier New', Courier, monospace; /* 模拟像素感 */
+    font-family: 'Courier New', Courier, monospace;
     margin: 0;
     padding: 0;
     background-color: var(--bg-color);
     color: var(--text-color);
-    transition: background 1s, color 1s;
     display: flex;
     justify-content: center;
     height: 100vh;
-}
-
-/* 昼夜系统样式 */
-body.night {
-    background-color: var(--night-bg);
-    color: var(--night-text);
+    overflow: hidden; /* 防止滚动 */
 }
 
 .game-container {
     width: 100%;
-    max-width: 600px;
+    max-width: 450px; /* 稍微调窄一点适应手机 */
     display: flex;
     flex-direction: column;
     height: 100%;
-    border-left: 1px solid #ccc;
-    border-right: 1px solid #ccc;
-    background: rgba(255,255,255,0.1);
+    background: #fff;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }
 
 /* 状态栏 */
 .status-bar {
-    padding: 10px;
-    background: rgba(0,0,0,0.1);
-    border-bottom: 2px solid #888;
+    padding: 8px 12px;
+    background: #e9e9e9;
+    border-bottom: 2px solid #ccc;
+    font-size: 12px;
 }
 .status-row {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
 }
 
 /* 主显示区 */
@@ -54,102 +46,175 @@ body.night {
     display: flex;
     flex-direction: column;
     padding: 10px;
+    position: relative; /* 为放大地图做定位基准 */
 }
 
-/* 地图 */
+/* --- 地图样式增强 --- */
+.map-container {
+    cursor: pointer;
+    border: 2px solid #555;
+    margin-bottom: 10px;
+    background: #ccc;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+.map-header {
+    font-size: 12px;
+    text-align: center;
+    padding: 4px;
+    background: #bbb;
+    color: #333;
+}
 .map-window {
-    height: 200px; /* 截图中的上半部分 */
+    height: 160px; /* 默认高度 */
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #ccc;
-    border: 4px solid #555;
-    margin-bottom: 10px;
-    position: relative;
     overflow: hidden;
+    background: #000; /* 迷雾背景色 */
 }
 
+/* 地图放大样式 */
+.map-container.enlarged {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    height: 350px; /* 放大后的高度 */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.map-container.enlarged .map-window {
+    height: calc(100% - 22px); /* 减去header高度 */
+}
+
+/* 网格与单元格 */
 .grid-map {
     display: grid;
-    grid-template-columns: repeat(9, 30px); /* 9x9视野 */
-    grid-template-rows: repeat(9, 30px);
-    gap: 2px;
+    /* 默认 7x7 视野，放大后 JS 会修改这里 */
+    grid-template-columns: repeat(7, 24px);
+    grid-template-rows: repeat(7, 24px);
+    gap: 1px;
+    background: #000;
+    border: 1px solid #000;
 }
 
 .cell {
-    width: 30px;
-    height: 30px;
+    width: 24px;
+    height: 24px;
     font-size: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
     background: #fff;
-    color: #333;
+    color: transparent; /* 默认文字不可见 */
     cursor: default;
+    transition: background 0.2s;
+}
+
+/* 迷雾样式 */
+.cell.fog {
+    background-color: #111 !important; /* 黑色迷雾 */
+    color: transparent !important;
+}
+
+/* 已探索样式 */
+.cell.explored {
+    color: #333; /* 文字可见 */
+    opacity: 0.7; /* 比当前位置暗一点 */
 }
 
 .cell.player {
     border: 2px solid red;
     font-weight: bold;
-    z-index: 10;
+    opacity: 1;
+    z-index: 5;
+    color: #000;
 }
 
-/* 地形颜色 */
-.biome-plains { background: #7cfc00; } /* 草原 */
-.biome-forest { background: #228b22; color: white; } /* 森林 */
-.biome-desert { background: #f4a460; } /* 沙漠 */
-.biome-mountain { background: #808080; color: white; } /* 高山 */
-.biome-ocean { background: #1e90ff; color: white;} /* 海洋 */
+/* 地形颜色 (保持不变) */
+.biome-plains { background: #7cfc00; }
+.biome-forest { background: #228b22; color: white; }
+.biome-desert { background: #f4a460; }
+.biome-mountain { background: #808080; color: white; }
 
-/* 日志 */
+/* 日志与控制区 (微调) */
 .log-window {
     flex: 1;
-    border: 1px solid #999;
-    padding: 5px;
+    border: 1px solid #ccc;
+    padding: 8px;
     overflow-y: auto;
-    background: rgba(0,0,0,0.05);
-    font-size: 14px;
-    line-height: 1.4;
+    background: #f9f9f9;
+    font-size: 12px;
 }
-.log-window p { margin: 2px 0; border-bottom: 1px dashed #eee;}
-
-/* 底部操作区 */
 .interaction-area {
     padding: 10px;
-    background: rgba(0,0,0,0.05);
-    border-top: 2px solid #888;
-}
-
-.inventory {
-    margin-bottom: 10px;
+    background: #e9e9e9;
+    border-top: 2px solid #ccc;
 }
 .inv-grid span {
-    display: inline-block;
     padding: 2px 6px;
-    background: #ddd;
+    background: #fff;
+    border: 1px solid #ccc;
     margin: 2px;
-    border-radius: 4px;
-    color: #000;
+    font-size: 10px;
+}
+button {
+    padding: 8px 2px;
     font-size: 12px;
 }
 
-.controls {
+/* --- 弹窗样式 --- */
+.modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--modal-bg);
     display: flex;
     justify-content: center;
+    align-items: center;
+    z-index: 100;
+    opacity: 1;
+    transition: opacity 0.3s;
 }
-
-.d-pad {
-    display: grid;
-    grid-template-columns: 60px 100px 60px;
-    gap: 5px;
+.modal.hidden {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
 }
-
-button {
-    padding: 10px;
-    background: #ddd;
-    border: 2px solid #555;
-    cursor: pointer;
-    font-family: inherit;
-    font-weight: bold;
+.modal-content {
+    background: #fff;
+    width: 80%;
+    max-width: 320px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
-button:active { background: #bbb; }
+.modal-header {
+    background: #3498db;
+    color: white;
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.modal-header h2 { margin: 0; font-size: 16px; }
+.close-btn { cursor: pointer; font-size: 20px; }
+.modal-body { padding: 15px; font-size: 12px; }
+.info-section { margin-top: 10px; }
+.info-section h4 { margin: 5px 0; color: #555; }
+.tag-container span {
+    display: inline-block;
+    background: #eee;
+    padding: 2px 6px;
+    margin: 2px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+.confirm-btn {
+    width: 100%;
+    padding: 8px;
+    margin-top: 15px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+}
