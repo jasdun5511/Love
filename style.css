@@ -1,75 +1,121 @@
-/* ... (保留之前所有的 CSS 样式) ... */
-/* ---------------------------------- */
+/* --- 基础保持不变，新增以下样式 --- */
 
-/* 隐藏类 */
-.hidden { display: none !important; }
-
-/* 地形信息常驻面板样式 */
-.action-panel {
-    padding: 10px;
-    margin-bottom: 10px;
-    background: #f0f8ff; /* 浅蓝背景 */
-    border: 1px solid #cceeff;
-    border-radius: 4px;
-    font-size: 12px;
-}
-.action-panel h3 {
-    margin: 0 0 5px 0;
-    font-size: 14px;
-    color: #3498db;
-}
-
-/* ---------------------------------- */
-/* --- 战斗 UI 样式 --- */
-.combat-ui {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #2c3e50; /* 深色背景 */
-    color: white;
+/* 场景交互区：模仿截图中的卡片风格 */
+.scene-window {
+    flex: 1;
+    background: #fdfdfd;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
     display: flex;
     flex-direction: column;
-    padding: 20px;
-    font-family: 'Courier New', Courier, monospace;
-    z-index: 200;
+    overflow: hidden;
 }
+.scene-header {
+    background: #e0e0e0;
+    font-size: 12px;
+    padding: 4px 8px;
+    color: #555;
+    border-bottom: 1px solid #ccc;
+}
+.scene-grid {
+    padding: 10px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 一行3个 */
+    gap: 8px;
+    overflow-y: auto;
+}
+
+/* 资源/怪物卡片 */
+.scene-card {
+    background: #fff;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    padding: 10px 5px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+    transition: transform 0.1s;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.scene-card:active { transform: scale(0.95); background: #f0f0f0; }
+.scene-card.mob { border: 1px solid #e74c3c; color: #c0392b; background: #fff5f5; }
+.scene-card.resource { border: 1px solid #27ae60; color: #2e7d32; }
+.card-icon { font-size: 20px; margin-bottom: 4px; }
+.card-hp { font-size: 10px; color: #999; margin-top: 2px;}
+
+/* 迷你日志 */
+.mini-log {
+    height: 60px;
+    background: #222;
+    color: #eee;
+    font-size: 11px;
+    padding: 5px;
+    overflow-y: auto;
+    border-top: 2px solid #555;
+}
+.mini-log p { margin: 2px 0; border-bottom: 1px solid #333; }
+
+/* 底部背包预览 */
+.inv-preview {
+    grid-column: 1 / -1;
+    text-align: center;
+    font-size: 10px;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* --- 战斗 UI --- */
+.combat-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85); /* 深色背景 */
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.combat-overlay.hidden { display: none; }
+
+.combat-container {
+    width: 90%;
+    max-width: 350px;
+    background: #2c3e50;
+    color: white;
+    border: 2px solid #e74c3c;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.combat-title { color: #e74c3c; margin: 0 0 20px 0; border-bottom: 1px solid #e74c3c; width: 100%; text-align: center; padding-bottom: 10px;}
+
+.fighter-zone { width: 100%; text-align: center; margin-bottom: 20px; }
+.mob-avatar { font-size: 60px; animation: bounce 2s infinite; }
+.hp-bar-bg { width: 100%; height: 10px; background: #555; border-radius: 5px; margin: 5px 0; overflow: hidden;}
+.hp-bar-fill { height: 100%; background: #e74c3c; transition: width 0.3s; }
 
 .combat-log {
-    flex-grow: 1;
+    width: 100%;
+    height: 100px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid #555;
+    margin-bottom: 15px;
     overflow-y: auto;
-    border: 2px solid #e74c3c;
-    padding: 10px;
-    background: rgba(0, 0, 0, 0.4);
-    margin-bottom: 15px;
-    font-size: 14px;
+    font-size: 12px;
+    padding: 5px;
+    text-align: left;
 }
-.combat-log h2 { text-align: center; color: #f39c12; }
-.combat-log p { margin: 5px 0; }
 
-.combat-stats {
-    display: flex;
-    justify-content: space-around;
-    padding: 10px 0;
-    border-top: 1px dashed #7f8c8d;
-    border-bottom: 1px dashed #7f8c8d;
-    margin-bottom: 15px;
-    text-align: center;
-}
-.combat-stats h3 { margin: 5px 0; font-size: 16px; }
+.combat-actions { display: flex; gap: 10px; width: 100%; }
+.combat-actions button { flex: 1; padding: 12px 0; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+.btn-attack { background: #c0392b; color: white; }
+.btn-defend { background: #f39c12; color: white; }
+.btn-escape { background: #95a5a6; color: white; }
 
-.combat-actions {
-    display: flex;
-    justify-content: space-around;
-}
-.combat-actions button {
-    padding: 15px 20px;
-    font-size: 16px;
-    width: 45%;
-    border: none;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-.combat-actions button:first-child { background: #e74c3c; color: white; } /* 攻击 */
-.combat-actions button:last-child { background: #f1c40f; color: #333; } /* 逃跑 */
+@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
