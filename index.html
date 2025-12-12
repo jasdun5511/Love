@@ -12,7 +12,7 @@
         <header class="top-bar">
             <div class="loc-info">
                 <span>孤岛: <b id="loc-name">戈壁</b> [<span id="coord">11,3</span>]</span>
-                <span class="mini-map-btn">小地图</span>
+                <span class="mini-map-btn" onclick="openMap()">小地图</span>
             </div>
             <div class="time-info">1000年03月01日 <span id="clock-time">08:00</span></div>
             
@@ -53,21 +53,20 @@
         <div class="log-area" id="game-log">
             <p>引导任务[查看地图]已完成</p>
             <p>当前难度：扩展难度</p>
-            <p>系统里有安全退出按钮...</p>
         </div>
 
         <div class="control-panel">
             <div class="d-pad-map">
                 <div class="d-cell empty"></div>
-                <div class="d-cell dir-btn" id="dir-n" onclick="move(0, -1)">山脉</div>
+                <div class="d-cell dir-btn" id="dir-n" onclick="move(0, -1)">北</div>
                 <div class="d-cell empty"></div>
                 
-                <div class="d-cell dir-btn" id="dir-w" onclick="move(-1, 0)">戈壁</div>
-                <div class="d-cell current-loc" id="dir-c">戈壁</div>
-                <div class="d-cell dir-btn" id="dir-e" onclick="move(1, 0)">草原</div>
+                <div class="d-cell dir-btn" id="dir-w" onclick="move(-1, 0)">西</div>
+                <div class="d-cell current-loc" id="dir-c">中</div>
+                <div class="d-cell dir-btn" id="dir-e" onclick="move(1, 0)">东</div>
                 
                 <div class="d-cell empty"></div>
-                <div class="d-cell dir-btn" id="dir-s" onclick="move(0, 1)">沙漠</div>
+                <div class="d-cell dir-btn" id="dir-s" onclick="move(0, 1)">南</div>
                 <div class="d-cell empty"></div>
             </div>
 
@@ -83,10 +82,23 @@
             <div class="nav-item">物品</div>
             <div class="nav-item">制作</div>
             <div class="nav-item active">任务</div>
-            <div class="nav-item">地图</div>
-            <div class="nav-item">藏宝图</div>
+            <div class="nav-item" onclick="openMap()">地图</div>
             <div class="nav-item">系统</div>
         </nav>
+    </div>
+
+    <div id="map-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                关闭地图
+            </div>
+            <div class="big-map-container">
+                <div id="big-grid" class="big-grid"></div>
+            </div>
+            <div class="modal-footer" onclick="closeMap()">
+                点击此处返回
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>
