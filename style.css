@@ -277,6 +277,12 @@ body {
 .map-cell.bg-RIVER { color: #3498db; } /* 蓝色文字 */
 .map-cell.bg-LAKE { color: #4a90e2; } /* 深蓝色文字 */
 .map-cell.bg-SWAMP { color: #8c8f43; } /* 橄榄绿文字 */
+/* --- 新增 Minecraft 地形文字颜色 --- */
+.map-cell.bg-SNOWY { color: #ADD8E6; } /* 浅蓝色文字 */
+.map-cell.bg-SWAMP { color: #556B2F; } /* 橄榄绿文字 */
+.map-cell.bg-OCEAN { color: #00008B; } /* 深蓝色文字 */
+.map-cell.bg-MESA { color: #A0522D; }  /* 土棕色文字 */
+
 
 /* 玩家位置调整 */
 .map-cell.player { 
