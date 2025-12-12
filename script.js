@@ -1,13 +1,81 @@
 // --- 配置 ---
 const BIOMES = {
-    PLAINS: { name: "草原", code: "bg-PLAINS", items: ["草丛", "野花", "兔子"] },
-    FOREST: { name: "森林", code: "bg-FOREST", items: ["树木", "浆果", "蘑菇", "森林狼"] },
-    DESERT: { name: "沙漠", code: "bg-DESERT", items: ["仙人掌", "枯木", "蝎子"] },
-    MOUNTAIN: { name: "山脉", code: "bg-MOUNTAIN", items: ["石块", "铁矿石", "山羊"] },
-    GOBI: { name: "戈壁", code: "bg-GOBI", items: ["石块", "沙硕", "巨蜥"] },
-    RIVER: { name: "河流", code: "bg-RIVER", items: ["水", "鱼", "芦苇"] }, // 新增
-    LAKE: { name: "湖泊", code: "bg-LAKE", items: ["清水", "水草"] }, // 新增
+    // 基础地形（已存在的）
+    PLAINS: { 
+        name: "草原", code: "bg-PLAINS", 
+        res: ["花", "草", "橡木"], 
+        mobs: [{name: "兔子", type: "Peaceful"}, {name: "牛", type: "Peaceful"}, {name: "僵尸", type: "Hostile"}] 
+    },
+    FOREST: { 
+        name: "森林", code: "bg-FOREST", 
+        res: ["橡木", "桦木", "浆果"], 
+        mobs: [{name: "狼", type: "Peaceful"}, {name: "蜘蛛", type: "Hostile"}, {name: "骷髅", type: "Hostile"}] 
+    },
+    DESERT: { 
+        name: "沙漠", code: "bg-DESERT", 
+        res: ["沙子", "仙人掌", "枯木"], 
+        mobs: [{name: "沙虫", type: "Hostile"}, {name: "僵尸", type: "Hostile"}] 
+    },
+    MOUNTAIN: { 
+        name: "山脉", code: "bg-MOUNTAIN", 
+        res: ["圆石", "煤矿石", "铁矿石"], 
+        mobs: [{name: "山羊", type: "Peaceful"}, {name: "爬行者", type: "Hostile"}] 
+    },
+    GOBI: { 
+        name: "戈壁", code: "bg-GOBI", 
+        res: ["泥土", "砾石", "石英"], 
+        mobs: [{name: "巨蜥", type: "Hostile"}, {name: "流浪者", type: "Hostile"}] 
+    },
+    
+    // Minecraft 新增地形
+    SNOWY: { 
+        name: "雪原", code: "bg-SNOWY", 
+        res: ["雪块", "云杉木", "冰块"], 
+        mobs: [{name: "北极熊", type: "Peaceful"}, {name: "雪傀儡", type: "Peaceful"}, {name: "流浪者", type: "Hostile"}] 
+    },
+    SWAMP: { 
+        name: "沼泽", code: "bg-SWAMP", 
+        res: ["粘土", "睡莲", "黑橡木"], 
+        mobs: [{name: "史莱姆", type: "Hostile"}, {name: "女巫", type: "Hostile"}] 
+    },
+    OCEAN: { 
+        name: "海洋", code: "bg-OCEAN", 
+        res: ["水", "海草", "粘土"], 
+        mobs: [{name: "海龟", type: "Peaceful"}, {name: "守卫者", type: "Hostile"}] 
+    },
+    MESA: { 
+        name: "黏土山", code: "bg-MESA", 
+        res: ["染色陶瓦", "红沙"], 
+        mobs: [{name: "羊", type: "Peaceful"}, {name: "骷髅", type: "Hostile"}] 
+    }
 };
+
+let exploredMap = {}; 
+let player = { x: 11, y: 3, hp: 100, hunger: 100, water: 100 };
+let currentSceneItems = []; 
+
+
+// --- 核心工具：地形生成 (getBiomeType 需要更新以包含新地形) ---
+function getBiomeType(x, y) {
+    // 简单的伪随机，保证固定坐标地形不变
+    const hash = Math.abs(Math.sin(x * 12.9898 + y * 4.1414)) * 1000;
+    
+    // 划分范围以包含所有 9 种地形
+    if (hash < 110) return "PLAINS";
+    if (hash < 220) return "FOREST";
+    if (hash < 330) return "GOBI";
+    if (hash < 440) return "MOUNTAIN";
+    if (hash < 550) return "DESERT";
+    if (hash < 660) return "SNOWY"; // 新增
+    if (hash < 770) return "SWAMP"; // 新增
+    if (hash < 880) return "OCEAN"; // 新增
+    return "MESA";                 // 新增 (剩余范围)
+}
+
+function getBiome(x, y) {
+    return getBiomeType(x, y);
+}
+
 
 // 新增：地图探索状态
 let exploredMap = {}; 
