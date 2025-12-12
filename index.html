@@ -3,89 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文字方块生存 (战斗版)</title>
+    <title>文字方块生存 (交互战斗版)</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body id="game-body">
+<body>
 
-    <div class="game-container" id="main-game-container">
-        
+    <div class="game-container" id="main-interface">
         <header class="status-bar">
             <div class="status-row">
-                <span>❤️ 生命: <b id="hp">100</b></span>
-                <span>🍗 饱食: <b id="hunger">100</b></span>
-            </div>
+                <span>❤️ <b id="hp">100</b></span>
+                <span>🍗 <b id="hunger">100</b></span>
+                <span>🛡️ <b id="def">0</b></span> </div>
             <div class="status-row">
-                <span>📍 坐标: [<span id="coord-x">0</span>, <span id="coord-y">0</span>]</span>
-                <span>🏞️ 地形: <b id="biome">未知</b></span>
-                <span>🕒 时间: <b id="time">白天</b></span>
+                <span>📍 [<span id="coord-x">0</span>, <span id="coord-y">0</span>]</span>
+                <span>🕒 <b id="time">白天</b></span>
             </div>
         </header>
 
         <main class="main-display">
             <div class="map-container" onclick="toggleMapSize()">
-                <div class="map-header">🗺️ 小地图 (点击放大)</div>
-                <div class="map-window" id="map-window">
+                <div class="map-header">🗺️ 当前位置: <b id="biome-name">--</b> (点击缩放)</div>
+                <div class="map-window">
                     <div id="grid-map" class="grid-map"></div>
                 </div>
             </div>
-            
-            <div class="action-panel" id="biome-info-panel">
-                <h3>📍 <span id="panel-title">当前地形信息</span></h3>
-                <div class="info-section">
-                    <h4>🌿 潜在资源:</h4>
-                    <div id="panel-resources" class="tag-container"></div>
-                </div>
-                <div class="info-section">
-                    <h4>👾 潜在威胁:</h4>
-                    <div id="panel-mobs" class="tag-container"></div>
-                </div>
-            </div>
 
-            <div class="log-window" id="game-log">
-                <p>> 欢迎来到方块世界！</p>
+            <div class="scene-window">
+                <div class="scene-header">👁️ 环境列表 (点击交互)</div>
+                <div id="scene-grid" class="scene-grid">
+                    </div>
+            </div>
+            
+            <div class="mini-log" id="game-log">
+                <p>> 准备就绪。</p>
             </div>
         </main>
 
         <section class="interaction-area">
-            <div class="inventory">
-                <h3>🎒 背包</h3>
-                <div id="inv-list" class="inv-grid"></div>
-            </div>
-            
             <div class="controls">
                 <div class="d-pad">
                     <div></div>
-                    <button onclick="move(0, -1)">⬆️ 北</button>
+                    <button onclick="move(0, -1)">⬆️</button>
                     <div></div>
-                    <button onclick="move(-1, 0)">⬅️ 西</button>
-                    
-                    <button onclick="gatherAction()">🌳 采集</button>
-                    <button onclick="move(1, 0)">东 ➡️</button>
-                    
+                    <button onclick="move(-1, 0)">⬅️</button>
+                    <button onclick="searchScene()">🔍 搜寻</button> <button onclick="move(1, 0)">➡️</button>
                     <div></div>
-                    <button onclick="move(0, 1)">⬇️ 南</button>
-                    <button onclick="searchAction()">⚔️ 搜索/战斗</button>
+                    <button onclick="move(0, 1)">⬇️</button>
+                    <div></div>
                 </div>
+                <div id="inv-preview" class="inv-preview">背包: 空</div>
             </div>
         </section>
     </div>
-    
-    <div class="combat-ui hidden" id="combat-ui">
-        <div class="combat-log" id="combat-log">
-            <h2>⚔️ 遭遇战 ⚔️</h2>
-        </div>
-        <div class="combat-stats">
-            <div class="player-combat-stats">
-                <h3>玩家 HP: <span id="combat-player-hp">100</span></h3>
+
+    <div id="combat-ui" class="combat-overlay hidden">
+        <div class="combat-container">
+            <h2 class="combat-title">⚔️ 战斗开始 ⚔️</h2>
+            
+            <div class="fighter-zone">
+                <div class="mob-status">
+                    <div class="mob-avatar" id="combat-mob-icon">👾</div>
+                    <h3 id="combat-mob-name">怪物名字</h3>
+                    <div class="hp-bar-bg"><div id="combat-mob-hp-bar" class="hp-bar-fill" style="width: 100%"></div></div>
+                    <p>HP: <span id="combat-mob-hp">0</span> / <span id="combat-mob-max-hp">0</span></p>
+                </div>
             </div>
-            <div class="enemy-combat-stats">
-                <h3><span id="combat-enemy-name">???</span> HP: <span id="combat-enemy-hp">???</span></h3>
+
+            <div class="combat-log" id="combat-log"></div>
+
+            <div class="combat-actions">
+                <button class="btn-attack" onclick="combatRound('attack')">⚔️ 攻击</button>
+                <button class="btn-defend" onclick="combatRound('defend')">🛡️ 防御</button>
+                <button class="btn-escape" onclick="endCombat(false)">🏃 逃跑</button>
             </div>
-        </div>
-        <div class="combat-actions">
-            <button onclick="playerAttack()">全力攻击</button>
-            <button onclick="runAway()">🏃 逃跑</button>
         </div>
     </div>
 
