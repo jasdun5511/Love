@@ -90,5 +90,33 @@
     </div>
 
     <script src="script.js"></script>
+    <div id="map-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                关闭地图
+            </div>
+            <div class="big-map-container">
+                <div id="big-grid" class="big-grid"></div> 
+            </div>
+            <div class="modal-footer" onclick="closeMap()">
+                点击此处返回
+            </div>
+            <div class="map-controls">
+                <button>还原</button>
+                <button>放大</button>
+                <button>缩小</button>
+                <button>传送</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 为顶部小地图按钮添加点击事件
+        document.querySelector('.mini-map-btn').onclick = openMap;
+        // 为底部导航栏地图项添加点击事件
+        document.querySelector('.bottom-nav .nav-item:nth-child(4)').onclick = openMap; // 假设地图是第4项
+    </script>
+    <script src="script.js"></script> 
+
 </body>
 </html>
