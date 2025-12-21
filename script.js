@@ -154,6 +154,51 @@ function log(msg) {
     p.innerText = "> " + msg;
     el.prepend(p);
 }
+// --- 地图功能 (全屏弹窗) ---
+
+function openMap() {
+    document.getElementById('map-modal').classList.remove('hidden');
+    renderBigMap();
+    log("打开了全屏地图。");
+}
+
+function closeMap() {
+    document.getElementById('map-modal').classList.add('hidden');
+    log("关闭了全屏地图。");
+}
+
+function renderBigMap() {
+    const mapEl = document.getElementById('big-grid');
+    if (!mapEl) return;
+    mapEl.innerHTML = '';
+    
+    // 渲染 9x9 视野
+    const range = 4; // 中心向外扩4格
+    
+    for (let y = player.y - range; y <= player.y + range; y++) {
+        for (let x = player.x - range; x <= player.x + range; x++) {
+            const cell = document.createElement('div');
+            const key = `${x},${y}`;
+            
+            if (exploredMap[key]) {
+                const type = getBiome(x, y);
+                cell.className = `map-cell ${BIOMES[type].code}`;
+                cell.innerText = BIOMES[type].name[0]; // 显示首字
+            } else {
+                cell.className = 'map-cell fog'; // 迷雾
+                cell.innerText = '';
+            }
+
+            if (x === player.x && y === player.y) {
+                cell.classList.add('player');
+                cell.innerText = BIOMES[getBiome(x, y)].name; // 玩家位置显示完整地形名 (模仿截图)
+            }
+            
+            mapEl.appendChild(cell);
+        }
+    }
+}
+
 
 // 启动
 init();
