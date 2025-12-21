@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文字生存：荒野</title>
+    <title>文字方块生存 (网格主界面)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,7 +12,7 @@
         <header class="top-bar">
             <div class="loc-info">
                 <span>孤岛: <b id="loc-name">戈壁</b> [<span id="coord">11,3</span>]</span>
-                <span class="mini-map-btn">小地图</span>
+                <span class="mini-map-btn">小地图</span> 
             </div>
             <div class="time-info">1000年03月01日 <span id="clock-time">08:00</span></div>
             
@@ -25,49 +25,47 @@
                 <span class="stat-water">水分: <b id="water">100</b>/100</span>
             </div>
         </header>
-
+        
         <div class="season-bar">
             <div class="season-box">春</div>
             <div class="weather-box">日</div>
         </div>
-
         <div class="survive-bar">
-            <span>存活: </span>
-            <span>存活: </span>
+            <span>存活: 神性史莱姆</span>
+            <span>存活: 扭曲邪物</span>
         </div>
 
-        <div class="filter-bar">
-            <button class="small-btn">可用逗号分割</button>
-            <div class="checkboxes">
-                <label><input type="checkbox" checked> 资源</label>
-                <label><input type="checkbox" checked> 怪物</label>
-                <label><input type="checkbox" checked> NPC</label>
+        <main class="main-map-area">
+            <div class="map-header">
+                关闭地图 </div>
+            <div class="big-map-container">
+                <div id="big-grid" class="big-grid"></div>
             </div>
-        </div>
-
-        <main class="content-area">
-            <div id="scene-grid" class="item-grid">
-                </div>
         </main>
+
+        <div class="interaction-details-bar">
+            <div class="detail-header">当前位置资源 / 怪物</div>
+            <div id="scene-grid" class="item-grid-details">
+                </div>
+        </div>
 
         <div class="log-area" id="game-log">
             <p>引导任务[查看地图]已完成</p>
             <p>当前难度：扩展难度</p>
-            <p>系统里有安全退出按钮...</p>
         </div>
 
         <div class="control-panel">
-            <div class="d-pad-map">
+            <div class="d-pad-only">
                 <div class="d-cell empty"></div>
-                <div class="d-cell dir-btn" id="dir-n" onclick="move(0, -1)">山脉</div>
+                <button class="d-btn" onclick="move(0, -1)">⬆️</button>
                 <div class="d-cell empty"></div>
                 
-                <div class="d-cell dir-btn" id="dir-w" onclick="move(-1, 0)">戈壁</div>
-                <div class="d-cell current-loc" id="dir-c">戈壁</div>
-                <div class="d-cell dir-btn" id="dir-e" onclick="move(1, 0)">草原</div>
+                <button class="d-btn" onclick="move(-1, 0)">⬅️</button>
+                <div class="d-cell current-loc" id="dir-c">我</div>
+                <button class="d-btn" onclick="move(1, 0)">➡️</button>
                 
                 <div class="d-cell empty"></div>
-                <div class="d-cell dir-btn" id="dir-s" onclick="move(0, 1)">沙漠</div>
+                <button class="d-btn" onclick="move(0, 1)">⬇️</button>
                 <div class="d-cell empty"></div>
             </div>
 
@@ -84,39 +82,14 @@
             <div class="nav-item">制作</div>
             <div class="nav-item active">任务</div>
             <div class="nav-item">地图</div>
-            <div class="nav-item">藏宝图</div>
             <div class="nav-item">系统</div>
         </nav>
     </div>
 
-    <script src="script.js"></script>
-    <div id="map-modal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                返回在底下，别点到左上角了
-            </div>
-            <div class="big-map-container">
-                <div id="big-grid" class="big-grid"></div> 
-            </div>
-            <div class="modal-footer" onclick="closeMap()">
-                点击此处返回
-            </div>
-            <div class="map-controls">
-                <button>还原</button>
-                <button>放大</button>
-                <button>缩小</button>
-            </div>
+    <div id="combat-ui" class="combat-overlay hidden">
         </div>
-    </div>
 
-    <script>
-        // 为顶部小地图按钮添加点击事件
-        document.querySelector('.mini-map-btn').onclick = openMap;
-        // 为底部导航栏地图项添加点击事件
-        document.querySelector('.bottom-nav .nav-item:nth-child(4)').onclick = openMap; // 假设地图是第4项
-    </script>
-    <script src="script.js"></script> 
-</body>
 
+    <script src="script.js"></script>
 </body>
 </html>
