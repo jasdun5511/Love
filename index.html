@@ -45,10 +45,22 @@
             </div>
         </div>
 
-        <main class="content-area">
-            <div id="scene-grid" class="item-grid">
-                </div>
+                <main class="content-area">
+            <div id="scene-view">
+                <div id="scene-grid" class="item-grid"></div>
+            </div>
+
+            <div id="inventory-view" class="view-container hidden">
+                <div class="view-title">背包物品</div>
+                <div id="inventory-list" class="list-container"></div>
+            </div>
+
+            <div id="craft-view" class="view-container hidden">
+                <div class="view-title">生存制作</div>
+                <div id="craft-list" class="list-container"></div>
+            </div>
         </main>
+
 
         <div class="log-area" id="game-log">
             <p>引导任务[查看地图]已完成</p>
