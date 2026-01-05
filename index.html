@@ -91,14 +91,14 @@
             </div>
         </div>
 
-        <nav class="bottom-nav">
-            <div class="nav-item">物品</div>
-            <div class="nav-item">制作</div>
-            <div class="nav-item active">任务</div>
-            <div class="nav-item">地图</div>
-            <div class="nav-item">藏宝图</div>
+                <nav class="bottom-nav">
+            <div class="nav-item" onclick="switchView('inventory')">背包</div>
+            <div class="nav-item" onclick="switchView('craft')">制作</div>
+            <div class="nav-item active" onclick="switchView('scene')">探索</div>
+            <div class="nav-item" onclick="openMap()">地图</div>
             <div class="nav-item">系统</div>
         </nav>
+
     </div>
 
     <script src="script.js"></script>
