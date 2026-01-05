@@ -1,49 +1,95 @@
-// --- 配置 ---
+// --- 游戏配置 ---
+const MAP_SIZE = 20; // 限制地图大小为 20x20
 const BIOMES = {
-    PLAINS: { name: "草原", code: "bg-PLAINS", items: ["草丛", "野花", "兔子"] },
-    FOREST: { name: "森林", code: "bg-FOREST", items: ["树木", "浆果", "蘑菇", "森林狼"] },
-    DESERT: { name: "沙漠", code: "bg-DESERT", items: ["仙人掌", "枯木", "蝎子"] },
-    MOUNTAIN: { name: "山脉", code: "bg-MOUNTAIN", items: ["石块", "铁矿石", "山羊"] },
-    GOBI: { name: "戈壁", code: "bg-GOBI", items: ["石块", "沙硕", "巨蜥"] },
-    RIVER: { name: "河流", code: "bg-RIVER", items: ["水", "鱼", "芦苇"] }, // 新增
-    LAKE: { name: "湖泊", code: "bg-LAKE", items: ["清水", "水草"] }, // 新增
+    // 基础地形
+    PLAINS: { 
+        name: "草原", code: "bg-PLAINS", 
+        res: ["杂草", "蒲公英", "橡木"], 
+        mobs: [{name: "牛", type: "Peaceful"}, {name: "羊", type: "Peaceful"}, {name: "僵尸", type: "Hostile"}] 
+    },
+    FOREST: { 
+        name: "森林", code: "bg-FOREST", 
+        res: ["橡木", "桦木", "红蘑菇"], 
+        mobs: [{name: "猪", type: "Peaceful"}, {name: "狼", type: "Peaceful"}, {name: "骷髅", type: "Hostile"}] 
+    },
+    DESERT: { 
+        name: "沙漠", code: "bg-DESERT", 
+        res: ["仙人掌", "枯灌木", "沙子"], 
+        mobs: [{name: "兔子", type: "Peaceful"}, {name: "尸壳", type: "Hostile"}] 
+    },
+    MOUNTAIN: { 
+        name: "高山", code: "bg-MOUNTAIN", 
+        res: ["石头", "绿宝石矿", "铁矿"], 
+        mobs: [{name: "山羊", type: "Peaceful"}, {name: "爬行者", type: "Hostile"}] // 爬行者=苦力怕
+    },
+    
+    // Minecraft 特色地形
+    SNOWY: { 
+        name: "雪原", code: "bg-SNOWY", 
+        res: ["雪块", "云杉木", "冰"], 
+        mobs: [{name: "北极熊", type: "Peaceful"}, {name: "流浪者", type: "Hostile"}] // 流浪者=雪骷髅
+    },
+    SWAMP: { 
+        name: "沼泽", code: "bg-SWAMP", 
+        res: ["藤蔓", "睡莲", "粘土"], 
+        mobs: [{name: "青蛙", type: "Peaceful"}, {name: "史莱姆", type: "Hostile"}, {name: "女巫", type: "Hostile"}] 
+    },
+    OCEAN: { 
+        name: "海洋", code: "bg-OCEAN", 
+        res: ["海带", "海草", "珊瑚"], 
+        mobs: [{name: "海龟", type: "Peaceful"}, {name: "溺尸", type: "Hostile"}] 
+    },
+    MESA: { 
+        name: "恶地", code: "bg-MESA", 
+        res: ["红沙", "陶瓦", "金矿"], 
+        mobs: [{name: "蜘蛛", type: "Hostile"}] 
+    },
+    JUNGLE: { 
+        name: "丛林", code: "bg-JUNGLE", 
+        res: ["竹子", "西瓜", "丛林木"], 
+        mobs: [{name: "熊猫", type: "Peaceful"}, {name: "豹猫", type: "Peaceful"}, {name: "僵尸", type: "Hostile"}] 
+    }
 };
 
-// 新增：地图探索状态
+// 初始坐标设在地图中心 (10, 10)
+let player = { x: 10, y: 10, hp: 100, hunger: 100, water: 100 };
 let exploredMap = {}; 
-let player = { x: 11, y: 3, hp: 100, hunger: 100, water: 100 };
 let currentSceneItems = [];
 
-// --- 核心工具：地形生成 (使用更复杂的伪随机) ---
+// --- 核心逻辑 ---
+
+// 1. 获取地形 (确保永远返回有效值，防止卡死)
 function getBiomeType(x, y) {
-    const hash = Math.abs(Math.sin(x * 12.9898 + y * 4.1414)) * 1000;
-    if (hash < 200) return "PLAINS";
-    if (hash < 400) return "FOREST";
-    if (hash < 550) return "GOBI";
-    if (hash < 700) return "MOUNTAIN";
-    if (hash < 850) return "DESERT";
-    if (hash < 900) return "RIVER";
-    return "LAKE"; // 稀有地形
+    // 简单的哈希算法，根据坐标返回一个 0-8 的数字
+    const val = Math.abs((x * 37 + y * 13) % 9);
+    
+    const keys = Object.keys(BIOMES);
+    return keys[val] || "PLAINS"; // 如果出错，默认返回草原
 }
 
-// 确保原始的 getBiome 函数被 getBiomeType 替换
 function getBiome(x, y) {
     return getBiomeType(x, y);
 }
 
-
-// --- 初始化 ---
+// 2. 初始化
 function init() {
     refreshLocation();
-    log("游戏已加载，当前位于扩展难度。");
+    log("世界已加载。地图范围: 20x20");
 }
 
-// --- 移动逻辑 ---
+// 3. 移动逻辑 (增加边界检查！)
 function move(dx, dy) {
-    player.x += dx;
-    player.y += dy;
-    
-    // 消耗
+    const newX = player.x + dx;
+    const newY = player.y + dy;
+
+    // 检查是否超出 0-19 的范围
+    if (newX < 0 || newX >= MAP_SIZE || newY < 0 || newY >= MAP_SIZE) {
+        log("前面是世界的尽头（基岩墙），无法通过！");
+        return;
+    }
+
+    player.x = newX;
+    player.y = newY;
     player.hunger -= 1;
     player.water -= 1;
     
@@ -51,161 +97,144 @@ function move(dx, dy) {
     log(`移动到了 [${player.x}, ${player.y}]`);
 }
 
-// --- 刷新所有界面 (新增地图探索逻辑) ---
+// 4. 刷新界面
 function refreshLocation() {
-    // 1. 记录当前坐标及周围已探索
-    const currentKey = `${player.x},${player.y}`;
-    exploredMap[currentKey] = true;
-    // 简单的视野机制：周围一圈也被点亮
-    exploredMap[`${player.x+1},${player.y}`] = true;
-    exploredMap[`${player.x-1},${player.y}`] = true;
-    exploredMap[`${player.x},${player.y+1}`] = true;
-    exploredMap[`${player.x},${player.y-1}`] = true;
+    // 记录探索
+    exploredMap[`${player.x},${player.y}`] = true;
+    
+    // 视野扩展 (十字形)
+    if(player.x+1 < MAP_SIZE) exploredMap[`${player.x+1},${player.y}`] = true;
+    if(player.x-1 >= 0)       exploredMap[`${player.x-1},${player.y}`] = true;
+    if(player.y+1 < MAP_SIZE) exploredMap[`${player.x},${player.y+1}`] = true;
+    if(player.y-1 >= 0)       exploredMap[`${player.x},${player.y-1}`] = true;
 
-    // 2. 更新顶部信息
+    // 更新文本
     const type = getBiome(player.x, player.y);
     const biome = BIOMES[type];
     document.getElementById('loc-name').innerText = biome.name;
     document.getElementById('coord').innerText = `${player.x},${player.y}`;
-    document.getElementById('hp').innerText = player.hp;
-    document.getElementById('hunger').innerText = player.hunger;
-    document.getElementById('water').innerText = player.water;
-
-    // 3. 生成并渲染中间的资源按钮
+    
+    // 生成物品按钮
     generateItems(biome);
     renderScene();
 
-    // 4. 更新左下角十字微型地图
+    // 更新左下角导航
     updateMiniMap();
     
-    // 5. 如果地图弹窗打开，刷新它
+    // 如果地图开着，就刷新地图
     if (!document.getElementById('map-modal').classList.contains('hidden')) {
         renderBigMap();
     }
 }
 
-
-// 生成当前格子的物品
+// 5. 生成物品 (修复可能的死循环)
 function generateItems(biome) {
     currentSceneItems = [];
-    const count = 8 + Math.floor(Math.random() * 5); // 8-12个物品
+    if (!biome.res || !biome.mobs) return; // 防止数据缺失导致报错
+
+    const possibleItems = [
+        ...biome.res.map(n => ({ name: n, type: 'res' })), 
+        ...biome.mobs.map(m => ({ name: m.name, type: 'mob', mobType: m.type }))
+    ];
+
+    const count = 6 + Math.floor(Math.random() * 6); // 6-12个物品
     
     for(let i=0; i<count; i++) {
-        const itemBase = biome.items[Math.floor(Math.random() * biome.items.length)];
-        const isMob = ["狼", "蝎子", "巨蜥", "山羊"].some(k => itemBase.includes(k));
+        const template = possibleItems[Math.floor(Math.random() * possibleItems.length)];
+        let item = { name: template.name, type: template.type };
         
-        currentSceneItems.push({
-            name: itemBase,
-            count: isMob ? `LV${Math.floor(Math.random()*10)+1}` : Math.floor(Math.random()*10)+1,
-            type: isMob ? 'mob' : 'res'
-        });
+        if (item.type === 'res') {
+            item.val = Math.floor(Math.random() * 8) + 1;
+            item.label = `(${item.val})`;
+        } else {
+            // 敌对生物等级高，和平生物等级低
+            const baseLv = template.mobType === 'Hostile' ? 10 : 1;
+            item.val = baseLv + Math.floor(Math.random() * 5);
+            item.label = `(LV${item.val})`;
+        }
+        currentSceneItems.push(item);
     }
 }
 
-// 渲染中间的按钮网格
+// 6. 渲染中间按钮
 function renderScene() {
     const grid = document.getElementById('scene-grid');
     grid.innerHTML = '';
-    
     currentSceneItems.forEach(item => {
         const btn = document.createElement('div');
-        // 根据类型添加样式 (怪物是红色)
-        btn.className = `grid-btn ${item.type}`; 
+        btn.className = `grid-btn ${item.type}`;
+        // 如果是敌对怪物，加个类名变红
+        if(item.type === 'mob' && item.val > 5) btn.classList.add('hostile'); 
         
-        // 格式: 名字(数量/等级) -> 草丛(3) 或 蝎子(LV5)
-        let countText = item.type === 'res' ? `(${item.count})` : `(${item.count})`;
-        btn.innerText = item.name + countText;
-        
+        btn.innerText = item.name + item.label;
         btn.onclick = () => {
-            if(item.type === 'mob') log(`你攻击了 ${item.name}！(战斗系统待开发)`);
-            else log(`你采集了 ${item.name} x${item.count}`);
-            btn.style.opacity = "0.5"; // 点击后变灰示意
+             log(`你交互了 ${item.name} ${item.label}`);
+             btn.style.opacity = '0.5';
         };
-        
         grid.appendChild(btn);
     });
 }
 
-// **关键：更新左下角十字地图**
-function updateMiniMap() {
-    // 获取四周的地形名字
-    const n = BIOMES[getBiome(player.x, player.y - 1)].name;
-    const s = BIOMES[getBiome(player.x, player.y + 1)].name;
-    const w = BIOMES[getBiome(player.x - 1, player.y)].name;
-    const e = BIOMES[getBiome(player.x + 1, player.y)].name;
-    const c = BIOMES[getBiome(player.x, player.y)].name;
-
-    document.getElementById('dir-n').innerText = n;
-    document.getElementById('dir-s').innerText = s;
-    document.getElementById('dir-w').innerText = w;
-    document.getElementById('dir-e').innerText = e;
-    document.getElementById('dir-c').innerText = c;
-}
-
-function search() {
-    log("你在周围探索了一番，发现了新的资源...");
-    player.hunger -= 2;
-    refreshLocation(); // 重新生成资源
-}
-
-function log(msg) {
-    const el = document.getElementById('game-log');
-    const p = document.createElement('p');
-    p.innerText = "> " + msg;
-    el.prepend(p);
-}
-// --- 地图功能 (全屏弹窗) ---
-
-function openMap() {
-    document.getElementById('map-modal').classList.remove('hidden');
-    renderBigMap();
-    log("打开了全屏地图。");
-}
-
-function closeMap() {
-    document.getElementById('map-modal').classList.add('hidden');
-    log("关闭了全屏地图。");
-}
-
-// ... (函数开头不变) ...
-
+// 7. 渲染大地图 (限制在 20x20 范围内渲染)
 function renderBigMap() {
     const mapEl = document.getElementById('big-grid');
     if (!mapEl) return;
     mapEl.innerHTML = '';
     
-    const range = 4; // 9x9 视野
+    // 我们渲染整个 20x20 的地图，而不是只渲染周围
+    // 修改 grid css 样式以适应 20x20
+    mapEl.style.gridTemplateColumns = `repeat(${MAP_SIZE}, 1fr)`;
+    mapEl.style.gridTemplateRows = `repeat(${MAP_SIZE}, 1fr)`;
     
-    for (let y = player.y - range; y <= player.y + range; y++) {
-        for (let x = player.x - range; x <= player.x + range; x++) {
+    for (let y = 0; y < MAP_SIZE; y++) {
+        for (let x = 0; x < MAP_SIZE; x++) {
             const cell = document.createElement('div');
             const key = `${x},${y}`;
             
             if (exploredMap[key]) {
                 const type = getBiome(x, y);
                 cell.className = `map-cell ${BIOMES[type].code}`;
-                
-                // *** 核心修改：确保显示至少两个字 ***
-                let name = BIOMES[type].name;
-                // 如果地形名只有一个字，我们至少显示前两个字 (这里我们假设所有地形名都至少有两个字，如果不是，需要截取)
-                cell.innerText = name.substring(0, 2); 
+                cell.innerText = BIOMES[type].name.substring(0, 2); // 显示两个字
             } else {
-                cell.className = 'map-cell fog'; // 迷雾
+                cell.className = 'map-cell fog';
                 cell.innerText = '';
             }
 
             if (x === player.x && y === player.y) {
                 cell.classList.add('player');
-                // 玩家所在格，显示完整的两个字地形名
-                cell.innerText = BIOMES[getBiome(x, y)].name.substring(0, 2); 
+                cell.innerText = BIOMES[getBiome(x, y)].name.substring(0, 2);
             }
-            
             mapEl.appendChild(cell);
         }
     }
 }
 
+// 8. 辅助功能
+function updateMiniMap() {
+    // 边界检查：如果出界，显示“边界”
+    const getBiomeNameSafe = (x, y) => {
+        if (x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE) return "边界";
+        return BIOMES[getBiome(x, y)].name;
+    };
 
+    document.getElementById('dir-n').innerText = getBiomeNameSafe(player.x, player.y - 1);
+    document.getElementById('dir-s').innerText = getBiomeNameSafe(player.x, player.y + 1);
+    document.getElementById('dir-w').innerText = getBiomeNameSafe(player.x - 1, player.y);
+    document.getElementById('dir-e').innerText = getBiomeNameSafe(player.x + 1, player.y);
+    document.getElementById('dir-c').innerText = "我";
+}
+
+function log(msg) {
+    const el = document.getElementById('game-log');
+    if(!el) return;
+    const p = document.createElement('p');
+    p.innerText = "> " + msg;
+    el.prepend(p);
+}
+
+// 地图开关
+function openMap() { document.getElementById('map-modal').classList.remove('hidden'); renderBigMap(); }
+function closeMap() { document.getElementById('map-modal').classList.add('hidden'); }
 
 // 启动
 init();
