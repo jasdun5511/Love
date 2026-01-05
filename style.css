@@ -268,30 +268,59 @@ body {
     color: transparent; 
 }
 
-/* --- 地形颜色类 (替换为只修改文字颜色的版本) --- */
-.map-cell.bg-PLAINS { color: #228b22; } /* 深绿色文字 */
-.map-cell.bg-FOREST { color: #006400; } /* 更深的绿色文字 */
-.map-cell.bg-DESERT { color: #f4a460; } /* 棕色文字 */
-.map-cell.bg-MOUNTAIN { color: #808080; } /* 灰色文字 */
-.map-cell.bg-GOBI { color: #d2b48c; } /* 浅棕色文字 */
-.map-cell.bg-RIVER { color: #3498db; } /* 蓝色文字 */
-.map-cell.bg-LAKE { color: #4a90e2; } /* 深蓝色文字 */
-.map-cell.bg-SWAMP { color: #8c8f43; } /* 橄榄绿文字 */
+/* --- 基础配置 --- */
+/* ... 之前的代码 ... */
 
-/* 玩家位置调整 */
-.map-cell.player { 
-    /* 保持红框不变 */
-    border: 2px solid red; 
-    /* 背景变为白色，字颜色特殊处理 */
-    background: #fff !important; 
-    color: #c0392b !important; /* 玩家字显示为红色 */
+/* --- Minecraft 地形文字颜色 --- */
+.map-cell.bg-PLAINS { color: #7cfc00; }
+.map-cell.bg-FOREST { color: #228b22; }
+.map-cell.bg-DESERT { color: #f4a460; }
+.map-cell.bg-MOUNTAIN { color: #808080; }
+.map-cell.bg-GOBI { color: #d2b48c; }
+/* 新增 */
+.map-cell.bg-SNOWY { color: #87CEEB; }  /* 雪原：天蓝 */
+.map-cell.bg-SWAMP { color: #556B2F; }  /* 沼泽：暗绿 */
+.map-cell.bg-OCEAN { color: #0000CD; }  /* 海洋：中蓝 */
+.map-cell.bg-MESA { color: #B22222; }   /* 恶地：砖红 */
+.map-cell.bg-JUNGLE { color: #006400; } /* 丛林：深绿 */
+
+/* --- 地图弹窗调整 (适配 20x20) --- */
+.big-grid {
+    display: grid;
+    /* 删除具体的 px 值，改为 100% 撑满容器，由 JS 动态计算 */
+    width: 95%;
+    aspect-ratio: 1/1; /* 保持正方形 */
+    gap: 1px;
+    background: #ccc;
+    border: 1px solid #999;
 }
 
-/* 迷雾区域背景保持浅色 */
-.map-cell.fog { 
-    background-color: #eee !important; 
-    color: transparent; 
+.map-cell {
+    /* 删除固定宽高，改为自动 */
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* 20x20 格子较多，字号调小 */
+    font-size: 9px; 
+    font-weight: bold;
+    background: #fff; /* 默认白色背景 */
+    overflow: hidden; /* 防止字溢出 */
 }
+
+/* 玩家位置高亮 */
+.map-cell.player {
+    border: 1px solid red;
+    background: #fff !important;
+    color: red !important;
+    z-index: 2;
+}
+.map-cell.fog {
+    background: #eee !important;
+    color: transparent;
+}
+
 
 
 .modal-footer {
