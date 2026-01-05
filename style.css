@@ -346,3 +346,42 @@ body {
     font-size: 12px;
     border-radius: 3px;
 }
+
+/* --- 新增：视图切换 --- */
+.hidden { display: none !important; }
+.view-container { padding: 5px; }
+.view-title { font-weight: bold; padding-bottom: 5px; border-bottom: 2px solid #ddd; margin-bottom: 10px; }
+
+/* 列表样式 (背包/合成) */
+.list-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px; border-bottom: 1px solid #eee; background: #fff;
+    margin-bottom: 4px; border-radius: 4px;
+}
+.list-item button {
+    background: #3498db; color: white; border: none; padding: 4px 8px; border-radius: 2px;
+}
+
+/* --- 新增：昼夜系统 (Night Mode) --- */
+body.night-mode {
+    background-color: #000; /* 外部背景全黑 */
+}
+body.night-mode .app-container {
+    background-color: #1a1a1a; /* APP背景深灰 */
+    color: #ccc;
+}
+body.night-mode .content-area, 
+body.night-mode .log-area,
+body.night-mode .control-panel,
+body.night-mode .bottom-nav,
+body.night-mode .grid-btn,
+body.night-mode .modal-content, 
+body.night-mode .map-cell {
+    background-color: #2a2a2a; /* 组件背景 */
+    color: #bbb;
+    border-color: #444;
+}
+/* 夜晚的特殊文字颜色 */
+body.night-mode .loc-info span { color: #ccc; }
+body.night-mode .season-bar { background: #222; }
+body.night-mode .map-cell.fog { background: #111 !important; } /* 夜晚迷雾更黑 */
