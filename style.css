@@ -268,15 +268,31 @@ body {
     color: transparent; 
 }
 
-/* 地形颜色类 */
-.map-cell.bg-PLAINS { background: var(--color-plains); }
-.map-cell.bg-FOREST { background: var(--color-forest); color: white; }
-.map-cell.bg-DESERT { background: var(--color-desert); }
-.map-cell.bg-MOUNTAIN { background: var(--color-mountain); color: white; }
-.map-cell.bg-GOBI { background: var(--color-gobi); }
-.map-cell.bg-RIVER { background: var(--color-river); }
-.map-cell.bg-LAKE { background: var(--color-lake); }
-.map-cell.bg-SWAMP { background: var(--color-swamp); }
+/* --- 地形颜色类 (替换为只修改文字颜色的版本) --- */
+.map-cell.bg-PLAINS { color: #228b22; } /* 深绿色文字 */
+.map-cell.bg-FOREST { color: #006400; } /* 更深的绿色文字 */
+.map-cell.bg-DESERT { color: #f4a460; } /* 棕色文字 */
+.map-cell.bg-MOUNTAIN { color: #808080; } /* 灰色文字 */
+.map-cell.bg-GOBI { color: #d2b48c; } /* 浅棕色文字 */
+.map-cell.bg-RIVER { color: #3498db; } /* 蓝色文字 */
+.map-cell.bg-LAKE { color: #4a90e2; } /* 深蓝色文字 */
+.map-cell.bg-SWAMP { color: #8c8f43; } /* 橄榄绿文字 */
+
+/* 玩家位置调整 */
+.map-cell.player { 
+    /* 保持红框不变 */
+    border: 2px solid red; 
+    /* 背景变为白色，字颜色特殊处理 */
+    background: #fff !important; 
+    color: #c0392b !important; /* 玩家字显示为红色 */
+}
+
+/* 迷雾区域背景保持浅色 */
+.map-cell.fog { 
+    background-color: #eee !important; 
+    color: transparent; 
+}
+
 
 .modal-footer {
     padding: 10px;
