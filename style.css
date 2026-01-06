@@ -424,3 +424,70 @@ body.night-mode .map-cell.fog { background: #111 !important; } /* 夜晚迷雾�
     color: #999;
     padding: 20px;
 }
+
+
+/* --- 理智颜色 --- */
+.stat-sanity { color: #8e44ad; } /* 紫色代表理智 */
+
+/* --- 战斗界面样式 --- */
+.combat-arena {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #fff0f0; /* 淡淡的红色背景 */
+    padding: 10px;
+    border: 2px solid #c0392b;
+    border-radius: 8px;
+}
+
+/* 夜晚战斗背景变黑 */
+body.night-mode .combat-arena {
+    background: #2c0505; /* 深红黑 */
+    border-color: #7f0000;
+}
+
+.enemy-box {
+    text-align: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: rgba(0,0,0,0.05);
+    border-radius: 5px;
+}
+.enemy-title { font-size: 18px; font-weight: bold; color: #c0392b; margin-bottom: 5px; }
+
+/* 血条 */
+.hp-bar-bg { width: 100%; height: 10px; background: #ddd; border-radius: 5px; overflow: hidden; }
+.hp-bar-fill { width: 100%; height: 100%; background: #e74c3c; transition: width 0.3s; }
+
+.combat-log {
+    flex: 1;
+    border: 1px solid #ccc;
+    background: #fff;
+    padding: 8px;
+    overflow-y: auto;
+    font-size: 12px;
+    margin-bottom: 10px;
+    height: 150px;
+}
+body.night-mode .combat-log { background: #333; color: #ccc; border-color: #555; }
+
+.player-actions { display: flex; gap: 10px; }
+.player-actions button { flex: 1; padding: 12px; font-size: 14px; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; }
+.atk-btn { background: #c0392b; color: white; }
+.flee-btn { background: #95a5a6; color: white; }
+
+/* 受击震动动画 */
+@keyframes shake {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    10% { transform: translate(-1px, -2px) rotate(-1deg); }
+    20% { transform: translate(-3px, 0px) rotate(1deg); }
+    30% { transform: translate(3px, 2px) rotate(0deg); }
+    40% { transform: translate(1px, -1px) rotate(1deg); }
+    50% { transform: translate(-1px, 2px) rotate(-1deg); }
+    60% { transform: translate(-3px, 1px) rotate(0deg); }
+    70% { transform: translate(3px, 1px) rotate(-1deg); }
+    80% { transform: translate(-1px, -1px) rotate(1deg); }
+    90% { transform: translate(1px, 2px) rotate(0deg); }
+    100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+.shake { animation: shake 0.5s; }
