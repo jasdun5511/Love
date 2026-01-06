@@ -491,3 +491,64 @@ body.night-mode .combat-log { background: #333; color: #ccc; border-color: #555;
     100% { transform: translate(1px, -2px) rotate(-1deg); }
 }
 .shake { animation: shake 0.5s; }
+
+
+/* --- 1. 夜晚模式特殊样式 --- */
+
+/* 夜晚模式下，按钮文字整体变亮，但怪物按钮特殊处理 */
+body.night-mode .grid-btn {
+    color: #ccc;
+    border-color: #555;
+    background: #333;
+}
+
+/* 关键修改：夜晚模式下，怪物按钮文字变红 */
+body.night-mode .grid-btn.mob {
+    color: #ff4d4d !important; /* 鲜艳的红色 */
+    border-color: #e74c3c;
+    background: #2c0505; /* 深红背景 */
+    font-weight: bold;
+    box-shadow: 0 0 5px rgba(231, 76, 60, 0.5); /* 添加红色光晕 */
+}
+
+
+/* --- 2. 战斗界面布局调整 (固定按钮) --- */
+
+/* 确保战斗容器撑满可用空间 */
+#combat-view {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.combat-arena {
+    /* 之前的样式 */
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* 确保占满容器高度 */
+    /* ...其他背景边框样式保持不变... */
+    padding: 10px;
+    box-sizing: border-box; /* 确保 padding 不会撑破容器 */
+}
+
+/* 敌人信息区域固定 */
+.enemy-box {
+    flex-shrink: 0; /* 不允许缩小 */
+    /* ...其他样式保持不变... */
+}
+
+/* 战斗日志区域：关键修改 */
+.combat-log {
+    /* 移除固定高度 height: 150px; */
+    flex: 1; /* 让日志区域占据剩余的所有空间 */
+    overflow-y: auto; /* 内容过多时出现滚动条 */
+    min-height: 100px; /* 设置一个最小高度 */
+    margin-bottom: 10px;
+    /* ...其他边框背景样式保持不变... */
+}
+
+/* 底部按钮区域固定 */
+.player-actions {
+    flex-shrink: 0; /* 不允许缩小 */
+    /* ...其他 flex gap 样式保持不变... */
+}
