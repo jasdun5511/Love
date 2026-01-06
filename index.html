@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文字生存：荒野 (完整版)</title>
+    <title>文字生存：荒野</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,13 +17,14 @@
             <div class="time-info">1000年03月01日 <span id="clock-time">08:00</span></div>
             
             <div class="stats-grid">
-                <span>LV: 1(0%)</span>
-                <span>EXP: 0/5</span>
-                <span class="stat-sanity">理智: <b id="sanity">100</b>/100</span>
-                <span class="stat-hp">HP: <b id="hp">100</b>/100</span>
-                <span class="stat-hunger">饥饿: <b id="hunger">100</b>/100</span>
-                <span class="stat-water">水分: <b id="water">100</b>/100</span>
-            </div>
+    <span>LV: 1(0%)</span>
+    <span>EXP: 0/5</span>
+    <span class="stat-sanity">理智: <b id="sanity">100</b>/100</span>
+    <span class="stat-hp">HP: <b id="hp">100</b>/100</span>
+    <span class="stat-hunger">饥饿: <b id="hunger">100</b>/100</span>
+    <span class="stat-water">水分: <b id="water">100</b>/100</span>
+</div>
+
         </header>
 
         <div class="season-bar">
@@ -36,7 +37,10 @@
             <span>存活: 扭曲邪物</span>
         </div>
 
-        <main class="content-area">
+        
+        </div>
+
+                <main class="content-area">
             <div id="scene-view">
                 <div id="scene-grid" class="item-grid"></div>
             </div>
@@ -46,7 +50,7 @@
                 <div id="inventory-list" class="list-container"></div>
             </div>
 
-            <div id="craft-view" class="view-container hidden">
+                        <div id="craft-view" class="view-container hidden">
                 <div class="view-title">生存制作</div>
                 <div id="craft-list" class="list-container"></div>
             </div>
@@ -68,45 +72,27 @@
                 </div>
             </div>
 
-            <div id="chest-view" class="view-container hidden">
-                <div class="view-title">储物箱 <button class="small-btn" onclick="closeBuilding()">关闭</button></div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:12px; color:#666;">
-                    <span>我的背包</span> <span>箱子空间</span>
-                </div>
-                <div class="chest-layout">
-                    <div id="chest-player-inv" class="list-container half-list"></div>
-                    <div id="chest-storage" class="list-container half-list"></div>
-                </div>
-            </div>
-
-            <div id="furnace-view" class="view-container hidden">
-                <div class="view-title">熔炉 (烧炼) <button class="small-btn" onclick="closeBuilding()">关闭</button></div>
-                <div id="furnace-list" class="list-container"></div>
-            </div>
-
-            <div id="enchant-view" class="view-container hidden">
-                <div class="view-title">附魔台 (强化) <button class="small-btn" onclick="closeBuilding()">关闭</button></div>
-                <div id="enchant-list" class="list-container"></div>
-            </div>
-
         </main>
 
+
         <div class="log-area" id="game-log">
-            <p>系统初始化完成...</p>
+            <p>引导任务[查看地图]已完成</p>
+            <p>当前难度：扩展难度</p>
+            <p>系统里有安全退出按钮...</p>
         </div>
 
         <div class="control-panel">
             <div class="d-pad-map">
                 <div class="d-cell empty"></div>
-                <div class="d-cell dir-btn" id="dir-n" onclick="move(0, -1)">北</div>
+                <div class="d-cell dir-btn" id="dir-n" onclick="move(0, -1)">山脉</div>
                 <div class="d-cell empty"></div>
                 
-                <div class="d-cell dir-btn" id="dir-w" onclick="move(-1, 0)">西</div>
-                <div class="d-cell current-loc" id="dir-c">我</div>
-                <div class="d-cell dir-btn" id="dir-e" onclick="move(1, 0)">东</div>
+                <div class="d-cell dir-btn" id="dir-w" onclick="move(-1, 0)">戈壁</div>
+                <div class="d-cell current-loc" id="dir-c">戈壁</div>
+                <div class="d-cell dir-btn" id="dir-e" onclick="move(1, 0)">草原</div>
                 
                 <div class="d-cell empty"></div>
-                <div class="d-cell dir-btn" id="dir-s" onclick="move(0, 1)">南</div>
+                <div class="d-cell dir-btn" id="dir-s" onclick="move(0, 1)">沙漠</div>
                 <div class="d-cell empty"></div>
             </div>
 
@@ -114,11 +100,11 @@
                 <button class="func-btn active">功能</button>
                 <button class="func-btn">移动键盘</button>
                 <button class="func-btn" onclick="search()">探索</button>
-                <button class="func-btn" onclick="setHome()">安家</button>
+                <button class="func-btn">安家</button>
             </div>
         </div>
 
-        <nav class="bottom-nav">
+                <nav class="bottom-nav">
             <div class="nav-item" onclick="switchView('inventory')">背包</div>
             <div class="nav-item" onclick="switchView('craft')">制作</div>
             <div class="nav-item active" onclick="switchView('scene')">探索</div>
@@ -128,22 +114,32 @@
 
     </div>
 
+    <script src="script.js"></script>
     <div id="map-modal" class="modal hidden">
         <div class="modal-content">
-            <div class="modal-header">关闭地图</div>
+            <div class="modal-header">
+                关闭地图
+            </div>
             <div class="big-map-container">
                 <div id="big-grid" class="big-grid"></div> 
             </div>
-            <div class="modal-footer" onclick="closeMap()">点击此处返回</div>
+            <div class="modal-footer" onclick="closeMap()">
+                点击此处返回
+            </div>
             <div class="map-controls">
-                <button>还原</button><button>放大</button><button>缩小</button><button>传送</button>
+                <button>还原</button>
+                <button>放大</button>
+                <button>缩小</button>
+                <button>传送</button>
             </div>
         </div>
     </div>
 
     <script>
+        // 为顶部小地图按钮添加点击事件
         document.querySelector('.mini-map-btn').onclick = openMap;
-        document.querySelector('.bottom-nav .nav-item:nth-child(4)').onclick = openMap;
+        // 为底部导航栏地图项添加点击事件
+        document.querySelector('.bottom-nav .nav-item:nth-child(4)').onclick = openMap; // 假设地图是第4项
     </script>
     <script src="script.js"></script> 
 
