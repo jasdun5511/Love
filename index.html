@@ -17,13 +17,14 @@
             <div class="time-info">1000年03月01日 <span id="clock-time">08:00</span></div>
             
             <div class="stats-grid">
-                <span>LV: 1(0%)</span>
-                <span>EXP: 0/5</span>
-                <span>理智: 100/100</span>
-                <span class="stat-hp">HP: <b id="hp">100</b>/100</span>
-                <span class="stat-hunger">饥饿: <b id="hunger">100</b>/100</span>
-                <span class="stat-water">水分: <b id="water">100</b>/100</span>
-            </div>
+    <span>LV: 1(0%)</span>
+    <span>EXP: 0/5</span>
+    <span class="stat-sanity">理智: <b id="sanity">100</b>/100</span>
+    <span class="stat-hp">HP: <b id="hp">100</b>/100</span>
+    <span class="stat-hunger">饥饿: <b id="hunger">100</b>/100</span>
+    <span class="stat-water">水分: <b id="water">100</b>/100</span>
+</div>
+
         </header>
 
         <div class="season-bar">
@@ -55,10 +56,28 @@
                 <div id="inventory-list" class="list-container"></div>
             </div>
 
-            <div id="craft-view" class="view-container hidden">
+                        <div id="craft-view" class="view-container hidden">
                 <div class="view-title">生存制作</div>
                 <div id="craft-list" class="list-container"></div>
             </div>
+
+            <div id="combat-view" class="view-container hidden">
+                <div class="combat-arena">
+                    <div class="enemy-box">
+                        <div id="enemy-name" class="enemy-title"></div>
+                        <div class="hp-bar-bg"><div id="enemy-hp-bar" class="hp-bar-fill"></div></div>
+                        <div id="enemy-stats" class="enemy-text">HP: ??/??</div>
+                    </div>
+                    
+                    <div class="combat-log" id="combat-log-area"></div>
+
+                    <div class="player-actions">
+                        <button class="atk-btn" onclick="combatAttack()">⚔️ 攻击</button>
+                        <button class="flee-btn" onclick="combatFlee()">🏃 逃跑</button>
+                    </div>
+                </div>
+            </div>
+
         </main>
 
 
