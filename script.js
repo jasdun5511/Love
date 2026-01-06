@@ -13,14 +13,225 @@ const BIOMES = {
     MESA: { name: "恶地", code: "bg-MESA", res: ["红沙", "金矿石"], mobs: [{name:"巨型蜘蛛", hp:70, atk:12, loot:"蛛丝"}] }
 };
 
-// 合成配方
+// --- 1. 新增：扩充合成配方 (RECIPES) ---
+// type: 'food'(食物), 'heal'(医疗), 'equip'(装备), 'mat'(材料)
 const RECIPES = [
-    { name: "木斧", req: { "木棍": 2, "原木": 3 }, desc: "基础工具，暂无实际加成" },
-    { name: "石剑", req: { "木棍": 1, "石头": 2 }, desc: "攻击力+5", effect: "atk", val: 5 },
-    { name: "烤肉", req: { "生兔肉": 1, "木棍": 1 }, desc: "恢复 30 饥饿", effect: "food", val: 30 },
-    { name: "篝火", req: { "原木": 4, "石头": 4 }, desc: "恢复理智与体温" },
-    { name: "绷带", req: { "杂草": 5 }, desc: "恢复 20 HP", effect: "heal", val: 20 }
+    // === 基础生存 ===
+    { 
+        name: "篝火", 
+        req: { "原木": 3, "石头": 3 }, 
+        type: "use", effect: "warm", val: 0,
+        desc: "立刻恢复 10点理智，用于度过漫漫长夜" 
+    },
+    { 
+        name: "草药绷带", 
+        req: { "杂草": 4, "野花": 1 }, 
+        type: "use", effect: "heal", val: 25,
+        desc: "简易包扎，恢复 25 HP" 
+    },
+    { 
+        name: "纯净水", 
+        req: { "雪球": 3, "煤炭": 1 }, 
+        type: "use", effect: "drink", val: 40,
+        desc: "融雪煮沸，恢复 40 水分" 
+    },
+
+    // === 食物烹饪 ===
+    { 
+        name: "烤肉串", 
+        req: { "生兔肉": 1, "木棍": 1 }, 
+        type: "use", effect: "food", val: 35,
+        desc: "香喷喷的烤肉，恢复 35 饥饿" 
+    },
+    { 
+        name: "炖肉汤", 
+        req: { "羊肉": 1, "蘑菇": 2, "水": 1 }, 
+        type: "use", effect: "food", val: 60,
+        desc: "营养丰富，恢复 60 饥饿" 
+    },
+    { 
+        name: "仙人掌沙拉", 
+        req: { "仙人掌": 2, "野花": 1 }, 
+        type: "use", effect: "food", val: 20,
+        desc: "清爽解腻，恢复 20 饥饿和 10 水分" 
+    },
+
+    // === 武器装备 (提升攻击力) ===
+    { 
+        name: "石斧", 
+        req: { "木棍": 2, "石头": 3 }, 
+        type: "equip", effect: "atk", val: 8,
+        desc: "比空手强多了 (攻击力设为 8)" 
+    },
+    { 
+        name: "铁剑", 
+        req: { "木棍": 2, "铁矿石": 3, "煤炭": 1 }, 
+        type: "equip", effect: "atk", val: 18,
+        desc: "锋利的铁器 (攻击力设为 18)" 
+    },
+    { 
+        name: "仙人掌刺棒", 
+        req: { "仙人掌": 3, "木棍": 2 }, 
+        type: "equip", effect: "atk", val: 12,
+        desc: "沙漠特产武器 (攻击力设为 12)" 
+    },
+    { 
+        name: "黄金三叉戟", 
+        req: { "金矿石": 5, "三叉戟碎片": 1, "原木": 2 }, 
+        type: "equip", effect: "atk", val: 35,
+        desc: "传说中的神器 (攻击力设为 35)" 
+    },
+
+    // === 防具 (提升生命上限) ===
+    { 
+        name: "皮革护甲", 
+        req: { "皮革": 5 }, 
+        type: "equip", effect: "hp_max", val: 120,
+        desc: "保暖又结实 (生命上限提升至 120)" 
+    },
+    { 
+        name: "龟壳头盔", 
+        req: { "海龟": 1, "藤蔓": 2 }, 
+        type: "equip", effect: "hp_max", val: 150,
+        desc: "坚硬的防御 (生命上限提升至 150)" 
+    }
 ];
+
+
+// --- 2. 更新：制作物品逻辑 (craftItem) ---
+function craftItem(recipe) {
+    // 再次检查材料是否足够 (防止作弊)
+    for (let [mat, qty] of Object.entries(recipe.req)) {
+        if ((player.inventory[mat] || 0) < qty) {
+            return log(`材料不足：${mat}`, "red");
+        }
+    }
+
+    // 1. 扣除材料
+    for (let [mat, qty] of Object.entries(recipe.req)) {
+        player.inventory[mat] -= qty;
+        if (player.inventory[mat] <= 0) delete player.inventory[mat];
+    }
+    
+    // 2. 获得物品
+    addItemToInventory(recipe.name, 1);
+    log(`制作成功: ${recipe.name}`, "green");
+    
+    // 3. 刷新界面
+    updateInventoryUI();
+    updateCraftUI();
+    updateStatsUI();
+}
+
+// --- 3. 更新：使用/装备物品逻辑 (useItem) ---
+function useItem(name) {
+    if (!player.inventory[name] || player.inventory[name] <= 0) return;
+
+    // 查找物品对应的配方数据（为了获取效果）
+    // 注意：有些物品可能是掉落物没有配方，这里我们主要处理可合成物品的效果
+    // 如果是普通掉落物直接吃（如浆果），单独处理
+    let recipe = RECIPES.find(r => r.name === name);
+    
+    // 特殊处理非配方物品
+    if (!recipe) {
+        if(name === "浆果") {
+            player.hunger = Math.min(player.maxHunger, player.hunger + 10);
+            log("吃了浆果，酸酸甜甜。");
+        } else if (name === "腐肉") {
+            player.hunger = Math.min(player.maxHunger, player.hunger + 20);
+            player.hp -= 5;
+            log("吃了腐肉，肚子有点不舒服...", "orange");
+        } else {
+            log("这个东西好像不能直接用。");
+            return;
+        }
+    } else {
+        // 处理配方物品效果
+        if (recipe.effect === 'food') {
+            player.hunger = Math.min(player.maxHunger, player.hunger + recipe.val);
+            if(name === "仙人掌沙拉") player.water = Math.min(player.maxWater, player.water + 10);
+            log(`享用了 ${name}，美味！`);
+        } 
+        else if (recipe.effect === 'drink') {
+            player.water = Math.min(player.maxWater, player.water + recipe.val);
+            log(`喝下了 ${name}，解渴。`);
+        }
+        else if (recipe.effect === 'heal') {
+            player.hp = Math.min(player.maxHp, player.hp + recipe.val);
+            log(`使用了 ${name}，伤口愈合了。`);
+        } 
+        else if (recipe.effect === 'warm') {
+            // 篝火特殊逻辑
+            log("点燃了篝火，身心温暖，但篝火很快熄灭了。");
+            // 这里可以加回复理智的逻辑，暂时回点血代替
+            player.hp = Math.min(player.maxHp, player.hp + 5);
+        }
+        else if (recipe.effect === 'atk') {
+            player.atk = recipe.val;
+            log(`装备了 ${name}，当前攻击力: ${player.atk}`, "gold");
+            // 装备不消耗？通常游戏里装备了还在背包里占格子，或者变成装备槽
+            // 为了简化，我们假设"使用"就是"装备上手"，物品不消耗(或者消耗掉变成了属性)
+            // 这里设定为：消耗物品，转化为永久属性(简化版)
+        }
+        else if (recipe.effect === 'hp_max') {
+            player.maxHp = recipe.val;
+            player.hp = player.maxHp; // 穿装备补满血
+            log(`穿戴了 ${name}，生命上限提升至 ${player.maxHp}`, "gold");
+        }
+    }
+    
+    // 消耗物品 (装备类也消耗，代表"穿在身上了"不在背包里了)
+    player.inventory[name]--;
+    if (player.inventory[name] <= 0) delete player.inventory[name];
+
+    updateStatsUI();
+    updateInventoryUI();
+}
+
+// --- 4. 优化：制作界面显示 (updateCraftUI) ---
+function updateCraftUI() {
+    const list = document.getElementById('craft-list');
+    list.innerHTML = '';
+
+    RECIPES.forEach(recipe => {
+        const row = document.createElement('div');
+        row.className = 'list-item';
+        
+        let reqHtml = '';
+        let canCraft = true;
+
+        // 遍历材料，判断是否足够
+        for (let [mat, qty] of Object.entries(recipe.req)) {
+            const has = player.inventory[mat] || 0;
+            const color = has >= qty ? '#2ecc71' : '#e74c3c'; // 绿/红
+            if (has < qty) canCraft = false;
+            reqHtml += `<span style="color:${color}">${mat} ${has}/${qty}</span> `;
+        }
+
+        row.innerHTML = `
+            <div style="flex:1">
+                <div style="font-weight:bold; font-size:14px;">${recipe.name}</div>
+                <div style="font-size:11px; color:#666; margin:2px 0;">${recipe.desc}</div>
+                <div style="font-size:11px; background:#f0f0f0; padding:2px; border-radius:2px;">${reqHtml}</div>
+            </div>
+        `;
+
+        const btn = document.createElement('button');
+        btn.innerText = "制作";
+        btn.style.marginLeft = "10px";
+        if (!canCraft) {
+            btn.disabled = true;
+            btn.style.background = "#ccc";
+            btn.style.cursor = "not-allowed";
+        } else {
+            btn.onclick = () => craftItem(recipe);
+        }
+        
+        row.appendChild(btn);
+        list.appendChild(row);
+    });
+}
+
 
 // 玩家状态
 let player = { 
