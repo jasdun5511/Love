@@ -171,10 +171,42 @@ function getBiome(x, y) {
     return keys[Math.abs((x * 37 + y * 13) % keys.length)];
 }
 
+// 修复：生成怪物时，无论白天晚上都必须设定 maxHp
 function generateScene(biomeKey) {
     currentSceneItems = [];
     const biome = BIOMES[biomeKey];
     const isNight = gameTime.hour >= 20 || gameTime.hour < 6;
+    
+    // 生成资源
+    const resCount = 3 + Math.floor(Math.random() * 4);
+    for(let i=0; i<resCount; i++) {
+        const name = biome.res[Math.floor(Math.random() * biome.res.length)];
+        currentSceneItems.push({ type: 'res', name: name, count: Math.floor(Math.random()*3)+1 });
+    }
+
+    // 生成怪物
+    let mobChance = isNight ? 0.8 : 0.3; 
+    if (Math.random() < mobChance) {
+        const m = biome.mobs[Math.floor(Math.random() * biome.mobs.length)];
+        let mob = JSON.parse(JSON.stringify(m)); // 深度复制
+        mob.type = 'mob';
+        
+        // --- 核心修复：先给它赋值基础最大血量 ---
+        mob.maxHp = mob.hp; 
+
+        // 夜间强化逻辑
+        if (isNight) {
+            mob.name = "狂暴的" + mob.name;
+            mob.hp = Math.floor(mob.hp * 1.5);
+            mob.maxHp = mob.hp; // 强化后重新设定最大血量
+            mob.atk = Math.floor(mob.atk * 1.5);
+        }
+        currentSceneItems.push(mob);
+    }
+}
+
+
+
     
     // 资源
     const resCount = 3 + Math.floor(Math.random() * 4);
@@ -248,11 +280,22 @@ function startCombat(mob, index) {
     updateCombatUI();
 }
 
+// 修复：战斗界面增加显示 攻击力 (ATK)
 function updateCombatUI() {
     if(!currentEnemy) return;
-    const hpPct = (currentEnemy.hp / currentEnemy.maxHp) * 100;
+    
+    // 防止除以0或undefined
+    const max = currentEnemy.maxHp || currentEnemy.hp || 100;
+    const hpPct = (currentEnemy.hp / max) * 100;
+    
     document.getElementById('enemy-hp-bar').style.width = `${hpPct}%`;
-    document.getElementById('enemy-stats').innerText = `HP: ${currentEnemy.hp}/${currentEnemy.maxHp}`;
+    
+    // 这里把 ATK 加回来了
+    document.getElementById('enemy-stats').innerText = `HP: ${currentEnemy.hp}/${max} | 攻: ${currentEnemy.atk}`;
+    
+    if (player.hp <= 0) {
+        document.getElementById('combat-log-area').innerHTML += `<p style="color:red">你被杀死了...</p>`;
+    }
 }
 
 function combatAttack() {
