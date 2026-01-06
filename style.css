@@ -552,3 +552,45 @@ body.night-mode .grid-btn.mob {
     flex-shrink: 0; /* 不允许缩小 */
     /* ...其他 flex gap 样式保持不变... */
 }
+
+/* --- 在文件末尾追加 --- */
+
+/* 箱子左右分栏布局 */
+.chest-layout {
+    display: flex;
+    gap: 5px;
+    height: 300px;
+}
+.half-list {
+    flex: 1;
+    border: 1px solid #ccc;
+    background: #f9f9f9;
+    overflow-y: auto;
+    padding: 5px;
+}
+body.night-mode .half-list {
+    background: #222;
+    border-color: #444;
+}
+
+/* 建筑按钮样式 */
+.grid-btn.build {
+    color: #2980b9;
+    border: 2px solid #3498db;
+    background: #eaf2f8;
+    font-weight: bold;
+}
+body.night-mode .grid-btn.build {
+    color: #3498db;
+    background: #1a252f;
+    border-color: #2980b9;
+}
+
+/* 熔炉/附魔列表项 */
+.recipe-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+}
