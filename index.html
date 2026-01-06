@@ -58,6 +58,28 @@
                 <div class="combat-arena">
                     <div class="enemy-box">
                         <div id="enemy-name" class="enemy-title"></div>
+
+            <div id="chest-view" class="view-container hidden">
+                <div class="view-title">储物箱 <button class="small-btn" onclick="closeBuilding()">关闭</button></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <span>背包</span> <span>箱子</span>
+                </div>
+                <div class="chest-layout">
+                    <div id="chest-player-inv" class="list-container half-list"></div>
+                    <div id="chest-storage" class="list-container half-list"></div>
+                </div>
+            </div>
+
+            <div id="furnace-view" class="view-container hidden">
+                <div class="view-title">熔炉 (烧炼) <button class="small-btn" onclick="closeBuilding()">关闭</button></div>
+                <div id="furnace-list" class="list-container"></div>
+            </div>
+
+            <div id="enchant-view" class="view-container hidden">
+                <div class="view-title">附魔台 (强化) <button class="small-btn" onclick="closeBuilding()">关闭</button></div>
+                <div id="enchant-list" class="list-container"></div>
+            </div>
+
                         <div class="hp-bar-bg"><div id="enemy-hp-bar" class="hp-bar-fill"></div></div>
                         <div id="enemy-stats" class="enemy-text">HP: ??/??</div>
                     </div>
@@ -99,7 +121,8 @@
                 <button class="func-btn active">功能</button>
                 <button class="func-btn">移动键盘</button>
                 <button class="func-btn" onclick="search()">探索</button>
-                <button class="func-btn">安家</button>
+                <button class="func-btn" onclick="setHome()">安家</button>
+
             </div>
         </div>
 
