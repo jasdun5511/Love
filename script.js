@@ -773,4 +773,69 @@ function init() {
     log("生存开始。注意理智值，不要在深夜游荡！");
 }
 
+
+// --- 建筑放置系统 ---
+function placeBuilding(name) {
+    const buildings = getCurrBuildings(); // 获取当前世界的建筑数据
+    const key = `${player.x},${player.y}`;
+    
+    if (!buildings[key]) buildings[key] = [];
+    
+    // 数据结构
+    let newBuild = { name: name };
+    if (name === "储物箱") newBuild.content = {};
+    
+    buildings[key].push(newBuild);
+    log(`放置了 ${name}`, "blue");
+    
+    // 消耗物品
+    player.inventory[name]--;
+    if (player.inventory[name] <= 0) delete player.inventory[name];
+    
+    refreshLocation();
+    updateInventoryUI();
+}
+
+// --- 核心：传送门逻辑 ---
+function usePortal() {
+    if (currentDimension === "OVERWORLD") {
+        // 主世界 -> 地狱
+        log("你踏入了紫色的光幕... 空间开始扭曲！", "purple");
+        
+        // 保存主世界坐标
+        playerPosMain = {x: player.x, y: player.y};
+        
+        // 切换到地狱
+        currentDimension = "NETHER";
+        player.x = playerPosNether.x;
+        player.y = playerPosNether.y;
+        
+        // 第一次进地狱，自动在脚下生成一个传送门，方便回去
+        const key = `${player.x},${player.y}`;
+        if (!buildingsNether[key]) buildingsNether[key] = [];
+        let hasPortal = buildingsNether[key].some(b => b.name === "下界传送门");
+        if (!hasPortal) {
+            buildingsNether[key].push({name: "下界传送门"});
+            log("地狱侧的传送门自动生成了。", "gray");
+        }
+        
+    } else {
+        // 地狱 -> 主世界
+        log("你逃离了炙热的地狱。", "blue");
+        
+        // 保存地狱坐标
+        playerPosNether = {x: player.x, y: player.y};
+        
+        // 切换回主世界
+        currentDimension = "OVERWORLD";
+        player.x = playerPosMain.x;
+        player.y = playerPosMain.y;
+    }
+    
+    // 刷新场景
+    refreshLocation();
+}
+
+
+
 init();
