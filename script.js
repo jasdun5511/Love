@@ -247,41 +247,81 @@ function combatLog(msg, color="#333") {
     el.prepend(p); // 最新消息在最上
 }
 
-// 玩家攻击
+// --- 极速战斗逻辑：无延迟，防鞭尸 ---
 function combatAttack() {
-    if(!currentEnemy) return;
+    // 1. 【安全门】：如果当前没敌人（已经死了），直接终止，防止鞭尸
+    if (!currentEnemy || currentEnemy.hp <= 0) return;
 
-    // 1. 玩家回合
-    const dmg = player.atk + Math.floor(Math.random() * 3);
-    currentEnemy.hp -= dmg;
-    combatLog(`你攻击了 ${currentEnemy.name}，造成 ${dmg} 点伤害。`, "green");
+    // --- 玩家回合 ---
+    
+    // 计算伤害
+    const pDmg = player.atk + Math.floor(Math.random() * 3);
+    currentEnemy.hp -= pDmg;
+    
+    // 【及时反馈】：立刻更新血条和日志
+    combatLog(`你造成 ${pDmg} 伤害`, "green");
+    updateCombatUI(); 
 
-    // 敌人受击动画
-    document.querySelector('.enemy-box').classList.add('shake');
-    setTimeout(()=>document.querySelector('.enemy-box').classList.remove('shake'), 200);
+    // 【动画重置】：强制重绘，保证每次点击都有震动感
+    const box = document.querySelector('.enemy-box');
+    box.classList.remove('shake');
+    void box.offsetWidth; // 触发重绘黑魔法
+    box.classList.add('shake');
 
-    // 2. 检查胜利
+    // --- 死亡判定 (最关键的一步) ---
+    
     if (currentEnemy.hp <= 0) {
-        combatLog(`战斗胜利！击败了 ${currentEnemy.name}。`, "gold");
-        combatLog(`获得战利品: ${currentEnemy.loot}`, "gold");
+        // 1. 先记录掉落物，防止后面清空了拿不到
+        const loot = currentEnemy.loot;
+        const idx = currentEnemy.index;
         
-        addItemToInventory(currentEnemy.loot, 1);
-        currentSceneItems.splice(currentEnemy.index, 1); // 移除怪物
+        // 2. 【核心修复】：立刻、马上、瞬间把当前敌人设为 null
+        // 这行代码执行后，哪怕你手速一秒10枪，下一枪进入函数第一行就会被弹回去
+        currentEnemy = null; 
+
+        // 3. 结算奖励
+        combatLog(`胜利！获得 ${loot}`, "gold");
+        addItemToInventory(loot, 1);
         
-        // 延迟返回地图
-        setTimeout(() => {
-            switchView('scene');
-            renderScene();
-            log(`击败了 ${currentEnemy.name}，获得 ${currentEnemy.loot}`);
-            currentEnemy = null;
-        }, 1000);
-        return;
+        // 4. 移除场景里的怪物
+        if (currentSceneItems[idx]) {
+            currentSceneItems.splice(idx, 1);
+        }
+
+        // 5. 延迟返回地图 (仅视觉延迟，逻辑已结束)
+        setTimeout(() => { 
+            switchView('scene'); 
+            renderScene(); 
+        }, 800);
+        return; // 结束函数，怪物死了就不让它反击了
     }
 
-    // 3. 敌人反击 (0.5秒后)
-    setTimeout(enemyTurn, 500);
+    // --- 怪物瞬间反击 (无延迟) ---
+    // 你点得快，怪物打你也快，这才公平
+    
+    const eDmg = Math.max(1, currentEnemy.atk - Math.floor(Math.random()));
+    player.hp -= eDmg;
+    
+    // 扣理智 (因为攻速快，建议把理智扣除调低一点，或者保持不变增加难度)
+    player.sanity = Math.max(0, player.sanity - 1); 
+
+    combatLog(`受到 ${eDmg} 伤害`, "red");
+    
+    // 玩家受击动画
+    document.body.classList.remove('shake');
+    void document.body.offsetWidth;
+    document.body.classList.add('shake');
+
+    // 玩家死亡判定
+    if (player.hp <= 0) {
+        die();
+    }
+    
+    // 更新所有UI
+    updateStatsUI();
     updateCombatUI();
 }
+
 
 // 敌人回合
 function enemyTurn() {
