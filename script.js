@@ -542,7 +542,17 @@ function updateInventoryUI() {
 function useItem(name) {
     if (!player.inventory[name] || player.inventory[name] <= 0) return;
     
+    
     let recipe = RECIPES.find(r => r.name === name);
+
+    // 建筑放置 (调用新的 placeBuilding)
+    if (recipe && recipe.type === 'build') {
+        placeBuilding(name);
+        return; 
+    }
+    // ... 后面的代码 ...
+}
+
     
     // 特殊物品处理
     if (name === "浆果") {
