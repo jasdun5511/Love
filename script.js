@@ -242,13 +242,63 @@ function renderScene() {
     });
 }
 
-// 采集资源 (保留)
-function collectResource(index, btn) {
+// --- 修正版采集逻辑：允许透支生命采集 ---
+function collectResource(index) {
     const item = currentSceneItems[index];
     if (!item) return;
-    addItemToInventory(item.name, item.count);
-    log(`采集获得: ${item.name} x${item.count}`);
-    currentSceneItems.splice(index, 1);
+
+    // 1. 计算消耗 (优先扣状态，没有状态扣血)
+    let hpCost = 0;
+
+    // 饥饿判定
+    if (player.hunger > 0) {
+        player.hunger -= 1;
+    } else {
+        hpCost += 2; // 没饭吃硬干活，扣2血
+        log("饥饿时强行劳作，体力透支... (HP -2)", "red");
+    }
+
+    // 水分判定
+    if (player.water > 0) {
+        player.water -= 1;
+    } else {
+        hpCost += 2; // 没水喝硬干活，扣2血
+        log("极度口渴伴随着眩晕... (HP -2)", "red");
+    }
+
+    // 2. 执行扣血与死亡判定
+    if (hpCost > 0) {
+        player.hp -= hpCost;
+        
+        // 视觉反馈：屏幕震动
+        document.body.classList.remove('shake');
+        void document.body.offsetWidth;
+        document.body.classList.add('shake');
+
+        if (player.hp <= 0) {
+            die();
+            return; // 死了就不能获得物品了
+        }
+    }
+
+    // 更新顶部状态栏
+    updateStatsUI(); 
+
+    // 3. 获得物品逻辑
+    addItemToInventory(item.name, 1);
+    item.count--;
+    
+    // 如果没扣血，显示普通日志
+    if (hpCost === 0) {
+        log(`采集了 1个 ${item.name} (剩余:${item.count})`);
+    }
+
+    // 4. 数量为0移除
+    if (item.count <= 0) {
+        currentSceneItems.splice(index, 1);
+    }
+
+    // 5. 刷新界面
     renderScene();
 }
 
