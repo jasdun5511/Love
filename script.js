@@ -7,9 +7,11 @@ const BIOMES = {
     FOREST: { name: "森林", code: "bg-FOREST", res: ["原木", "木棍", "浆果"], mobs: [{name:"狼", hp:40, atk:5, loot:"皮革"}, {name:"骷髅", hp:45, atk:10, loot:"骨头"}] },
     DESERT: { name: "沙漠", code: "bg-DESERT", res: ["沙子", "仙人掌", "枯木"], mobs: [{name:"毒蝎", hp:30, atk:12, loot:"毒囊"}] },
     MOUNTAIN: { name: "山脉", code: "bg-MOUNTAIN", res: ["石头", "铁矿石", "煤炭"], mobs: [{name:"山羊", hp:60, atk:6, loot:"羊肉"}] },
-    SNOWY: { name: "雪原", code: "bg-SNOWY", res: ["冰块", "雪球", "原木"], mobs: [{name:"流浪者", hp:60, atk:9, loot:"冰凌"}] },
-    OCEAN: { name: "海洋", code: "bg-OCEAN", res: ["水", "生鱼"], mobs: [{name:"溺尸", hp:55, atk:8, loot:"三叉戟碎片"}] },
+        SNOWY: { name: "雪原", code: "bg-SNOWY", res: ["冰块", "雪球", "原木"], mobs: [{name:"流浪者", hp:60, atk:9, loot:"冰凌"}] },
+    // 修改了这一行，增加了海龟
+    OCEAN: { name: "海洋", code: "bg-OCEAN", res: ["水", "生鱼"], mobs: [{name:"溺尸", hp:55, atk:8, loot:"三叉戟碎片"}, {name:"海龟", hp:80, atk:3, loot:"海龟"}] },
     SWAMP: { name: "沼泽", code: "bg-SWAMP", res: ["粘土", "藤蔓"], mobs: [{name:"史莱姆", hp:25, atk:4, loot:"粘液球"}] },
+
     MESA: { name: "恶地", code: "bg-MESA", res: ["红沙", "金矿石"], mobs: [{name:"巨型蜘蛛", hp:70, atk:12, loot:"蛛丝"}] }
 };
 
