@@ -194,11 +194,20 @@ function move(dx, dy) {
     refreshLocation();
 }
 
+
 function getBiome(x, y) {
-    const keys = Object.keys(BIOMES);
-    const hash = Math.abs((x * 37 + y * 13) % keys.length);
-    return keys[hash];
+    if (currentDimension === "OVERWORLD") {
+        // 主世界 8 种地形
+        const keys = ["PLAINS", "FOREST", "DESERT", "MOUNTAIN", "SNOWY", "OCEAN", "SWAMP", "MESA"];
+        return keys[Math.abs((x * 37 + y * 13) % keys.length)];
+    } else {
+        // 地狱 4 种地形
+        const keys = ["NETHER_WASTES", "CRIMSON_FOREST", "SOUL_SAND_VALLEY", "LAVA_SEA"];
+        // 地狱地形生成算法稍微换个参数，更有随机感
+        return keys[Math.abs((x * 7 + y * 19) % keys.length)];
+    }
 }
+
 
 // --- 4. 核心系统：交互与战斗 (更新夜间强化) ---
 
