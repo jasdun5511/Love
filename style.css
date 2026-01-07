@@ -552,3 +552,9 @@ body.night-mode .grid-btn.mob {
     flex-shrink: 0; /* 不允许缩小 */
     /* ...其他 flex gap 样式保持不变... */
 }
+
+/* 地狱地形颜色 */
+.map-cell.bg-NETHER { color: #800000; background: #300; } /* 暗红 */
+.map-cell.bg-CRIMSON { color: #DC143C; background: #400; } /* 鲜红 */
+.map-cell.bg-SOUL { color: #778899; background: #222; }    /* 灵魂沙灰 */
+.map-cell.bg-LAVA { color: #FF4500; background: #410; }    /* 岩浆橘 */
