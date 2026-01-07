@@ -95,6 +95,24 @@ let exploredMap = {};
 let currentSceneItems = [];
 let currentEnemy = null; // 当前战斗敌人
 
+
+let currentDimension = "OVERWORLD"; // 当前维度: "OVERWORLD" 或 "NETHER"
+let exploredMapMain = {};   // 主世界探索记录
+let exploredMapNether = {}; // 地狱探索记录
+let buildingsMain = {};     // 主世界建筑
+let buildingsNether = {};   // 地狱建筑
+
+// 玩家坐标需要分开记忆，否则进地狱会掉虚空
+let playerPosMain = {x: 10, y: 10};
+let playerPosNether = {x: 10, y: 10}; 
+
+// 辅助函数：获取当前世界的建筑列表
+function getCurrBuildings() {
+    return currentDimension === "OVERWORLD" ? buildingsMain : buildingsNether;
+}
+
+
+
 // --- 2. 核心系统：时间与状态 ---
 
 function passTime(hours) {
