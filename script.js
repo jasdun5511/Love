@@ -741,20 +741,33 @@ function updateMiniMap() {
     document.getElementById('dir-w').innerText = getBName(player.x - 1, player.y);
     document.getElementById('dir-e').innerText = getBName(player.x + 1, player.y);
 }
+
 function renderBigMap() {
     const mapEl = document.getElementById('big-grid');
     if (!mapEl) return;
     mapEl.innerHTML = '';
     mapEl.style.gridTemplateColumns = `repeat(${MAP_SIZE}, 1fr)`;
     mapEl.style.gridTemplateRows = `repeat(${MAP_SIZE}, 1fr)`;
+    
+    // 选择当前地图数据
+    const currentExplored = currentDimension === "OVERWORLD" ? exploredMapMain : exploredMapNether;
+
     for (let y = 0; y < MAP_SIZE; y++) {
         for (let x = 0; x < MAP_SIZE; x++) {
             const cell = document.createElement('div');
             const key = `${x},${y}`;
-            if (exploredMap[key]) {
+            
+            if (currentExplored[key]) {
                 const type = getBiome(x, y);
-                cell.className = `map-cell ${BIOMES[type].code}`;
+                cell.className = `map-cell ${BIOMES[type].code}`; // 这里会自动用到CSS里定义的颜色
                 cell.innerText = BIOMES[type].name.substring(0, 2);
+                
+                // 标记传送门 (P)
+                const buildings = getCurrBuildings()[key] || [];
+                if (buildings.some(b => b.name === "下界传送门")) {
+                    cell.style.border = "2px solid #8e44ad"; // 紫色框
+                    cell.innerText = "门";
+                }
             } else {
                 cell.className = 'map-cell fog';
                 cell.innerText = '';
@@ -767,6 +780,7 @@ function renderBigMap() {
         }
     }
 }
+
 
 window.search = function() {
     passTime(2);
