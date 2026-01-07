@@ -256,15 +256,35 @@ function renderScene() {
     const grid = document.getElementById('scene-grid');
     grid.innerHTML = '';
     
+    // 1. 渲染当前世界的建筑
+    const key = `${player.x},${player.y}`;
+    const buildings = getCurrBuildings()[key] || [];
+    
+    buildings.forEach((b, idx) => {
+        const btn = document.createElement('div');
+        btn.className = `grid-btn build`;
+        
+        // 特殊渲染传送门
+        if (b.name === "下界传送门") {
+            btn.innerText = "🔮 下界传送门";
+            btn.style.borderColor = "#8e44ad";
+            btn.style.color = "#8e44ad";
+            btn.onclick = () => usePortal(); // 点击传送
+        } else {
+            btn.innerText = `🏠 ${b.name}`;
+            btn.onclick = () => openBuilding(b, idx);
+        }
+        grid.appendChild(btn);
+    });
+
+    // 2. 渲染资源和怪物 (保持不变)
     currentSceneItems.forEach((item, index) => {
         const btn = document.createElement('div');
         btn.className = `grid-btn ${item.type}`;
-        
         if (item.type === 'res') {
             btn.innerText = `${item.name} (${item.count})`;
-            btn.onclick = () => collectResource(index, btn);
+            btn.onclick = () => collectResource(index);
         } else {
-            // 怪物按钮：点击进入战斗界面
             btn.innerText = `${item.name} [??]`; 
             btn.classList.add('mob');
             btn.onclick = () => startCombat(item, index);
@@ -272,6 +292,7 @@ function renderScene() {
         grid.appendChild(btn);
     });
 }
+
 
 // --- 修正版采集逻辑：允许透支生命采集 ---
 function collectResource(index) {
