@@ -2,8 +2,8 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>文字生存：荒野 (UI重制版)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文字生存：荒野 (完整版)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,35 +11,29 @@
     <div class="app-container">
         <header class="top-bar">
             <div class="loc-info">
-                <span><b id="loc-name">草原</b> <span id="coord">[10,10]</span></span>
+                <span>孤岛: <b id="loc-name">戈壁</b> [<span id="coord">11,3</span>]</span>
+                <span class="mini-map-btn">小地图</span>
             </div>
-            <div class="time-info">第 <span id="game-day">1</span> 天 <span id="clock-time">08:00</span></div>
-             <div class="top-right-btns">
-                <span class="mini-btn">设置</span>
-                <span class="mini-btn mini-map-btn">地图</span>
+            <div class="time-info">1000年03月01日 <span id="clock-time">08:00</span></div>
+
+            <div class="stats-grid">
+                <span>LV: 1(0%)</span>
+                <span>EXP: 0/5</span>
+                <span class="stat-sanity">理智: <b id="sanity">100</b>/100</span>
+                <span class="stat-hp">HP: <b id="hp">100</b>/100</span>
+                <span class="stat-hunger">饥饿: <b id="hunger">100</b>/100</span>
+                <span class="stat-water">水分: <b id="water">100</b>/100</span>
             </div>
         </header>
 
-        <div class="stats-bar-compact">
-            <div class="stat-item"><span class="stat-label">HP</span><b id="hp" class="stat-val red">100</b></div>
-            <div class="stat-item"><span class="stat-label">饥饿</span><b id="hunger" class="stat-val yellow">100</b></div>
-            <div class="stat-item"><span class="stat-label">水分</span><b id="water" class="stat-val blue">100</b></div>
-            <div class="stat-item"><span class="stat-label">理智</span><b id="sanity" class="stat-val purple">100</b></div>
-            <div class="stat-item extra"><span class="stat-label">LV</span><b>1</b></div>
-        </div>
-
         <div class="season-bar">
             <div class="season-box">春</div>
-            <div class="weather-box">晴朗</div>
+            <div class="weather-box">日</div>
         </div>
 
-        <div class="filter-bar">
-            <button class="small-btn">可用逗号分割</button>
-            <div class="checkboxes">
-                <label><input type="checkbox" checked>资源</label>
-                <label><input type="checkbox" checked>怪物</label>
-                <label><input type="checkbox" checked>NPC</label>
-            </div>
+        <div class="survive-bar">
+            <span>存活: 神性史莱姆</span>
+            <span>存活: 扭曲邪物</span>
         </div>
 
         <main class="content-area">
@@ -64,53 +58,72 @@
                         <div class="hp-bar-bg"><div id="enemy-hp-bar" class="hp-bar-fill"></div></div>
                         <div id="enemy-stats" class="enemy-text">HP: ??/??</div>
                     </div>
+
                     <div class="combat-log" id="combat-log-area"></div>
+
                     <div class="player-actions">
                         <button class="atk-btn" onclick="combatAttack()">⚔️ 攻击</button>
                         <button class="flee-btn" onclick="combatFlee()">🏃 逃跑</button>
                     </div>
                 </div>
             </div>
-            <div id="chest-view" class="view-container hidden"><div class="view-title">储物箱 <button class="small-btn" onclick="closeBuilding()">关闭</button></div><div class="chest-layout"><div id="chest-player-inv" class="list-container half-list"></div><div id="chest-storage" class="list-container half-list"></div></div></div>
-             <div id="furnace-view" class="view-container hidden"><div class="view-title">熔炉 <button class="small-btn" onclick="closeBuilding()">关闭</button></div><div id="furnace-list" class="list-container"></div></div>
-             <div id="enchant-view" class="view-container hidden"><div class="view-title">附魔台 <button class="small-btn" onclick="closeBuilding()">关闭</button></div><div id="enchant-list" class="list-container"></div></div>
+
+            <div id="chest-view" class="view-container hidden">
+                <div class="view-title">储物箱 <button class="small-btn" onclick="closeBuilding()">关闭</button></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:12px; color:#666;">
+                    <span>我的背包</span> <span>箱子空间</span>
+                </div>
+                <div class="chest-layout">
+                    <div id="chest-player-inv" class="list-container half-list"></div>
+                    <div id="chest-storage" class="list-container half-list"></div>
+                </div>
+            </div>
+
+            <div id="furnace-view" class="view-container hidden">
+                <div class="view-title">熔炉 (烧炼) <button class="small-btn" onclick="closeBuilding()">关闭</button></div>
+                <div id="furnace-list" class="list-container"></div>
+            </div>
+
+            <div id="enchant-view" class="view-container hidden">
+                <div class="view-title">附魔台 (强化) <button class="small-btn" onclick="closeBuilding()">关闭</button></div>
+                <div id="enchant-list" class="list-container"></div>
+            </div>
+
         </main>
 
         <div class="log-area" id="game-log">
-            <p>> 游戏加载完成。还原图一 UI 风格。</p>
+            <p>系统初始化完成...</p>
         </div>
 
         <div class="control-panel">
-            <div class="d-pad-map-style1">
-                <div class="d-cell-s1 fog"></div>
-                <div class="d-cell-s1 dir-n" id="dir-n" onclick="move(0, -1)">北</div>
-                <div class="d-cell-s1 fog"></div>
-                <div class="d-cell-s1 dir-w" id="dir-w" onclick="move(-1, 0)">西</div>
-                <div class="d-cell-s1 player-center" id="dir-c"></div>
-                <div class="d-cell-s1 dir-e" id="dir-e" onclick="move(1, 0)">东</div>
-                <div class="d-cell-s1 fog"></div>
-                <div class="d-cell-s1 dir-s" id="dir-s" onclick="move(0, 1)">南</div>
-                <div class="d-cell-s1 fog"></div>
+            <div class="d-pad-map">
+                <div class="d-cell empty"></div>
+                <div class="d-cell dir-btn" id="dir-n" onclick="move(0, -1)">北</div>
+                <div class="d-cell empty"></div>
+
+                <div class="d-cell dir-btn" id="dir-w" onclick="move(-1, 0)">西</div>
+                <div class="d-cell current-loc" id="dir-c">我</div>
+                <div class="d-cell dir-btn" id="dir-e" onclick="move(1, 0)">东</div>
+
+                <div class="d-cell empty"></div>
+                <div class="d-cell dir-btn" id="dir-s" onclick="move(0, 1)">南</div>
+                <div class="d-cell empty"></div>
             </div>
 
-            <div class="action-buttons-style1">
-                <div class="act-row">
-                    <button class="func-btn-s1 active">功能</button>
-                    <button class="func-btn-s1">键盘</button>
-                </div>
-                <div class="act-row">
-                    <button class="func-btn-s1" onclick="search()">探索</button>
-                    <button class="func-btn-s1" onclick="setHome()">安家</button>
-                </div>
+            <div class="action-buttons">
+                <button class="func-btn active">功能</button>
+                <button class="func-btn">移动键盘</button>
+                <button class="func-btn" onclick="search()">探索</button>
+                <button class="func-btn" onclick="setHome()">安家</button>
             </div>
         </div>
 
-        <nav class="bottom-nav-style1">
-            <div class="nav-item-s1" onclick="switchView('inventory')">背包</div>
-            <div class="nav-item-s1" onclick="switchView('craft')">制作</div>
-            <div class="nav-item-s1 active" onclick="switchView('scene')">探索</div>
-            <div class="nav-item-s1" onclick="openMap()">地图</div>
-            <div class="nav-item-s1">系统</div>
+        <nav class="bottom-nav">
+            <div class="nav-item" onclick="switchView('inventory')">背包</div>
+            <div class="nav-item" onclick="switchView('craft')">制作</div>
+            <div class="nav-item active" onclick="switchView('scene')">探索</div>
+            <div class="nav-item" onclick="openMap()">地图</div>
+            <div class="nav-item">系统</div>
         </nav>
 
     </div>
@@ -118,14 +131,19 @@
     <div id="map-modal" class="modal hidden">
         <div class="modal-content">
             <div class="modal-header">关闭地图</div>
-            <div class="big-map-container"><div id="big-grid" class="big-grid"></div></div>
+            <div class="big-map-container">
+                <div id="big-grid" class="big-grid"></div> 
+            </div>
             <div class="modal-footer" onclick="closeMap()">点击此处返回</div>
+            <div class="map-controls">
+                <button>还原</button><button>放大</button><button>缩小</button><button>传送</button>
+            </div>
         </div>
     </div>
 
     <script>
         document.querySelector('.mini-map-btn').onclick = openMap;
-        document.querySelector('.bottom-nav-style1 .nav-item-s1:nth-child(4)').onclick = openMap;
+        document.querySelector('.bottom-nav .nav-item:nth-child(4)').onclick = openMap;
     </script>
     <script src="script.js"></script> 
 
