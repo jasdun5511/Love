@@ -621,20 +621,42 @@ function craftItem(recipe) {
 // --- 7. 辅助功能与UI ---
 
 function refreshLocation() {
-    exploredMap[`${player.x},${player.y}`] = true;
+    // 根据当前世界选择探索记录
+    let currentMap = currentDimension === "OVERWORLD" ? exploredMapMain : exploredMapNether;
+    currentMap[`${player.x},${player.y}`] = true;
+
     const biomeKey = getBiome(player.x, player.y);
     const biome = BIOMES[biomeKey];
     
-    document.getElementById('loc-name').innerText = biome.name;
+    // 标题变色提示
+    let titleColor = currentDimension === "OVERWORLD" ? "#333" : "#c0392b"; // 地狱红色标题
+    let titleHtml = `<span style="color:${titleColor}">${biome.name}</span>`;
+    
+    if(player.home && player.home.dim === currentDimension && player.home.x === player.x && player.home.y === player.y) {
+        titleHtml += " <span style='color:gold'>(家)</span>";
+    }
+    
+    document.getElementById('loc-name').innerHTML = titleHtml;
     document.getElementById('coord').innerText = `${player.x},${player.y}`;
+    
+    // 地狱背景变色
+    if (currentDimension === "NETHER") {
+        document.body.style.backgroundColor = "#2c0505"; // 深红背景
+        document.querySelector('.app-container').style.borderColor = "#500";
+    } else {
+        document.body.style.backgroundColor = "#333";
+        document.querySelector('.app-container').style.borderColor = "#fff";
+    }
     
     generateScene(biomeKey);
     renderScene();
     updateMiniMap();
+    
     if (!document.getElementById('map-modal').classList.contains('hidden')) {
         renderBigMap();
     }
 }
+
 
 function updateStatsUI() {
     document.getElementById('hp').innerText = player.hp;
