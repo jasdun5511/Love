@@ -46,21 +46,34 @@ const BIOMES = {
 };
 
 
-// 合成配方 (保留原样)
+// --- 2. 扩充后的合成配方 ---
 const RECIPES = [
-    { name: "篝火", req: { "原木": 3, "石头": 3 }, type: "use", effect: "warm", val: 20, desc: "恢复 20点理智" }, // 修改：篝火回理智
-    { name: "草药绷带", req: { "杂草": 4, "野花": 1 }, type: "use", effect: "heal", val: 25, desc: "简易包扎，恢复 25 HP" },
-    { name: "纯净水", req: { "雪球": 3, "煤炭": 1 }, type: "use", effect: "drink", val: 40, desc: "融雪煮沸，恢复 40 水分" },
+    // === 基础工具/武器 ===
+    { name: "石斧", req: { "木棍": 2, "石头": 3 }, type: "equip", effect: "atk", val: 8, desc: "基础工具 (攻8)" },
+    { name: "铜剑", req: { "木棍": 2, "铜矿石": 3 }, type: "equip", effect: "atk", val: 14, desc: "比石器好用 (攻14)" },
+    { name: "铁剑", req: { "木棍": 2, "铁矿石": 3, "煤炭": 1 }, type: "equip", effect: "atk", val: 20, desc: "标准武器 (攻20)" }, // 数值微调
+    { name: "黑曜石匕首", req: { "木棍": 1, "燧石": 4 }, type: "equip", effect: "atk", val: 16, desc: "锋利的匕首 (攻16)" },
+    { name: "黄金三叉戟", req: { "金矿石": 5, "三叉戟碎片": 1, "原木": 2 }, type: "equip", effect: "atk", val: 35, desc: "传说武器 (攻35)" },
+    { name: "仙人掌刺棒", req: { "仙人掌": 3, "木棍": 2 }, type: "equip", effect: "atk", val: 12, desc: "沙漠特产 (攻12)" },
+
+    // === 防具 ===
+    { name: "皮革护甲", req: { "皮革": 5 }, type: "equip", effect: "hp_max", val: 120, desc: "HP上限 -> 120" },
+    { name: "龟壳头盔", req: { "海龟": 1, "藤蔓": 2 }, type: "equip", effect: "hp_max", val: 150, desc: "HP上限 -> 150" },
+    { name: "贝壳盾", req: { "贝壳": 5, "木棍": 2 }, type: "equip", effect: "hp_max", val: 115, desc: "HP上限 -> 115" },
+
+    // === 生存/消耗品 ===
+    { name: "篝火", req: { "原木": 3, "石头": 3 }, type: "use", effect: "warm", val: 25, desc: "恢复 25 理智" },
+    { name: "草药绷带", req: { "杂草": 2, "药草": 2 }, type: "use", effect: "heal", val: 40, desc: "强效治疗 (HP+40)" },
+    { name: "芦荟胶", req: { "芦荟": 3 }, type: "use", effect: "heal", val: 30, desc: "清凉伤药 (HP+30)" },
+    { name: "纯净水", req: { "雪球": 3, "煤炭": 1 }, type: "use", effect: "drink", val: 50, desc: "恢复 50 水分" },
+    
+    // === 食物 ===
     { name: "烤肉串", req: { "生兔肉": 1, "木棍": 1 }, type: "use", effect: "food", val: 35, desc: "恢复 35 饥饿" },
-    { name: "炖肉汤", req: { "羊肉": 1, "蘑菇": 2, "水": 1 }, type: "use", effect: "food", val: 60, desc: "恢复 60 饥饿" },
-    { name: "仙人掌沙拉", req: { "仙人掌": 2, "野花": 1 }, type: "use", effect: "food", val: 20, desc: "恢复 20 饥饿" },
-    { name: "石斧", req: { "木棍": 2, "石头": 3 }, type: "equip", effect: "atk", val: 8, desc: "攻击力设为 8" },
-    { name: "铁剑", req: { "木棍": 2, "铁矿石": 3, "煤炭": 1 }, type: "equip", effect: "atk", val: 18, desc: "攻击力设为 18" },
-    { name: "仙人掌刺棒", req: { "仙人掌": 3, "木棍": 2 }, type: "equip", effect: "atk", val: 12, desc: "攻击力设为 12" },
-    { name: "黄金三叉戟", req: { "金矿石": 5, "三叉戟碎片": 1, "原木": 2 }, type: "equip", effect: "atk", val: 35, desc: "攻击力设为 35" },
-    { name: "皮革护甲", req: { "皮革": 5 }, type: "equip", effect: "hp_max", val: 120, desc: "生命上限提升至 120" },
-    { name: "龟壳头盔", req: { "海龟": 1, "藤蔓": 2 }, type: "equip", effect: "hp_max", val: 150, desc: "生命上限提升至 150" }
+    { name: "蘑菇汤", req: { "蘑菇": 3, "水": 1 }, type: "use", effect: "food", val: 45, desc: "恢复 45 饥饿" },
+    { name: "海带汤", req: { "海带": 3, "水": 1 }, type: "use", effect: "food", val: 40, desc: "恢复 40 饥饿" },
+    { name: "炖肉汤", req: { "羊肉": 1, "蘑菇": 1, "水": 1 }, type: "use", effect: "food", val: 70, desc: "恢复 70 饥饿" }
 ];
+
 
 // 玩家状态 (新增 sanity 理智值)
 let player = { 
