@@ -1,47 +1,38 @@
 // --- 1. 游戏配置与数据 ---
 const MAP_SIZE = 20;
 
-// --- 1. 扩充后的地形与资源 ---
+// --- 1. 双世界地形配置 ---
 const BIOMES = {
-    PLAINS: { 
-        name: "草原", code: "bg-PLAINS", 
-        res: ["杂草", "野花", "木棍", "种子", "浆果"], // 新增：种子、浆果
-        mobs: [{name:"野兔", hp:20, atk:2, loot:"生兔肉"}, {name:"僵尸", hp:50, atk:8, loot:"腐肉"}] 
+    // === 主世界 ===
+    PLAINS: { name: "草原", code: "bg-PLAINS", res: ["杂草", "野花", "木棍", "种子", "浆果"], mobs: [{name:"野兔", hp:20, atk:2, loot:"生兔肉"}, {name:"僵尸", hp:50, atk:8, loot:"腐肉"}] },
+    FOREST: { name: "森林", code: "bg-FOREST", res: ["原木", "木棍", "浆果", "蘑菇", "药草", "树脂"], mobs: [{name:"狼", hp:40, atk:5, loot:"皮革"}, {name:"骷髅", hp:45, atk:10, loot:"骨头"}] },
+    DESERT: { name: "沙漠", code: "bg-DESERT", res: ["沙子", "仙人掌", "枯木", "芦荟", "岩浆源"], mobs: [{name:"毒蝎", hp:30, atk:12, loot:"毒囊"}] },
+    MOUNTAIN: { name: "山脉", code: "bg-MOUNTAIN", res: ["石头", "铁矿石", "煤炭", "燧石", "铜矿石"], mobs: [{name:"山羊", hp:60, atk:6, loot:"羊肉"}] },
+    SNOWY: { name: "雪原", code: "bg-SNOWY", res: ["冰块", "雪球", "原木", "冻肉"], mobs: [{name:"流浪者", hp:60, atk:9, loot:"冰凌"}] },
+    OCEAN: { name: "海洋", code: "bg-OCEAN", res: ["水", "生鱼", "海带", "珊瑚", "贝壳"], mobs: [{name:"溺尸", hp:55, atk:8, loot:"三叉戟碎片"}, {name:"海龟", hp:80, atk:3, loot:"海龟"}] },
+    SWAMP: { name: "沼泽", code: "bg-SWAMP", res: ["粘土", "藤蔓", "有毒孢子", "污泥"], mobs: [{name:"史莱姆", hp:25, atk:4, loot:"粘液球"}] },
+    MESA: { name: "恶地", code: "bg-MESA", res: ["红沙", "金矿石", "硫磺", "岩浆源"], mobs: [{name:"巨型蜘蛛", hp:70, atk:12, loot:"蛛丝"}] },
+    
+    // === 地狱 (独立世界) ===
+    NETHER_WASTES: { 
+        name: "地狱荒原", code: "bg-NETHER", // 需要在CSS加个红色背景
+        res: ["地狱岩", "石英矿", "岩浆源"], 
+        mobs: [{name:"僵尸猪人", hp:100, atk:15, loot:"金粒"}] 
     },
-    FOREST: { 
-        name: "森林", code: "bg-FOREST", 
-        res: ["原木", "木棍", "浆果", "蘑菇", "药草", "树脂"], // 新增：蘑菇、药草、树脂
-        mobs: [{name:"狼", hp:40, atk:5, loot:"皮革"}, {name:"骷髅", hp:45, atk:10, loot:"骨头"}] 
+    CRIMSON_FOREST: { 
+        name: "绯红森林", code: "bg-CRIMSON", 
+        res: ["绯红菌柄", "地狱疣", "萤石"], 
+        mobs: [{name:"猪灵", hp:80, atk:18, loot:"金锭"}] 
     },
-    DESERT: { 
-        name: "沙漠", code: "bg-DESERT", 
-        res: ["沙子", "仙人掌", "枯木", "芦荟", "风化骨"], // 新增：芦荟、风化骨
-        mobs: [{name:"毒蝎", hp:30, atk:12, loot:"毒囊"}] 
+    SOUL_SAND_VALLEY: { 
+        name: "灵魂沙峡谷", code: "bg-SOUL", 
+        res: ["灵魂沙", "骨块", "玄武岩"], 
+        mobs: [{name:"骷髅射手", hp:60, atk:12, loot:"骨头"}, {name:"恶魂", hp:50, atk:25, loot:"恶魂之泪"}] 
     },
-    MOUNTAIN: { 
-        name: "山脉", code: "bg-MOUNTAIN", 
-        res: ["石头", "铁矿石", "煤炭", "燧石", "铜矿石"], // 新增：燧石、铜矿石
-        mobs: [{name:"山羊", hp:60, atk:6, loot:"羊肉"}] 
-    },
-    SNOWY: { 
-        name: "雪原", code: "bg-SNOWY", 
-        res: ["冰块", "雪球", "原木", "冻肉"], // 新增：冻肉
-        mobs: [{name:"流浪者", hp:60, atk:9, loot:"冰凌"}] 
-    },
-    OCEAN: { 
-        name: "海洋", code: "bg-OCEAN", 
-        res: ["水", "生鱼", "海带", "珊瑚", "贝壳"], // 新增：海带、珊瑚、贝壳
-        mobs: [{name:"溺尸", hp:55, atk:8, loot:"三叉戟碎片"}, {name:"海龟", hp:80, atk:3, loot:"海龟"}] 
-    },
-    SWAMP: { 
-        name: "沼泽", code: "bg-SWAMP", 
-        res: ["粘土", "藤蔓", "有毒孢子", "污泥"], // 新增：有毒孢子、污泥
-        mobs: [{name:"史莱姆", hp:25, atk:4, loot:"粘液球"}] 
-    },
-    MESA: { 
-        name: "恶地", code: "bg-MESA", 
-        res: ["红沙", "金矿石", "硫磺"], // 新增：硫磺
-        mobs: [{name:"巨型蜘蛛", hp:70, atk:12, loot:"蛛丝"}] 
+    LAVA_SEA: { 
+        name: "岩浆海", code: "bg-LAVA", 
+        res: ["岩浆源", "黑石"], 
+        mobs: [{name:"烈焰人", hp:70, atk:16, loot:"烈焰棒"}, {name:"岩浆怪", hp:90, atk:10, loot:"岩浆膏"}] 
     }
 };
 
