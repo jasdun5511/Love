@@ -561,6 +561,13 @@ function updateCraftUI() {
     RECIPES.forEach(recipe => {
         const row = document.createElement('div');
         row.className = 'list-item';
+        
+        // --- 图标逻辑 ---
+        let iconHtml = "";
+        if (ITEM_ICONS[recipe.name]) {
+            iconHtml = `<img src="${ITEM_ICONS[recipe.name]}" class="item-icon">`;
+        }
+
         let reqStr = [];
         let canCraft = true;
         for (let [mat, qty] of Object.entries(recipe.req)) {
@@ -571,21 +578,31 @@ function updateCraftUI() {
         }
 
         row.innerHTML = `
-            <div style="flex:1">
-                <div style="font-weight:bold">${recipe.name}</div>
-                <div style="font-size:10px;color:#666">${recipe.desc}</div>
-                <div style="font-size:10px;background:#f5f5f5;padding:2px;">${reqStr.join(' ')}</div>
+            <div style="flex:1; display:flex; align-items:center; gap:10px;">
+                ${iconHtml}
+                <div>
+                    <div style="font-weight:bold">${recipe.name}</div>
+                    <div style="font-size:10px;color:#666">${recipe.desc}</div>
+                    <div style="font-size:10px;background:#f5f5f5;padding:2px;border-radius:2px;margin-top:2px;">${reqStr.join(' ')}</div>
+                </div>
             </div>
         `;
+        
         const btn = document.createElement('button');
         btn.innerText = "制作";
         btn.disabled = !canCraft;
         if(!canCraft) btn.style.background = "#ccc";
         btn.onclick = () => craftItem(recipe);
-        row.appendChild(btn);
+        
+        // 把按钮单独放一个容器，防止布局乱
+        const btnDiv = document.createElement('div');
+        btnDiv.appendChild(btn);
+        
+        row.appendChild(btnDiv);
         list.appendChild(row);
     });
 }
+
 
 function craftItem(recipe) {
     for (let [mat, qty] of Object.entries(recipe.req)) {
