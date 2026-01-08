@@ -480,16 +480,34 @@ function updateInventoryUI() {
             const row = document.createElement('div');
             row.className = 'list-item';
             
+            // --- 图标逻辑 ---
+            let iconHtml = "";
+            if (ITEM_ICONS[name]) {
+                // 使用 style.css 里定义好的 item-icon
+                iconHtml = `<img src="${ITEM_ICONS[name]}" class="item-icon">`;
+            }
+
             let r = RECIPES.find(x => x.name === name);
             let btnText = "使用";
-            if (r && r.type === 'build') btnText = "放置"; 
+            if (r && r.type === 'build') btnText = "放置";
             else if (r && r.type === 'equip') btnText = "装备";
 
-            row.innerHTML = `<span>${name}</span> <b>x${count}</b> <button onclick="useItem('${name}')">${btnText}</button>`;
+            // 使用 flex 布局让图标、文字、数量、按钮横向排列
+            row.innerHTML = `
+                <div style="display:flex; align-items:center; gap:10px; flex:1;">
+                    ${iconHtml}
+                    <span style="font-weight:bold;">${name}</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <b style="color:#666;">x${count}</b>
+                    <button onclick="useItem('${name}')">${btnText}</button>
+                </div>
+            `;
             list.appendChild(row);
         }
     }
 }
+
 
 function useItem(name) {
     if (!player.inventory[name] || player.inventory[name] <= 0) return;
