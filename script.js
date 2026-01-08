@@ -1,16 +1,17 @@
 // --- 1. 游戏配置与数据 ---
 const MAP_SIZE = 20;
 
-// --- 新增：物品图标配置 (已修复Base64数据) ---
+// --- 新增：物品图标配置 (使用网络图片链接) ---
+// 直接引用 Minecraft Wiki 的官方图片，清晰度更高且无需转码
 const ITEM_ICONS = {
-    // 橡木原木：棕色年轮图案
-    "橡木原木": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAABwSURBVHgB7ZMxDgAhCEX9/oPXO3i9g9fbeA07O60Wk10mY8J85AWE8FWM85SWOA75Wp8CWDZzWxtQ3S1WOmB0u4HWCrD6FkQ7YLRbwfEO2N0u4HwHXO5W8LwD3u5W8L0D/u428L8D4e428L8D4e438Atp8hZ12X17mQAAAABJRU5ErkJggg==",
+    // 橡木原木 (使用立体的物品图标，而非平面纹理)
+    "橡木原木": "https://zh.minecraft.wiki/images/Oak_Log_JE5_BE3.png",
     
-    // 石头：灰色纹理
-    "石头": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAABaSURBVHgB7dLBCYAwDADB2v0H63Z0JzuK5CKhaX148CchiZI0uJk5S4d2Z87S4d+Zs3RId+YsHdqeOUsHdmfO0iHembN0aHvmLB3YnTlLh3hnztKh7ZmzdGB35i4dPl43IQAAAABJRU5ErkJggg==",
+    // 石头
+    "石头": "https://zh.minecraft.wiki/images/Stone_JE5_BE3.png",
     
-    // 苹果：红色
-    "苹果": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACISURBVHgB7ZJBDsAgCEX9/oPXO3i9g9fbeA23uGlqWy0mMwxs+Mh7QCx/xTjPaYnjkK/1KYBlM7e1AdXdYqUDRrcbaK0Aq29BtANGuxUc74Dd7QLOd8DlbgXPO+DtbgXfO+DvbgP/OxDubgP/OxDubgP/OxDubgP/OxDubgP/OxDufoNfS2cWdRlb3uQAAAAASUVORK5CYII="
+    // 苹果
+    "苹果": "https://zh.minecraft.wiki/images/Apple_JE3_BE3.png"
 };
 
 
