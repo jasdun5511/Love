@@ -584,3 +584,29 @@ body.night-mode .grid-btn.mob {
     /* 给图片加一点阴影，防止白色图片在白色背景看不清 */
     filter: drop-shadow(1px 1px 0px rgba(0,0,0,0.2));
 }
+
+
+/* --- 底部导航栏图标样式 --- */
+
+/* 修改 nav-item 让图片和文字垂直排列 */
+.nav-item {
+    display: flex;
+    flex-direction: column; /* 垂直排列 */
+    justify-content: center;
+    align-items: center;
+    gap: 2px; /* 图片和文字的间距 */
+    padding: 4px 0;
+}
+
+/* 导航栏图标专用样式 */
+.nav-icon {
+    width: 24px;  /* 比列表图标稍微大一点 */
+    height: 24px;
+    image-rendering: pixelated; /* 保持像素风清晰 */
+}
+
+/* 调整文字大小，防止导航栏太高 */
+.nav-item span {
+    font-size: 10px;
+    line-height: 1.2;
+}
