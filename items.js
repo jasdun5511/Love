@@ -2,16 +2,16 @@
 // 这里只放图片链接，不放游戏逻辑，方便修改
 
 const ITEM_ICONS = {
-    // === 导航栏专用图标 ===
+    // === 导航栏专用图标 (已更新为你指定的动图和图标) ===
     "导航_背包": "https://zh.minecraft.wiki/images/Chest_JE2_BE3.gif?4e19c",
     "导航_制作": "https://zh.minecraft.wiki/images/Crafting_Table_JE4_BE3.png",
-    "导航_探索": "https://zh.minecraft.wiki/images/Grass_Block_JE7_BE6.png", // 草方块代表探索
-    "导航_地图": "https://zh.minecraft.wiki/images/Invicon_Locked_Map.png?af5e7",   // 你点名要的地图
-    "导航_系统": "https://zh.minecraft.wiki/images/Impulse_Command_Block.gif?e65a3", // 命令方块代表系统
+    "导航_探索": "https://zh.minecraft.wiki/images/Grass_Block_JE7_BE6.png", 
+    "导航_地图": "https://zh.minecraft.wiki/images/Invicon_Locked_Map.png?af5e7",   
+    "导航_系统": "https://zh.minecraft.wiki/images/Impulse_Command_Block.gif?e65a3", 
     
 
     // === 基础资源 ===
-    // 橡木原木 (使用立体的物品图标，而非平面纹理)
+    // 橡木原木 (你指定的年轮切面图)
     "橡木原木": "https://zh.minecraft.wiki/images/Oak_Log_Axis_Y_JE5_BE3.png?da15a",
     "木棍": "https://zh.minecraft.wiki/images/Stick_JE2_BE2.png",
     "石头": "https://zh.minecraft.wiki/images/Stone_JE5_BE3.png",
