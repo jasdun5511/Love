@@ -1,19 +1,6 @@
 // --- 1. 游戏配置与数据 ---
 const MAP_SIZE = 20;
 
-// --- 新增：物品图标配置 (使用网络图片链接) ---
-// 直接引用 Minecraft Wiki 的官方图片，清晰度更高且无需转码
-const ITEM_ICONS = {
-    // 橡木原木 (使用立体的物品图标，而非平面纹理)
-    "橡木原木": "https://zh.minecraft.wiki/images/Oak_Log_Axis_Y_JE5_BE3.png?da15a",
-    
-    // 石头
-    "石头": "https://zh.minecraft.wiki/images/Stone_JE5_BE3.png",
-    
-    // 苹果
-    "苹果": "https://zh.minecraft.wiki/images/Apple_JE3_BE3.png"
-};
-
 
 
 // --- 1.1 核心数据：Minecraft 生物群系与掉落 ---
