@@ -558,3 +558,24 @@ body.night-mode .grid-btn.mob {
 .map-cell.bg-CRIMSON { color: #DC143C; background: #400; } /* 鲜红 */
 .map-cell.bg-SOUL { color: #778899; background: #222; }    /* 灵魂沙灰 */
 .map-cell.bg-LAVA { color: #FF4500; background: #410; }    /* 岩浆橘 */
+
+
+/* --- 新增：物品像素图标样式 --- */
+
+/* 修改原有的 grid-btn，使其支持弹性布局，方便图标和文字对齐 */
+.grid-btn {
+    display: inline-flex; /* 改为内联弹性盒子 */
+    align-items: center;  /* 垂直居中对齐 */
+    gap: 6px;             /* 图标和文字之间的间距 */
+    padding: 6px 12px;    /*稍微调整padding以适应图标*/
+}
+
+/* 像素图标的专用样式 */
+.item-icon {
+    width: 20px;  /* 设置图标大小 */
+    height: 20px;
+    /* 核心属性：让浏览器用像素化的方式渲染图片，保持清晰的锯齿感 */
+    image-rendering: pixelated; 
+    image-rendering: -moz-crisp-edges; /* 火狐浏览器兼容 */
+    border-radius: 2px; /* 稍微一点点圆角，看起来不那么生硬 */
+}
