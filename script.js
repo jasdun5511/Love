@@ -716,13 +716,22 @@ function die() {
 }
 
 function init() {
+    // --- 原有初始物品 ---
     addItemToInventory("烤肉串", 2);
     addItemToInventory("草药绷带", 1);
+
+    // --- 🛑 测试专用挂：地狱门材料 🛑 ---
+    log("【测试模式】已通过作弊获取地狱门材料！", "gold");
+    addItemToInventory("黑曜石", 10); // 传送门主材料
+    addItemToInventory("打火石", 1);  // 点火工具
+    // -----------------------------------
+
     refreshLocation();
     updateStatsUI();
     updateDayNightCycle();
     log("生存开始。注意理智值，不要在深夜游荡！");
 }
+
 
 // --- 8. 新增功能逻辑区 ---
 
