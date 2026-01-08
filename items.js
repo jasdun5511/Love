@@ -3,7 +3,8 @@
 
 const ITEM_ICONS = {
     // === 基础资源 ===
-    "橡木原木": "https://zh.minecraft.wiki/images/Oak_Log_JE5_BE3.png",
+    // 橡木原木 (使用立体的物品图标，而非平面纹理)
+    "橡木原木": "https://zh.minecraft.wiki/images/Oak_Log_Axis_Y_JE5_BE3.png?da15a",
     "木棍": "https://zh.minecraft.wiki/images/Stick_JE2_BE2.png",
     "石头": "https://zh.minecraft.wiki/images/Stone_JE5_BE3.png",
     "杂草": "https://zh.minecraft.wiki/images/Grass_JE2_BE2.png", 
