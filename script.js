@@ -628,12 +628,33 @@ function craftItem(recipe) {
 // --- 7. 辅助功能与UI ---
 
 function refreshLocation() {
+    // 1. 记录探索：【修改版】解锁当前位置 + 东南西北 (十字形)
     let currentMap = getCurrExplored();
-    currentMap[`${player.x},${player.y}`] = true;
 
+    // 定义要解锁的相对坐标：中心(0,0), 北(0,-1), 南(0,1), 西(-1,0), 东(1,0)
+    const offsets = [
+        {dx: 0, dy: 0},  // 脚下
+        {dx: 0, dy: -1}, // 北
+        {dx: 0, dy: 1},  // 南
+        {dx: -1, dy: 0}, // 西
+        {dx: 1, dy: 0}   // 东
+    ];
+
+    offsets.forEach(offset => {
+        let nx = player.x + offset.dx;
+        let ny = player.y + offset.dy;
+
+        // 检查边界：只有在地图范围内的格子才记录
+        if (nx >= 0 && nx < MAP_SIZE && ny >= 0 && ny < MAP_SIZE) {
+            currentMap[`${nx},${ny}`] = true;
+        }
+    });
+
+    // 2. 获取当前地形信息 (以下保持不变)
     const biomeKey = getBiome(player.x, player.y);
     const biome = BIOMES[biomeKey];
     
+    // 3. 标题显示
     let titleHtml = biome.name;
     if (currentDimension === "NETHER") {
         titleHtml = `<span style="color:#e74c3c">🔥 ${biome.name}</span>`;
@@ -641,6 +662,7 @@ function refreshLocation() {
     document.getElementById('loc-name').innerHTML = titleHtml;
     document.getElementById('coord').innerText = `${player.x},${player.y}`;
 
+    // 4. 背景变色
     if (currentDimension === "NETHER") {
         document.body.style.backgroundColor = "#2c0505"; 
         document.querySelector('.app-container').style.borderColor = "#800";
@@ -649,13 +671,17 @@ function refreshLocation() {
         document.querySelector('.app-container').style.borderColor = "#fff";
     }
 
+    // 5. 生成场景和渲染
     generateScene(biomeKey);
     renderScene();
     updateMiniMap();
+    
+    // 如果大地图开着，实时刷新大地图
     if (!document.getElementById('map-modal').classList.contains('hidden')) {
         renderBigMap();
     }
 }
+
 
 function updateStatsUI() {
     document.getElementById('hp').innerText = player.hp;
