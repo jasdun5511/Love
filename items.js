@@ -83,5 +83,5 @@ const ITEM_ICONS = {
     // === 建筑 ===
     "工作台": "https://zh.minecraft.wiki/images/Crafting_Table_JE4_BE3.png",
     "熔炉": "https://zh.minecraft.wiki/images/Furnace_JE4_BE3.png",
-    "下界传送门": "https://zh.minecraft.wiki/images/Nether_Portal_JE3_BE2.gif"
+    "下界传送门": "https://zh.minecraft.wiki/images/Nether_portal_%28animated%29.png?441e3"
 };
