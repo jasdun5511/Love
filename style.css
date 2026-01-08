@@ -560,22 +560,27 @@ body.night-mode .grid-btn.mob {
 .map-cell.bg-LAVA { color: #FF4500; background: #410; }    /* 岩浆橘 */
 
 
-/* --- 新增：物品像素图标样式 --- */
+/* --- 修正版：物品像素图标样式 --- */
 
-/* 修改原有的 grid-btn，使其支持弹性布局，方便图标和文字对齐 */
+/* 修改 grid-btn 支持弹性布局 */
 .grid-btn {
-    display: inline-flex; /* 改为内联弹性盒子 */
-    align-items: center;  /* 垂直居中对齐 */
-    gap: 6px;             /* 图标和文字之间的间距 */
-    padding: 6px 12px;    /*稍微调整padding以适应图标*/
+    display: inline-flex !important; /* 强制生效 */
+    align-items: center;
+    gap: 8px;             /* 稍微加大间距 */
+    padding: 6px 12px;
 }
 
-/* 像素图标的专用样式 */
+/* 像素图标专用样式 */
 .item-icon {
-    width: 20px;  /* 设置图标大小 */
+    width: 20px;
     height: 20px;
-    /* 核心属性：让浏览器用像素化的方式渲染图片，保持清晰的锯齿感 */
+    /* 防止图片被挤压变形 */
+    flex-shrink: 0; 
+    
+    /* 像素画渲染模式 */
     image-rendering: pixelated; 
-    image-rendering: -moz-crisp-edges; /* 火狐浏览器兼容 */
-    border-radius: 2px; /* 稍微一点点圆角，看起来不那么生硬 */
+    image-rendering: -moz-crisp-edges;
+    
+    /* 给图片加一点阴影，防止白色图片在白色背景看不清 */
+    filter: drop-shadow(1px 1px 0px rgba(0,0,0,0.2));
 }
