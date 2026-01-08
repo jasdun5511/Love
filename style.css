@@ -200,7 +200,7 @@ body {
 }
 
 
-/* --- 地图弹窗样式 (优化版：细腻、轻量化) --- */
+/* --- 地图弹窗样式 (纯白极简版) --- */
 .modal {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -208,23 +208,20 @@ body {
     z-index: 999;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
 }
 .modal.hidden { display: none; }
 
 .modal-content {
     width: 100%; height: 100%;
     display: flex; flex-direction: column;
-    background: #fcfcfc; /* 极淡的背景 */
 }
 
 .modal-header {
-    padding: 12px;
+    padding: 15px;
     text-align: center;
-    font-size: 14px;
-    color: #666;
-    border-bottom: 1px solid #eee;
+    font-size: 13px; /* 减小字号 */
+    color: #999;    /* 柔和灰 */
+    border-bottom: 1px solid #f5f5f5;
 }
 
 .big-map-container {
@@ -232,99 +229,82 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #f9f9f9;
+    background: #fff; /* 整体背景纯白 */
     overflow: auto;
-    padding: 10px;
 }
 
-/* 地图网格容器 */
+/* 地图网格 */
 .big-grid {
     display: grid;
-    /* 核心修改：利用 gap 做网格线，比 border 更细腻 */
-    width: 95%;
-    max-width: 380px; /* 限制最大宽度 */
+    width: 92%;
     aspect-ratio: 1/1;
-    gap: 1px; 
-    background: #eaeaea; /* 网格线的颜色（极淡灰） */
-    border: 1px solid #eaeaea;
-    border-radius: 4px;
-    overflow: hidden;
+    gap: 1px; /* 关键：格点之间的细线 */
+    background: #f0f0f0; /* 细线的颜色：极浅灰 */
+    border: 1px solid #f0f0f0;
 }
 
-/* 地图格子单元 */
 .map-cell {
     width: 100%; height: 100%;
     display: flex; justify-content: center; align-items: center;
+    background: #fff; /* 格子内部纯白 */
     
-    /* 核心修改：字体极小化，颜色轻量化 */
-    font-size: 8px; /* 字号缩小 */
-    font-family: -apple-system, monospace; /* 等宽字体 */
-    font-weight: normal; /* 去掉粗体 */
-    
-    background: #fff; /* 默认背景 */
-    color: #999;      /* 默认文字淡灰 */
+    /* 文字极小化、轻量化 */
+    font-size: 8px; 
+    font-weight: normal; 
+    color: #ccc; /* 默认地形文字颜色：极浅 */
 }
 
-/* 玩家位置：改为柔和的色块 */
+/* 玩家标记：仅用一个深色小点或柔和色块 */
 .map-cell.player { 
-    background: #ff6b6b !important; /* 柔和红 */
-    color: white !important;
+    background: #fff !important; 
+    color: #ff4d4d !important; /* 玩家文字用红色 */
     font-weight: bold;
-    border-radius: 2px;
-    box-shadow: 0 0 4px rgba(255, 107, 107, 0.4);
     z-index: 2;
-    border: none; /* 去掉原本的大红边框 */
 }
 
-/* 迷雾：极淡 */
+/* 迷雾：用淡淡的斜纹或极淡灰区分 */
 .map-cell.fog { 
-    background-color: #fbfbfb !important; 
+    background-color: #fafafa !important; 
     color: transparent; 
 }
 
-/* --- 地形颜色优化 (背景淡彩，文字深色，模仿图二的清新感) --- */
-/* 主世界 */
-.map-cell.bg-PLAINS   { background: #f0f8e0; color: #7cb342; } /* 淡绿底/深绿字 */
-.map-cell.bg-FOREST   { background: #e8f5e9; color: #43a047; }
-.map-cell.bg-DESERT   { background: #fff8e1; color: #fb8c00; }
-.map-cell.bg-MOUNTAIN { background: #f5f5f5; color: #757575; }
-.map-cell.bg-SNOWY    { background: #e1f5fe; color: #039be5; }
-.map-cell.bg-OCEAN    { background: #e3f2fd; color: #1e88e5; }
-.map-cell.bg-SWAMP    { background: #f1f8e9; color: #558b2f; }
-.map-cell.bg-MESA     { background: #fbe9e7; color: #d84315; }
+/* --- 地形文字颜色 (仅改变文字颜色，背景保持白) --- */
+.map-cell.bg-PLAINS   { color: #95ba68; } 
+.map-cell.bg-FOREST   { color: #568c58; }
+.map-cell.bg-DESERT   { color: #d4a373; }
+.map-cell.bg-MOUNTAIN { color: #a0a0a0; }
+.map-cell.bg-SNOWY    { color: #a2d2ff; }
+.map-cell.bg-OCEAN    { color: #4895ef; }
+.map-cell.bg-SWAMP    { color: #606c38; }
+.map-cell.bg-MESA     { color: #bc6c25; }
 
-/* 地狱 (也做轻量化处理) */
-.map-cell.bg-NETHER   { background: #ffebee; color: #c62828; }
-.map-cell.bg-CRIMSON  { background: #ffebee; color: #b71c1c; }
-.map-cell.bg-SOUL     { background: #eceff1; color: #546e7a; }
-.map-cell.bg-LAVA     { background: #fff3e0; color: #e65100; }
+/* 地狱文字颜色 */
+.map-cell.bg-NETHER   { color: #e5989b; }
+.map-cell.bg-CRIMSON  { color: #b56576; }
+.map-cell.bg-SOUL     { color: #6d597a; }
+.map-cell.bg-LAVA     { color: #e07a5f; }
 
-/* 底部控制栏 */
 .modal-footer {
-    padding: 10px;
+    padding: 15px;
     text-align: center;
-    background: #fff;
-    color: #999;
+    color: #bbb;
     font-size: 11px;
-    cursor: pointer;
-    border-top: 1px solid #eee;
+    border-top: 1px solid #f5f5f5;
 }
 
 .map-controls {
     display: flex;
     justify-content: center;
-    gap: 10px;
-    padding: 10px;
-    background: #fff;
+    gap: 8px;
+    padding-bottom: 20px;
 }
 .map-controls button {
     background: #fff;
-    border: 1px solid #ddd;
-    padding: 4px 10px;
-    font-size: 11px;
-    border-radius: 12px;
-    color: #555;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    border: 1px solid #eee;
+    padding: 3px 12px;
+    font-size: 10px;
+    border-radius: 15px;
+    color: #999;
 }
 
 
