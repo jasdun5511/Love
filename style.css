@@ -37,30 +37,56 @@ body {
 }
 
 /* 顶部信息 */
-.top-bar { padding: 5px 10px; font-size: 12px; border-bottom: 1px solid #eee; }
-.loc-info { display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; margin-bottom: 4px; }
-.mini-map-btn { background: #3498db; color: white; padding: 2px 5px; font-size: 10px; border-radius: 2px; }
-.time-info { text-align: center; margin-bottom: 5px; color: #555; }
+.top-bar { 
+    padding: 8px 10px; 
+    border-bottom: 1px solid var(--border-gray); 
+    background: #fff;
+}
+.loc-info { 
+    display: flex; 
+    justify-content: space-between; 
+    /* font-weight: bold;  <-- 去掉粗体 */
+    font-size: 13px; /* 稍微大一点点做标题 */
+    margin-bottom: 6px;
+    color: #333; /* 地点颜色稍微深一点 */
+}
+.mini-map-btn { 
+    background: #5dade2; /*稍微柔和一点的蓝*/
+    color: white; 
+    padding: 2px 6px; 
+    font-size: 10px; 
+    border-radius: 10px; /* 圆角更大 */
+}
+.time-info { 
+    text-align: center; 
+    margin-bottom: 8px; 
+    color: var(--text-light); /* 使用更浅的灰色 */
+    font-size: 11px;
+}
 
 .stats-grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 4px;
     font-size: 11px;
-    color: #333;
+    color: var(--text-black);
+    background: var(--bg-gray); /* 给状态栏加一个淡淡的背景 */
+    padding: 5px;
+    border-radius: 4px;
 }
-.stat-hp { color: var(--hp-red); }
-.stat-hunger { color: #d3a900; }
-.stat-water { color: var(--water-blue); }
+/* 状态数值保留粗体以示强调 */
+.stats-grid b { font-weight: 600; }
 
-/* 季节栏 */
-.season-bar { display: flex; height: 36px; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; }
-.season-box { width: 40px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; border-right: 1px solid #ccc; }
-.weather-box { flex: 1; background: #6fa8dc; color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+/* 季节栏 - 变得更扁平 */
+.season-bar { display: flex; height: 30px; border-bottom: 1px solid var(--border-gray); }
+.season-box { width: 40px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--text-black); border-right: 1px solid var(--border-gray); background: #fcfcfc;}
+.weather-box { flex: 1; background: #85c1e9; color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; }
 
 /* 存活栏 */
-.survive-bar { display: flex; border-bottom: 1px solid #ccc; padding: 5px; font-size: 11px; color: #3498db; }
-.survive-bar span { flex: 1; text-align: center; border-right: 1px solid #eee; }
+.survive-bar { display: flex; border-bottom: 1px solid var(--border-gray); padding: 6px; font-size: 11px; color: #666; background: #fff;}
+.survive-bar span { flex: 1; text-align: center; }
+.survive-bar span:first-child { border-right: 1px solid var(--border-gray); }
+
 
 /* 筛选栏 */
 .filter-bar { padding: 5px 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; }
