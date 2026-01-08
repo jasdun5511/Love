@@ -1,11 +1,7 @@
 :root {
-    /* --- 核心改动：使用更柔和的色调 --- */
-    --bg-gray: #f7f8fa;      /* 更淡的背景灰 */
-    --border-gray: #eaeaea;  /* 极淡的边框色 */
-    --text-black: #555555;   /* 用深灰代替纯黑，降低视觉重量 */
-    --text-light: #888888;   /* 辅助信息文字颜色 */
-    
-    /* 功能色保持不变，但可能会在具体使用时调整饱和度 */
+    --bg-gray: #f2f2f2;
+    --border-gray: #ccc;
+    --text-black: #333;
     --highlight-blue: #4a90e2;
     --hp-red: #e74c3c;
     --hunger-yellow: #f1c40f;
@@ -15,14 +11,11 @@
 body {
     margin: 0;
     padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; /* 使用系统默认字体，通常比雅黑更细腻 */
-    background-color: #eee; /* 外部背景稍微调浅 */
+    font-family: 'Microsoft YaHei', sans-serif;
+    background-color: #333; /* 外部背景深色 */
     height: 100vh;
     display: flex;
     justify-content: center;
-    /* --- 核心改动：设置全局基础字号为 12px --- */
-    font-size: 12px;
-    color: var(--text-black);
 }
 
 .app-container {
@@ -33,60 +26,33 @@ body {
     display: flex;
     flex-direction: column;
     position: relative;
-    box-shadow: 0 0 10px rgba(0,0,0,0.05); /* 加一点点阴影提升层次感 */
 }
 
 /* 顶部信息 */
-.top-bar { 
-    padding: 8px 10px; 
-    border-bottom: 1px solid var(--border-gray); 
-    background: #fff;
-}
-.loc-info { 
-    display: flex; 
-    justify-content: space-between; 
-    /* font-weight: bold;  <-- 去掉粗体 */
-    font-size: 13px; /* 稍微大一点点做标题 */
-    margin-bottom: 6px;
-    color: #333; /* 地点颜色稍微深一点 */
-}
-.mini-map-btn { 
-    background: #5dade2; /*稍微柔和一点的蓝*/
-    color: white; 
-    padding: 2px 6px; 
-    font-size: 10px; 
-    border-radius: 10px; /* 圆角更大 */
-}
-.time-info { 
-    text-align: center; 
-    margin-bottom: 8px; 
-    color: var(--text-light); /* 使用更浅的灰色 */
-    font-size: 11px;
-}
+.top-bar { padding: 5px 10px; font-size: 12px; border-bottom: 1px solid #eee; }
+.loc-info { display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; margin-bottom: 4px; }
+.mini-map-btn { background: #3498db; color: white; padding: 2px 5px; font-size: 10px; border-radius: 2px; }
+.time-info { text-align: center; margin-bottom: 5px; color: #555; }
 
 .stats-grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 4px;
     font-size: 11px;
-    color: var(--text-black);
-    background: var(--bg-gray); /* 给状态栏加一个淡淡的背景 */
-    padding: 5px;
-    border-radius: 4px;
+    color: #333;
 }
-/* 状态数值保留粗体以示强调 */
-.stats-grid b { font-weight: 600; }
+.stat-hp { color: var(--hp-red); }
+.stat-hunger { color: #d3a900; }
+.stat-water { color: var(--water-blue); }
 
-/* 季节栏 - 变得更扁平 */
-.season-bar { display: flex; height: 30px; border-bottom: 1px solid var(--border-gray); }
-.season-box { width: 40px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--text-black); border-right: 1px solid var(--border-gray); background: #fcfcfc;}
-.weather-box { flex: 1; background: #85c1e9; color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+/* 季节栏 */
+.season-bar { display: flex; height: 36px; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; }
+.season-box { width: 40px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; border-right: 1px solid #ccc; }
+.weather-box { flex: 1; background: #6fa8dc; color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; }
 
 /* 存活栏 */
-.survive-bar { display: flex; border-bottom: 1px solid var(--border-gray); padding: 6px; font-size: 11px; color: #666; background: #fff;}
-.survive-bar span { flex: 1; text-align: center; }
-.survive-bar span:first-child { border-right: 1px solid var(--border-gray); }
-
+.survive-bar { display: flex; border-bottom: 1px solid #ccc; padding: 5px; font-size: 11px; color: #3498db; }
+.survive-bar span { flex: 1; text-align: center; border-right: 1px solid #eee; }
 
 /* 筛选栏 */
 .filter-bar { padding: 5px 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; }
