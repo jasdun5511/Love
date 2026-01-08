@@ -6,7 +6,7 @@ const ITEM_ICONS = {
     "导航_背包": "https://zh.minecraft.wiki/images/Chest_JE2_BE3.gif?4e19c",
     "导航_制作": "https://zh.minecraft.wiki/images/Crafting_Table_JE4_BE3.png",
     "导航_探索": "https://zh.minecraft.wiki/images/Grass_Block_JE7_BE6.png", // 草方块代表探索
-    "导航_地图": "https://zh.minecraft.wiki/images/Filled_Map_JE2_BE2.png",   // 你点名要的地图
+    "导航_地图": "https://zh.minecraft.wiki/images/Invicon_Locked_Map.png?af5e7",   // 你点名要的地图
     "导航_系统": "https://zh.minecraft.wiki/images/Impulse_Command_Block.gif?e65a3", // 命令方块代表系统
     
 
