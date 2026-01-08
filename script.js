@@ -5,7 +5,7 @@ const MAP_SIZE = 20;
 // 直接引用 Minecraft Wiki 的官方图片，清晰度更高且无需转码
 const ITEM_ICONS = {
     // 橡木原木 (使用立体的物品图标，而非平面纹理)
-    "橡木原木": "https://zh.minecraft.wiki/images/Oak_Log_JE5_BE3.png",
+    "橡木原木": "https://zh.minecraft.wiki/images/Oak_Log_Axis_Y_JE5_BE3.png?da15a",
     
     // 石头
     "石头": "https://zh.minecraft.wiki/images/Stone_JE5_BE3.png",
