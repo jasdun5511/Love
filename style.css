@@ -1,7 +1,11 @@
 :root {
-    --bg-gray: #f2f2f2;
-    --border-gray: #ccc;
-    --text-black: #333;
+    /* --- 核心改动：使用更柔和的色调 --- */
+    --bg-gray: #f7f8fa;      /* 更淡的背景灰 */
+    --border-gray: #eaeaea;  /* 极淡的边框色 */
+    --text-black: #555555;   /* 用深灰代替纯黑，降低视觉重量 */
+    --text-light: #888888;   /* 辅助信息文字颜色 */
+    
+    /* 功能色保持不变，但可能会在具体使用时调整饱和度 */
     --highlight-blue: #4a90e2;
     --hp-red: #e74c3c;
     --hunger-yellow: #f1c40f;
@@ -11,11 +15,14 @@
 body {
     margin: 0;
     padding: 0;
-    font-family: 'Microsoft YaHei', sans-serif;
-    background-color: #333; /* 外部背景深色 */
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; /* 使用系统默认字体，通常比雅黑更细腻 */
+    background-color: #eee; /* 外部背景稍微调浅 */
     height: 100vh;
     display: flex;
     justify-content: center;
+    /* --- 核心改动：设置全局基础字号为 12px --- */
+    font-size: 12px;
+    color: var(--text-black);
 }
 
 .app-container {
@@ -26,6 +33,7 @@ body {
     display: flex;
     flex-direction: column;
     position: relative;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05); /* 加一点点阴影提升层次感 */
 }
 
 /* 顶部信息 */
