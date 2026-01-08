@@ -1,6 +1,16 @@
 // --- 1. 游戏配置与数据 ---
 const MAP_SIZE = 20;
 
+// --- 新增：物品图标配置 (Base64像素图数据) ---
+// 这里的长字符串就是图片本身，为了方便直接嵌入代码里
+const ITEM_ICONS = {
+    "橡木原木": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAIpJREFUOE+VkksOgCAMRKHj1dwON+N13IibWfsHoS2lFYuPZNIypJ2xLAD8jAv+bN/x8m4BExH5iLgR0Zu1F6gXb0QuACcR2Vl7AaiX3oQk4C4ib1b3D6h3uQkM4E0E7lY3gWqXm4ABfBBRmNU1QG+qCRAAT0RkZt2A2l03oAAd1t631R0f/AAlrkXpYpYj/AAAAABJRU5ErkJggg==",
+    // 将来你可以在这里添加更多，比如:
+    // "石头": "data:image/png;base64,.....",
+};
+
+
+
 // --- 1.1 核心数据：Minecraft 生物群系与掉落 ---
 const BIOMES = {
     // === 主世界 ===
@@ -241,13 +251,13 @@ function renderScene() {
     const grid = document.getElementById('scene-grid');
     grid.innerHTML = '';
 
+    // 1. 渲染当前世界的建筑 (保持不变)
     const key = `${player.x},${player.y}`;
     const buildings = getCurrBuildings()[key] || [];
     
     buildings.forEach((b, idx) => {
         const btn = document.createElement('div');
         btn.className = `grid-btn build`;
-        
         if (b.name === "下界传送门") {
             btn.innerText = "🔮 下界传送门";
             btn.style.borderColor = "#8e44ad"; 
@@ -260,15 +270,26 @@ function renderScene() {
         grid.appendChild(btn);
     });
 
+    // 2. 渲染资源和怪物 (关键修改在这里!)
     currentSceneItems.forEach((item, index) => {
         const btn = document.createElement('div');
         btn.className = `grid-btn ${item.type}`;
 
         if (item.type === 'res') {
-            btn.innerText = `${item.name} (${item.count})`;
+            // --- 修改开始 ---
+            let iconHtml = "";
+            // 检查这个物品在 ITEM_ICONS 里有没有配置图标
+            if (ITEM_ICONS[item.name]) {
+                // 如果有，生成一个 img 标签
+                iconHtml = `<img src="${ITEM_ICONS[item.name]}" class="item-icon">`;
+            }
+            // 使用 innerHTML，把图标和文字拼接到一起
+            btn.innerHTML = `${iconHtml}${item.name} (${item.count})`;
+            // --- 修改结束 ---
+
             btn.onclick = () => collectResource(index, btn);
         } else {
-            btn.innerText = `${item.name} [??]`; 
+            btn.innerText = `${item.name}`; // 怪物暂时还是纯文字
             btn.classList.add('mob');
             btn.onclick = () => startCombat(item, index);
         }
