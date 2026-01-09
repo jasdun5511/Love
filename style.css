@@ -583,29 +583,60 @@ body.night-mode .grid-btn.mob {
     vertical-align: middle;
 }
 
-/* 战斗界面大图 (破框特效版) */
+/* 战斗界面大图 (优化版：防遮挡) */
 .combat-mob-img {
-    /* 1. 解除宽高限制，防止被压扁 */
-    height: 150px;       /* 高度直接拉满！ */
-    width: auto;         /* 宽度自动，保持完美比例 */
-    max-width: 100%;     /* 防止太宽超出屏幕 */
+    height: 90px;        /* 缩小高度 (原150px) */
+    width: auto;
+    max-width: 100%;
     
-    /* 2. 破框布局 */
     display: block;
-    margin: -70px auto 10px auto; /* 关键：负边距！让图片往上“冲”出白色背景框 */
+    margin: -45px auto 5px auto; /* 调整负边距，让它刚好探出头 */
     
-    /* 3. 视觉增强 */
-    image-rendering: pixelated;   /* 像素清晰 */
-    filter: drop-shadow(0 8px 10px rgba(0,0,0,0.3)); /* 加重阴影，更有立体感 */
-    position: relative;           /* 提高层级 */
+    image-rendering: pixelated;
+    filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3));
+    position: relative;
     z-index: 10;
 }
 
-/* 调整一下敌人信息框，给突出来的头留点位置 */
+/* 敌人信息框 (更紧凑) */
 .enemy-box {
-    margin-top: 50px !important;  /* 整体下移，不然怪物的头会顶到屏幕外面 */
-    overflow: visible !important; /* 允许图片超出框框显示 */
-    background: #fff;             /* 确保背景是白的 */
-    border: 1px solid #eee;       /* 加个淡边框更好看 */
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05); /* 盒子加点阴影 */
+    margin-top: 35px !important;  /* 减小顶部留白 */
+    padding: 8px !important;      /* 减小内边距 */
+    overflow: visible !important;
+    background: #fff;
+    border: 1px solid #eee;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    margin-bottom: 5px;           /* 减小底部间距 */
+}
+
+/* --- 新增：战斗内快捷回血栏 --- */
+.quick-heal-bar {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 8px;
+    overflow-x: auto; /* 物品多了可以横向滑动 */
+    padding-bottom: 2px;
+}
+
+.heal-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: #fff;
+    border: 1px solid #2ecc71; /* 绿色边框代表回血 */
+    color: #27ae60;
+    padding: 4px 8px;
+    border-radius: 15px; /* 胶囊形状 */
+    font-size: 11px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.heal-btn img { width: 14px; height: 14px; }
+.heal-btn:active { background: #e8f8f5; }
+
+/* 调整战斗日志高度，给回血栏腾位置 */
+.combat-log {
+    flex: 1;
+    min-height: 60px; /* 允许日志区变小 */
+    margin-bottom: 5px;
 }
