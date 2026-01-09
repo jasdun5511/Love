@@ -785,19 +785,35 @@ function die() {
 }
 
 function init() {
-    // 初始赠送：木剑，面包
+    // --- 1. 自动更新底部导航栏图标 (新增功能) ---
+    // 这样以后改 items.js 里的链接，导航栏就会自动变了
+    const navMapping = {
+        0: "导航_背包",
+        1: "导航_制作",
+        2: "导航_探索",
+        3: "导航_地图",
+        4: "导航_系统"
+    };
+    
+    const navIcons = document.querySelectorAll('.bottom-nav .nav-icon');
+    navIcons.forEach((img, index) => {
+        const key = navMapping[index];
+        if (key && ITEM_ICONS[key]) {
+            img.src = ITEM_ICONS[key];
+        }
+    });
+
+    // --- 2. 初始赠送物品 ---
     addItemToInventory("木剑", 1);
     addItemToInventory("面包", 2);
 
-    // --- 🛑 测试专用挂：地狱门材料 (如果需要测试，取消注释) 🛑 ---
-    // addItemToInventory("黑曜石", 10); 
-    // addItemToInventory("打火石", 1); 
-
+    // --- 3. 启动游戏逻辑 ---
     refreshLocation();
     updateStatsUI();
     updateDayNightCycle();
     log("MC 文字版启动！先去砍树吧！");
 }
+
 
 // --- 8. 新增功能逻辑区 ---
 
