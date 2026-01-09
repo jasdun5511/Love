@@ -571,3 +571,24 @@ body.night-mode .grid-btn.mob {
     font-size: 10px;
     line-height: 1.2;
 }
+
+/* --- 怪物头像专用样式 --- */
+.mob-icon {
+    width: 20px; 
+    height: 20px;
+    border-radius: 4px; /* 小圆角 */
+    object-fit: contain; /* 保持比例 */
+    image-rendering: pixelated; /* 像素风 */
+    margin-right: 4px;
+    vertical-align: middle;
+}
+
+/* 战斗界面里的大头像 */
+.combat-mob-img {
+    width: 64px; 
+    height: 64px;
+    display: block;
+    margin: 0 auto 10px auto; /* 居中显示 */
+    image-rendering: pixelated;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); /* 加一点阴影 */
+}
