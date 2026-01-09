@@ -576,19 +576,36 @@ body.night-mode .grid-btn.mob {
 .mob-icon {
     width: 20px; 
     height: 20px;
-    border-radius: 4px; /* 小圆角 */
-    object-fit: contain; /* 保持比例 */
-    image-rendering: pixelated; /* 像素风 */
+    border-radius: 4px;
+    object-fit: contain;
+    image-rendering: pixelated;
     margin-right: 4px;
     vertical-align: middle;
 }
 
-/* 战斗界面里的大头像 */
+/* 战斗界面大图 (破框特效版) */
 .combat-mob-img {
-    width: 64px; 
-    height: 64px;
+    /* 1. 解除宽高限制，防止被压扁 */
+    height: 150px;       /* 高度直接拉满！ */
+    width: auto;         /* 宽度自动，保持完美比例 */
+    max-width: 100%;     /* 防止太宽超出屏幕 */
+    
+    /* 2. 破框布局 */
     display: block;
-    margin: 0 auto 10px auto; /* 居中显示 */
-    image-rendering: pixelated;
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); /* 加一点阴影 */
+    margin: -70px auto 10px auto; /* 关键：负边距！让图片往上“冲”出白色背景框 */
+    
+    /* 3. 视觉增强 */
+    image-rendering: pixelated;   /* 像素清晰 */
+    filter: drop-shadow(0 8px 10px rgba(0,0,0,0.3)); /* 加重阴影，更有立体感 */
+    position: relative;           /* 提高层级 */
+    z-index: 10;
+}
+
+/* 调整一下敌人信息框，给突出来的头留点位置 */
+.enemy-box {
+    margin-top: 50px !important;  /* 整体下移，不然怪物的头会顶到屏幕外面 */
+    overflow: visible !important; /* 允许图片超出框框显示 */
+    background: #fff;             /* 确保背景是白的 */
+    border: 1px solid #eee;       /* 加个淡边框更好看 */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05); /* 盒子加点阴影 */
 }
