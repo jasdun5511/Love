@@ -1,8 +1,6 @@
 // --- 1. 游戏配置与数据 ---
 const MAP_SIZE = 20;
 
-
-
 // --- 1.1 核心数据：Minecraft 生物群系与掉落 ---
 const BIOMES = {
     // === 主世界 ===
@@ -13,12 +11,12 @@ const BIOMES = {
     },
     FOREST: { 
         name: "森林", code: "bg-FOREST", 
-        res: ["橡木原木", "木棍", "苹果", "蘑菇"], 
+        res: ["橡木原木", "云杉原木", "木棍", "苹果", "蘑菇"], // 修正：加入云杉原木
         mobs: [{name:"猪", hp:10, atk:0, loot:"生猪排"}, {name:"骷髅", hp:20, atk:4, loot:"骨头"}, {name:"蜘蛛", hp:16, atk:3, loot:"线"}] 
     },
     DESERT: { 
         name: "沙漠", code: "bg-DESERT", 
-        res: ["沙子", "仙人掌", "枯灌木", "岩浆源"], // 岩浆源保留，用于做门
+        res: ["沙子", "仙人掌", "枯灌木", "岩浆源"], 
         mobs: [{name:"尸壳", hp:20, atk:4, loot:"腐肉"}] 
     },
     MOUNTAIN: { 
@@ -27,7 +25,7 @@ const BIOMES = {
         mobs: [{name:"羊", hp:8, atk:0, loot:"生羊肉"}] 
     },
     SNOWY: { 
-        name: "雪原", code: "bg-SNOWY", // 已修正：改为雪原
+        name: "雪原", code: "bg-SNOWY", 
         res: ["冰", "雪球", "云杉原木"], 
         mobs: [{name:"流浪者", hp:20, atk:4, loot:"箭"}] 
     },
@@ -57,7 +55,7 @@ const BIOMES = {
 // --- 1.2 核心数据：Minecraft 配方 ---
 const RECIPES = [
     // === 建筑类 ===
-    { name: "工作台", req: { "橡木原木": 4 }, type: "build", desc: "放置后可存储物品" }, // 暂复用箱子逻辑
+    { name: "工作台", req: { "橡木原木": 4 }, type: "build", desc: "放置后可存储物品" }, 
     { name: "熔炉", req: { "石头": 8 }, type: "build", desc: "装饰性建筑" },
     { name: "下界传送门", req: { "黑曜石": 10, "打火石": 1 }, type: "build", desc: "放置后点击进入地狱" },
 
@@ -268,20 +266,28 @@ function renderScene() {
         btn.className = `grid-btn ${item.type}`;
 
         if (item.type === 'res') {
-            // --- 修改开始 ---
             let iconHtml = "";
-            // 检查这个物品在 ITEM_ICONS 里有没有配置图标
             if (ITEM_ICONS[item.name]) {
-                // 如果有，生成一个 img 标签
                 iconHtml = `<img src="${ITEM_ICONS[item.name]}" class="item-icon">`;
             }
-            // 使用 innerHTML，把图标和文字拼接到一起
             btn.innerHTML = `${iconHtml}${item.name} (${item.count})`;
-            // --- 修改结束 ---
-
             btn.onclick = () => collectResource(index, btn);
         } else {
-            btn.innerText = `${item.name}`; // 怪物暂时还是纯文字
+            // --- 关键修改：增加怪物图标渲染逻辑 ---
+            let mobIconHtml = "";
+            // 尝试直接用全名查找 (如 "狂暴的僵尸")
+            if (ITEM_ICONS[item.name]) {
+                mobIconHtml = `<img src="${ITEM_ICONS[item.name]}" class="mob-icon">`;
+            } 
+            // 如果全名找不到，尝试去掉前缀查找 (如 "狂暴的僵尸" -> 找 "僵尸")
+            else {
+                let baseName = item.name.replace("狂暴的", "").replace("地狱的", "");
+                if (ITEM_ICONS[baseName]) {
+                    mobIconHtml = `<img src="${ITEM_ICONS[baseName]}" class="mob-icon">`;
+                }
+            }
+            
+            btn.innerHTML = `${mobIconHtml}${item.name}`;
             btn.classList.add('mob');
             btn.onclick = () => startCombat(item, index);
         }
@@ -289,7 +295,7 @@ function renderScene() {
     });
 }
 
-// 修正版采集逻辑 (严格保留了您代码中会导致物品消失的逻辑)
+// 修正版采集逻辑
 function collectResource(index) {
     const item = currentSceneItems[index];
     if (!item) return;
@@ -345,18 +351,17 @@ function collectResource(index) {
     updateStatsUI(); 
 
     addItemToInventory(item.name, 1);
-    item.count--; // 关键：减少数量
+    item.count--; 
 
     if (hpCost === 0) {
         log(`采集了 1个 ${item.name} (剩余:${item.count})`);
     }
 
-    // 关键：如果数量归零，从数组移除
     if (item.count <= 0) {
         currentSceneItems.splice(index, 1);
     }
 
-    renderScene(); // 重新渲染，界面上的按钮会消失或更新数字
+    renderScene(); 
 }
 
 // --- 5. 战斗系统 ---
@@ -365,7 +370,20 @@ function startCombat(mob, index) {
     currentEnemy = mob;
     currentEnemy.index = index;
     switchView('combat');
-    document.getElementById('enemy-name').innerText = mob.name;
+
+    // --- 关键修改：战斗界面显示怪物大图 ---
+    let imgUrl = "";
+    if (ITEM_ICONS[mob.name]) {
+        imgUrl = ITEM_ICONS[mob.name];
+    } else {
+        let baseName = mob.name.replace("狂暴的", "").replace("地狱的", "");
+        if (ITEM_ICONS[baseName]) imgUrl = ITEM_ICONS[baseName];
+    }
+
+    // 构建带图片的 HTML
+    let imgHtml = imgUrl ? `<img src="${imgUrl}" class="combat-mob-img">` : "";
+
+    document.getElementById('enemy-name').innerHTML = `${imgHtml}${mob.name}`;
     document.getElementById('combat-log-area').innerHTML = `<p>遭遇了 ${mob.name}！它看起来充满敌意！</p>`;
     updateCombatUI();
 }
@@ -483,7 +501,6 @@ function updateInventoryUI() {
             // --- 图标逻辑 ---
             let iconHtml = "";
             if (ITEM_ICONS[name]) {
-                // 使用 style.css 里定义好的 item-icon
                 iconHtml = `<img src="${ITEM_ICONS[name]}" class="item-icon">`;
             }
 
@@ -562,7 +579,6 @@ function updateCraftUI() {
         const row = document.createElement('div');
         row.className = 'list-item';
         
-        // --- 图标逻辑 ---
         let iconHtml = "";
         if (ITEM_ICONS[recipe.name]) {
             iconHtml = `<img src="${ITEM_ICONS[recipe.name]}" class="item-icon">`;
@@ -594,7 +610,6 @@ function updateCraftUI() {
         if(!canCraft) btn.style.background = "#ccc";
         btn.onclick = () => craftItem(recipe);
         
-        // 把按钮单独放一个容器，防止布局乱
         const btnDiv = document.createElement('div');
         btnDiv.appendChild(btn);
         
@@ -628,29 +643,21 @@ function craftItem(recipe) {
 // --- 7. 辅助功能与UI ---
 
 function refreshLocation() {
-    // 1. 记录探索：【修改版】解锁当前位置 + 东南西北 (十字形)
+    // 1. 记录探索：解锁当前位置 + 东南西北 (十字形)
     let currentMap = getCurrExplored();
-
-    // 定义要解锁的相对坐标：中心(0,0), 北(0,-1), 南(0,1), 西(-1,0), 东(1,0)
     const offsets = [
-        {dx: 0, dy: 0},  // 脚下
-        {dx: 0, dy: -1}, // 北
-        {dx: 0, dy: 1},  // 南
-        {dx: -1, dy: 0}, // 西
-        {dx: 1, dy: 0}   // 东
+        {dx: 0, dy: 0}, {dx: 0, dy: -1}, {dx: 0, dy: 1}, {dx: -1, dy: 0}, {dx: 1, dy: 0}
     ];
 
     offsets.forEach(offset => {
         let nx = player.x + offset.dx;
         let ny = player.y + offset.dy;
-
-        // 检查边界：只有在地图范围内的格子才记录
         if (nx >= 0 && nx < MAP_SIZE && ny >= 0 && ny < MAP_SIZE) {
             currentMap[`${nx},${ny}`] = true;
         }
     });
 
-    // 2. 获取当前地形信息 (以下保持不变)
+    // 2. 获取当前地形信息
     const biomeKey = getBiome(player.x, player.y);
     const biome = BIOMES[biomeKey];
     
@@ -676,7 +683,6 @@ function refreshLocation() {
     renderScene();
     updateMiniMap();
     
-    // 如果大地图开着，实时刷新大地图
     if (!document.getElementById('map-modal').classList.contains('hidden')) {
         renderBigMap();
     }
@@ -724,11 +730,10 @@ function log(msg, color="black") {
 function openMap() { document.getElementById('map-modal').classList.remove('hidden'); renderBigMap(); }
 function closeMap() { document.getElementById('map-modal').classList.add('hidden'); }
 
-// 修复版 updateMiniMap：强制截取前两位，解决格式问题
+// 修复版 updateMiniMap
 function updateMiniMap() {
     const getBName = (x, y) => {
         if (x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE) return "边界";
-        // 关键修复：substring(0, 2) 确保只显示两个字
         return BIOMES[getBiome(x, y)].name.substring(0, 2);
     };
     document.getElementById('dir-n').innerText = getBName(player.x, player.y - 1);
@@ -785,8 +790,7 @@ function die() {
 }
 
 function init() {
-    // --- 1. 自动更新底部导航栏图标 (新增功能) ---
-    // 这样以后改 items.js 里的链接，导航栏就会自动变了
+    // --- 1. 自动更新底部导航栏图标 ---
     const navMapping = {
         0: "导航_背包",
         1: "导航_制作",
@@ -814,7 +818,6 @@ function init() {
     log("MC 文字版启动！先去砍树吧！");
 }
 
-
 // --- 8. 新增功能逻辑区 ---
 
 function placeBuilding(name) {
@@ -824,7 +827,7 @@ function placeBuilding(name) {
     if (!buildings[key]) buildings[key] = [];
     
     let newBuild = { name: name };
-    if (name === "工作台") newBuild.content = {}; // 简单复用箱子逻辑
+    if (name === "工作台") newBuild.content = {}; 
     
     buildings[key].push(newBuild);
     log(`在脚下放置了 ${name}`, "blue");
