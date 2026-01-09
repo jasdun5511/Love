@@ -11,7 +11,7 @@ const BIOMES = {
     },
     FOREST: { 
         name: "森林", code: "bg-FOREST", 
-        res: ["橡木原木", "云杉原木", "木棍", "苹果", "蘑菇"], // 修正：加入云杉原木
+        res: ["橡木原木", "云杉原木", "木棍", "苹果", "蘑菇"], 
         mobs: [{name:"猪", hp:10, atk:0, loot:"生猪排"}, {name:"骷髅", hp:20, atk:4, loot:"骨头"}, {name:"蜘蛛", hp:16, atk:3, loot:"线"}] 
     },
     DESERT: { 
@@ -241,7 +241,7 @@ function renderScene() {
     const grid = document.getElementById('scene-grid');
     grid.innerHTML = '';
 
-    // 1. 渲染当前世界的建筑 (保持不变)
+    // 1. 渲染当前世界的建筑
     const key = `${player.x},${player.y}`;
     const buildings = getCurrBuildings()[key] || [];
     
@@ -260,7 +260,7 @@ function renderScene() {
         grid.appendChild(btn);
     });
 
-    // 2. 渲染资源和怪物 (关键修改在这里!)
+    // 2. 渲染资源和怪物
     currentSceneItems.forEach((item, index) => {
         const btn = document.createElement('div');
         btn.className = `grid-btn ${item.type}`;
@@ -273,13 +273,13 @@ function renderScene() {
             btn.innerHTML = `${iconHtml}${item.name} (${item.count})`;
             btn.onclick = () => collectResource(index, btn);
         } else {
-            // --- 关键修改：增加怪物图标渲染逻辑 ---
+            // --- 怪物图标渲染逻辑 ---
             let mobIconHtml = "";
-            // 尝试直接用全名查找 (如 "狂暴的僵尸")
+            // 尝试直接用全名查找
             if (ITEM_ICONS[item.name]) {
                 mobIconHtml = `<img src="${ITEM_ICONS[item.name]}" class="mob-icon">`;
             } 
-            // 如果全名找不到，尝试去掉前缀查找 (如 "狂暴的僵尸" -> 找 "僵尸")
+            // 如果全名找不到，尝试去掉前缀查找
             else {
                 let baseName = item.name.replace("狂暴的", "").replace("地狱的", "");
                 if (ITEM_ICONS[baseName]) {
@@ -295,7 +295,6 @@ function renderScene() {
     });
 }
 
-// 修正版采集逻辑
 function collectResource(index) {
     const item = currentSceneItems[index];
     if (!item) return;
@@ -371,7 +370,7 @@ function startCombat(mob, index) {
     currentEnemy.index = index;
     switchView('combat');
 
-    // --- 关键修改：战斗界面显示怪物大图 ---
+    // --- 获取怪物图片 (大图逻辑) ---
     let imgUrl = "";
     if (ITEM_ICONS[mob.name]) {
         imgUrl = ITEM_ICONS[mob.name];
@@ -380,26 +379,72 @@ function startCombat(mob, index) {
         if (ITEM_ICONS[baseName]) imgUrl = ITEM_ICONS[baseName];
     }
 
-    // 构建带图片的 HTML
+    // 构建带图片的 HTML (使用 combat-mob-img 样式)
     let imgHtml = imgUrl ? `<img src="${imgUrl}" class="combat-mob-img">` : "";
 
+    // 1. 设置怪物信息
     document.getElementById('enemy-name').innerHTML = `${imgHtml}${mob.name}`;
     document.getElementById('combat-log-area').innerHTML = `<p>遭遇了 ${mob.name}！它看起来充满敌意！</p>`;
+
+    // 2. 动态插入回血栏 (如果还没有的话)
+    // 检查是否已经插入过，防止重复
+    if (!document.getElementById('combat-consumables')) {
+        const healDiv = document.createElement('div');
+        healDiv.id = 'combat-consumables';
+        healDiv.className = 'quick-heal-bar';
+        // 插入到 日志区(combat-log) 和 按钮区(player-actions) 之间
+        const logArea = document.getElementById('combat-log-area');
+        logArea.parentNode.insertBefore(healDiv, logArea.nextSibling);
+    }
+
     updateCombatUI();
 }
 
 function updateCombatUI() {
     if(!currentEnemy) return;
+    
+    // 1. 更新血条
     const hpPct = (currentEnemy.hp / currentEnemy.maxHp) * 100;
     document.getElementById('enemy-hp-bar').style.width = `${hpPct}%`;
     document.getElementById('enemy-stats').innerText = `HP: ${currentEnemy.hp}/${currentEnemy.maxHp} | ATK: ${currentEnemy.atk}`;
 
+    // 2. 检查玩家死亡
     if (player.hp <= 0) {
         document.getElementById('combat-log-area').innerHTML += `<p style="color:red">你被杀死了...</p>`;
-        setTimeout(() => {
-            alert("你死了！刷新页面重来。");
-            location.reload();
-        }, 500);
+        setTimeout(() => { alert("你死了！刷新页面重来。"); location.reload(); }, 500);
+        return;
+    }
+
+    // 3. --- 新增：刷新战斗中的快捷回血栏 ---
+    const healContainer = document.getElementById('combat-consumables');
+    if (healContainer) {
+        healContainer.innerHTML = ''; // 清空旧按钮
+        
+        // 遍历背包，寻找食物或药水
+        for (let [name, count] of Object.entries(player.inventory)) {
+            let recipe = RECIPES.find(r => r.name === name);
+            // 只有类型是 'use' 且效果是 heal/food/warm 的才能在战斗中用
+            if (recipe && recipe.type === 'use' && (recipe.effect === 'heal' || recipe.effect === 'food')) {
+                
+                const btn = document.createElement('div');
+                btn.className = 'heal-btn';
+                
+                let iconStr = "";
+                if (ITEM_ICONS[name]) iconStr = `<img src="${ITEM_ICONS[name]}">`;
+                
+                // 按钮显示：图标 + 名字 + 数量
+                btn.innerHTML = `${iconStr} ${name} <span style="font-size:9px;color:#666">x${count}</span>`;
+                
+                // 点击事件：战斗中使用
+                btn.onclick = () => combatUseItem(name);
+                
+                healContainer.appendChild(btn);
+            }
+        }
+        
+        if (healContainer.innerHTML === '') {
+            healContainer.innerHTML = '<span style="font-size:10px;color:#ccc;padding:5px;">无恢复品</span>';
+        }
     }
 }
 
@@ -460,6 +505,49 @@ function combatAttack() {
     updateCombatUI();
 }
 
+// --- 新增：战斗中使用物品逻辑 ---
+function combatUseItem(name) {
+    if (!currentEnemy) return;
+    if (!player.inventory[name] || player.inventory[name] <= 0) return;
+
+    let recipe = RECIPES.find(r => r.name === name);
+    if (!recipe) return;
+
+    // 1. 玩家回血效果
+    let recoverMsg = "";
+    if (recipe.effect === 'food') {
+        // 食物回血量设为饥饿值的一半
+        let healAmount = Math.floor(recipe.val / 2); 
+        player.hp = Math.min(player.maxHp, player.hp + healAmount);
+        recoverMsg = `吃了 ${name}，恢复 ${healAmount} HP`;
+        player.hunger = Math.min(player.maxHunger, player.hunger + recipe.val);
+    } 
+    else if (recipe.effect === 'heal') {
+        player.hp = Math.min(player.maxHp, player.hp + recipe.val);
+        recoverMsg = `使用了 ${name}，恢复 ${recipe.val} HP`;
+    }
+
+    combatLog(recoverMsg, "blue");
+
+    // 2. 消耗物品
+    player.inventory[name]--;
+    if (player.inventory[name] <= 0) delete player.inventory[name];
+
+    // 3. 怪物趁机攻击
+    const eDmg = Math.max(1, currentEnemy.atk - Math.floor(Math.random()));
+    player.hp -= eDmg;
+    combatLog(`趁你吃东西时，${currentEnemy.name} 造成了 ${eDmg} 伤害！`, "red");
+    
+    // 受击震动
+    document.body.classList.remove('shake');
+    void document.body.offsetWidth;
+    document.body.classList.add('shake');
+
+    // 4. 刷新界面
+    updateStatsUI();
+    updateCombatUI();
+}
+
 function enemyTurn() { }
 
 function combatFlee() {
@@ -498,7 +586,6 @@ function updateInventoryUI() {
             const row = document.createElement('div');
             row.className = 'list-item';
             
-            // --- 图标逻辑 ---
             let iconHtml = "";
             if (ITEM_ICONS[name]) {
                 iconHtml = `<img src="${ITEM_ICONS[name]}" class="item-icon">`;
@@ -509,7 +596,6 @@ function updateInventoryUI() {
             if (r && r.type === 'build') btnText = "放置";
             else if (r && r.type === 'equip') btnText = "装备";
 
-            // 使用 flex 布局让图标、文字、数量、按钮横向排列
             row.innerHTML = `
                 <div style="display:flex; align-items:center; gap:10px; flex:1;">
                     ${iconHtml}
