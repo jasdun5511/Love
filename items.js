@@ -13,7 +13,7 @@ const ITEM_ICONS = {
     // === 基础资源 ===
     // 橡木原木 (你指定的年轮切面图)
     "橡木原木": "https://zh.minecraft.wiki/images/Oak_Log_Axis_Y_JE5_BE3.png?da15a",
-    "木棍": "https://zh.minecraft.wiki/images/Stick_JE2_BE2.png",
+    "木棍": "https://zh.minecraft.wiki/images/Stick_JE1_BE1.png?2ab19",
     "石头": "https://zh.minecraft.wiki/images/Stone_JE5_BE3.png",
     "杂草": "https://zh.minecraft.wiki/images/Grass_JE2_BE2.png", 
     "小麦种子": "https://zh.minecraft.wiki/images/Wheat_Seeds_JE2_BE2.png",
@@ -26,7 +26,7 @@ const ITEM_ICONS = {
     "水": "https://zh.minecraft.wiki/images/Water_Bucket_JE2_BE2.png",
 
     // === 矿物 ===
-    "煤炭": "https://zh.minecraft.wiki/images/Coal_JE4_BE3.png",
+    "煤炭": "https://zh.minecraft.wiki/images/Coal_JE3_BE2.png?b473d",
     "铁矿石": "https://zh.minecraft.wiki/images/Iron_Ore_JE6_BE4.png",
     "铁锭": "https://zh.minecraft.wiki/images/Iron_Ingot_JE3_BE2.png",
     "金矿石": "https://zh.minecraft.wiki/images/Gold_Ore_JE7_BE4.png",
