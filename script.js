@@ -1,95 +1,6 @@
-// --- 1. 游戏配置与数据 ---
-const MAP_SIZE = 20;
+// 注意：MAP_SIZE, BIOMES, RECIPES 现在都在 data.js 里
 
-// --- 1.1 核心数据：Minecraft 生物群系与掉落 ---
-const BIOMES = {
-    // === 主世界 ===
-    PLAINS: { 
-        name: "平原", code: "bg-PLAINS", 
-        res: ["杂草", "小麦种子", "橡木原木", "蒲公英"], 
-        mobs: [{name:"牛", hp:10, atk:0, loot:"生牛肉"}, {name:"僵尸", hp:20, atk:3, loot:"腐肉"}, {name:"苦力怕", hp:20, atk:15, loot:"火药"}] 
-    },
-    FOREST: { 
-        name: "森林", code: "bg-FOREST", 
-        res: ["橡木原木", "云杉原木", "木棍", "苹果", "蘑菇"], 
-        mobs: [{name:"猪", hp:10, atk:0, loot:"生猪排"}, {name:"骷髅", hp:20, atk:4, loot:"骨头"}, {name:"蜘蛛", hp:16, atk:3, loot:"线"}] 
-    },
-    DESERT: { 
-        name: "沙漠", code: "bg-DESERT", 
-        res: ["沙子", "仙人掌", "枯灌木", "岩浆源"], 
-        mobs: [{name:"尸壳", hp:20, atk:4, loot:"腐肉"}] 
-    },
-    MOUNTAIN: { 
-        name: "山地", code: "bg-MOUNTAIN", 
-        res: ["石头", "铁矿石", "煤炭", "绿宝石矿"], 
-        mobs: [{name:"羊", hp:8, atk:0, loot:"生羊肉"}] 
-    },
-    SNOWY: { 
-        name: "雪原", code: "bg-SNOWY", 
-        res: ["冰", "雪球", "云杉原木"], 
-        mobs: [{name:"流浪者", hp:20, atk:4, loot:"箭"}] 
-    },
-    OCEAN: { 
-        name: "深海", code: "bg-OCEAN", 
-        res: ["水", "鳕鱼", "海带"], 
-        mobs: [{name:"溺尸", hp:20, atk:5, loot:"三叉戟"}, {name:"鱿鱼", hp:10, atk:0, loot:"墨囊"}] 
-    },
-    SWAMP: { 
-        name: "沼泽", code: "bg-SWAMP", 
-        res: ["粘土", "藤蔓", "兰花"], 
-        mobs: [{name:"史莱姆", hp:16, atk:2, loot:"粘液球"}, {name:"女巫", hp:26, atk:6, loot:"红石"}] 
-    },
-    MESA: { 
-        name: "恶地", code: "bg-MESA", 
-        res: ["红沙", "金矿石", "枯灌木"], 
-        mobs: [{name:"蜘蛛", hp:16, atk:3, loot:"线"}] 
-    },
-
-    // === 下界 (The Nether) ===
-    NETHER_WASTES: { name: "地狱", code: "bg-NETHER", res: ["地狱岩", "石英矿", "岩浆源", "金粒"], mobs: [{name:"僵尸猪人", hp:20, atk:5, loot:"金粒"}, {name:"恶魂", hp:10, atk:10, loot:"火药"}] },
-    CRIMSON_FOREST: { name: "绯红", code: "bg-CRIMSON", res: ["绯红菌柄", "地狱疣", "萤石"], mobs: [{name:"猪灵", hp:16, atk:6, loot:"金锭"}, {name:"疣猪兽", hp:40, atk:8, loot:"生猪排"}] },
-    SOUL_SAND_VALLEY: { name: "灵魂", code: "bg-SOUL", res: ["灵魂沙", "骨块", "玄武岩"], mobs: [{name:"骷髅", hp:20, atk:5, loot:"骨头"}] },
-    LAVA_SEA: { name: "熔岩", code: "bg-LAVA", res: ["岩浆源", "黑石", "远古残骸"], mobs: [{name:"烈焰人", hp:20, atk:6, loot:"烈焰棒"}, {name:"岩浆怪", hp:16, atk:4, loot:"岩浆膏"}] }
-};
-
-// --- 1.2 核心数据：Minecraft 配方 ---
-const RECIPES = [
-    // === 建筑类 ===
-    { name: "工作台", req: { "橡木原木": 4 }, type: "build", desc: "放置后可存储物品" }, 
-    { name: "熔炉", req: { "石头": 8 }, type: "build", desc: "装饰性建筑" },
-    { name: "下界传送门", req: { "黑曜石": 10, "打火石": 1 }, type: "build", desc: "放置后点击进入地狱" },
-
-    // === 材料加工 ===
-    { name: "木棍", req: { "橡木原木": 2 }, type: "item", desc: "基础材料" },
-    { name: "铁锭", req: { "铁矿石": 1, "煤炭": 1 }, type: "item", desc: "烧炼铁矿" },
-    { name: "金锭", req: { "金矿石": 1, "煤炭": 1 }, type: "item", desc: "烧炼金矿" },
-    { name: "钻石", req: { "钻石矿": 1 }, type: "item", desc: "敲碎矿石获得" }, 
-    { name: "下界合金锭", req: { "远古残骸": 1, "金锭": 1 }, type: "item", desc: "顶级材料" },
-
-    // === 核心工具 ===
-    { name: "打火石", req: { "铁锭": 1, "燧石": 1 }, type: "item", desc: "点火工具" },
-    { name: "铁桶", req: { "铁锭": 3 }, type: "item", desc: "装流体用" },
-    { name: "黑曜石", req: { "岩浆桶": 1, "水": 1 }, type: "item", desc: "坚硬方块" },
-
-    // === 武器进化 ===
-    { name: "木剑", req: { "木棍": 1, "橡木原木": 2 }, type: "equip", effect: "atk", val: 8, desc: "攻击力 8" },
-    { name: "石剑", req: { "木棍": 1, "石头": 2 }, type: "equip", effect: "atk", val: 12, desc: "攻击力 12" },
-    { name: "铁剑", req: { "木棍": 1, "铁锭": 2 }, type: "equip", effect: "atk", val: 18, desc: "攻击力 18" },
-    { name: "钻石剑", req: { "木棍": 1, "钻石": 2 }, type: "equip", effect: "atk", val: 25, desc: "攻击力 25" },
-    { name: "下界合金剑", req: { "钻石剑": 1, "下界合金锭": 1 }, type: "equip", effect: "atk", val: 35, desc: "攻击力 35" },
-
-    // === 防具进化 ===
-    { name: "铁盔甲", req: { "铁锭": 5 }, type: "equip", effect: "hp_max", val: 150, desc: "HP上限 -> 150" },
-    { name: "钻石盔甲", req: { "钻石": 5 }, type: "equip", effect: "hp_max", val: 200, desc: "HP上限 -> 200" },
-    { name: "下界合金甲", req: { "钻石盔甲": 1, "下界合金锭": 1 }, type: "equip", effect: "hp_max", val: 250, desc: "HP上限 -> 250" },
-
-    // === 食物 ===
-    { name: "面包", req: { "小麦种子": 3 }, type: "use", effect: "food", val: 25, desc: "恢复 25 饥饿" },
-    { name: "熟牛肉", req: { "生牛肉": 1, "煤炭": 1 }, type: "use", effect: "food", val: 40, desc: "恢复 40 饥饿" },
-    { name: "金苹果", req: { "苹果": 1, "金锭": 8 }, type: "use", effect: "heal", val: 100, desc: "瞬间恢复 100 HP" }
-];
-
-// 玩家状态
+// --- 游戏状态 (State) ---
 let player = { 
     x: 10, y: 10, 
     hp: 100, maxHp: 100, 
@@ -119,7 +30,7 @@ let playerPosNether = {x: 10, y: 10};
 function getCurrBuildings() { return currentDimension === "OVERWORLD" ? buildingsMain : buildingsNether; }
 function getCurrExplored() { return currentDimension === "OVERWORLD" ? exploredMapMain : exploredMapNether; }
 
-// --- 2. 核心系统：时间与状态 ---
+// --- 核心系统：时间与状态 ---
 
 function passTime(hours) {
     gameTime.hour += hours;
@@ -164,7 +75,7 @@ function updateDayNightCycle() {
     }
 }
 
-// --- 3. 核心系统：移动与地图 ---
+// --- 核心系统：移动与地图 ---
 
 function move(dx, dy) {
     if(currentEnemy && document.getElementById('combat-view').className.indexOf('hidden') === -1) {
@@ -196,7 +107,7 @@ function getBiome(x, y) {
     }
 }
 
-// --- 4. 核心系统：交互与战斗 ---
+// --- 核心系统：交互与战斗 ---
 
 function generateScene(biomeKey) {
     currentSceneItems = [];
@@ -273,14 +184,11 @@ function renderScene() {
             btn.innerHTML = `${iconHtml}${item.name} (${item.count})`;
             btn.onclick = () => collectResource(index, btn);
         } else {
-            // --- 怪物图标渲染逻辑 ---
+            // 怪物图标渲染
             let mobIconHtml = "";
-            // 尝试直接用全名查找
             if (ITEM_ICONS[item.name]) {
                 mobIconHtml = `<img src="${ITEM_ICONS[item.name]}" class="mob-icon">`;
-            } 
-            // 如果全名找不到，尝试去掉前缀查找
-            else {
+            } else {
                 let baseName = item.name.replace("狂暴的", "").replace("地狱的", "");
                 if (ITEM_ICONS[baseName]) {
                     mobIconHtml = `<img src="${ITEM_ICONS[baseName]}" class="mob-icon">`;
@@ -318,48 +226,28 @@ function collectResource(index) {
         return; 
     }
 
-    // 体力消耗逻辑
+    // 体力消耗
     let hpCost = 0;
+    if (player.hunger > 0) player.hunger -= 1;
+    else { hpCost += 2; log("饥饿时强行劳作，体力透支... (HP -2)", "red"); }
 
-    if (player.hunger > 0) {
-        player.hunger -= 1;
-    } else {
-        hpCost += 2; 
-        log("饥饿时强行劳作，体力透支... (HP -2)", "red");
-    }
-
-    if (player.water > 0) {
-        player.water -= 1;
-    } else {
-        hpCost += 2; 
-        log("极度口渴伴随着眩晕... (HP -2)", "red");
-    }
+    if (player.water > 0) player.water -= 1;
+    else { hpCost += 2; log("极度口渴伴随着眩晕... (HP -2)", "red"); }
 
     if (hpCost > 0) {
         player.hp -= hpCost;
         document.body.classList.remove('shake');
         void document.body.offsetWidth;
         document.body.classList.add('shake');
-
-        if (player.hp <= 0) {
-            die();
-            return; 
-        }
+        if (player.hp <= 0) { die(); return; }
     }
 
     updateStatsUI(); 
-
     addItemToInventory(item.name, 1);
     item.count--; 
+    if (hpCost === 0) log(`采集了 1个 ${item.name} (剩余:${item.count})`);
 
-    if (hpCost === 0) {
-        log(`采集了 1个 ${item.name} (剩余:${item.count})`);
-    }
-
-    if (item.count <= 0) {
-        currentSceneItems.splice(index, 1);
-    }
-
+    if (item.count <= 0) currentSceneItems.splice(index, 1);
     renderScene(); 
 }
 
@@ -370,7 +258,7 @@ function startCombat(mob, index) {
     currentEnemy.index = index;
     switchView('combat');
 
-    // --- 获取怪物图片 (大图逻辑) ---
+    // 获取怪物图片
     let imgUrl = "";
     if (ITEM_ICONS[mob.name]) {
         imgUrl = ITEM_ICONS[mob.name];
@@ -379,20 +267,16 @@ function startCombat(mob, index) {
         if (ITEM_ICONS[baseName]) imgUrl = ITEM_ICONS[baseName];
     }
 
-    // 构建带图片的 HTML (使用 combat-mob-img 样式)
     let imgHtml = imgUrl ? `<img src="${imgUrl}" class="combat-mob-img">` : "";
 
-    // 1. 设置怪物信息
     document.getElementById('enemy-name').innerHTML = `${imgHtml}${mob.name}`;
     document.getElementById('combat-log-area').innerHTML = `<p>遭遇了 ${mob.name}！它看起来充满敌意！</p>`;
 
-    // 2. 动态插入回血栏 (如果还没有的话)
-    // 检查是否已经插入过，防止重复
+    // 动态插入回血栏
     if (!document.getElementById('combat-consumables')) {
         const healDiv = document.createElement('div');
         healDiv.id = 'combat-consumables';
         healDiv.className = 'quick-heal-bar';
-        // 插入到 日志区(combat-log) 和 按钮区(player-actions) 之间
         const logArea = document.getElementById('combat-log-area');
         logArea.parentNode.insertBefore(healDiv, logArea.nextSibling);
     }
@@ -403,49 +287,76 @@ function startCombat(mob, index) {
 function updateCombatUI() {
     if(!currentEnemy) return;
     
-    // 1. 更新血条
+    // 更新血条
     const hpPct = (currentEnemy.hp / currentEnemy.maxHp) * 100;
     document.getElementById('enemy-hp-bar').style.width = `${hpPct}%`;
     document.getElementById('enemy-stats').innerText = `HP: ${currentEnemy.hp}/${currentEnemy.maxHp} | ATK: ${currentEnemy.atk}`;
 
-    // 2. 检查玩家死亡
     if (player.hp <= 0) {
         document.getElementById('combat-log-area').innerHTML += `<p style="color:red">你被杀死了...</p>`;
         setTimeout(() => { alert("你死了！刷新页面重来。"); location.reload(); }, 500);
         return;
     }
 
-    // 3. --- 新增：刷新战斗中的快捷回血栏 ---
+    // 刷新快捷回血栏
     const healContainer = document.getElementById('combat-consumables');
     if (healContainer) {
-        healContainer.innerHTML = ''; // 清空旧按钮
-        
-        // 遍历背包，寻找食物或药水
+        healContainer.innerHTML = ''; 
         for (let [name, count] of Object.entries(player.inventory)) {
             let recipe = RECIPES.find(r => r.name === name);
-            // 只有类型是 'use' 且效果是 heal/food/warm 的才能在战斗中用
             if (recipe && recipe.type === 'use' && (recipe.effect === 'heal' || recipe.effect === 'food')) {
-                
                 const btn = document.createElement('div');
                 btn.className = 'heal-btn';
-                
                 let iconStr = "";
                 if (ITEM_ICONS[name]) iconStr = `<img src="${ITEM_ICONS[name]}">`;
-                
-                // 按钮显示：图标 + 名字 + 数量
                 btn.innerHTML = `${iconStr} ${name} <span style="font-size:9px;color:#666">x${count}</span>`;
-                
-                // 点击事件：战斗中使用
                 btn.onclick = () => combatUseItem(name);
-                
                 healContainer.appendChild(btn);
             }
         }
-        
         if (healContainer.innerHTML === '') {
             healContainer.innerHTML = '<span style="font-size:10px;color:#ccc;padding:5px;">无恢复品</span>';
         }
     }
+}
+
+function combatUseItem(name) {
+    if (!currentEnemy) return;
+    if (!player.inventory[name] || player.inventory[name] <= 0) return;
+
+    let recipe = RECIPES.find(r => r.name === name);
+    if (!recipe) return;
+
+    // 玩家回血
+    let recoverMsg = "";
+    if (recipe.effect === 'food') {
+        let healAmount = Math.floor(recipe.val / 2); 
+        player.hp = Math.min(player.maxHp, player.hp + healAmount);
+        recoverMsg = `吃了 ${name}，恢复 ${healAmount} HP`;
+        player.hunger = Math.min(player.maxHunger, player.hunger + recipe.val);
+    } 
+    else if (recipe.effect === 'heal') {
+        player.hp = Math.min(player.maxHp, player.hp + recipe.val);
+        recoverMsg = `使用了 ${name}，恢复 ${recipe.val} HP`;
+    }
+
+    combatLog(recoverMsg, "blue");
+
+    // 消耗物品
+    player.inventory[name]--;
+    if (player.inventory[name] <= 0) delete player.inventory[name];
+
+    // 怪物趁机攻击
+    const eDmg = Math.max(1, currentEnemy.atk - Math.floor(Math.random()));
+    player.hp -= eDmg;
+    combatLog(`趁你吃东西时，${currentEnemy.name} 造成了 ${eDmg} 伤害！`, "red");
+    
+    document.body.classList.remove('shake');
+    void document.body.offsetWidth;
+    document.body.classList.add('shake');
+
+    updateStatsUI();
+    updateCombatUI();
 }
 
 function combatLog(msg, color="#333") {
@@ -501,49 +412,6 @@ function combatAttack() {
         die();
     }
 
-    updateStatsUI();
-    updateCombatUI();
-}
-
-// --- 新增：战斗中使用物品逻辑 ---
-function combatUseItem(name) {
-    if (!currentEnemy) return;
-    if (!player.inventory[name] || player.inventory[name] <= 0) return;
-
-    let recipe = RECIPES.find(r => r.name === name);
-    if (!recipe) return;
-
-    // 1. 玩家回血效果
-    let recoverMsg = "";
-    if (recipe.effect === 'food') {
-        // 食物回血量设为饥饿值的一半
-        let healAmount = Math.floor(recipe.val / 2); 
-        player.hp = Math.min(player.maxHp, player.hp + healAmount);
-        recoverMsg = `吃了 ${name}，恢复 ${healAmount} HP`;
-        player.hunger = Math.min(player.maxHunger, player.hunger + recipe.val);
-    } 
-    else if (recipe.effect === 'heal') {
-        player.hp = Math.min(player.maxHp, player.hp + recipe.val);
-        recoverMsg = `使用了 ${name}，恢复 ${recipe.val} HP`;
-    }
-
-    combatLog(recoverMsg, "blue");
-
-    // 2. 消耗物品
-    player.inventory[name]--;
-    if (player.inventory[name] <= 0) delete player.inventory[name];
-
-    // 3. 怪物趁机攻击
-    const eDmg = Math.max(1, currentEnemy.atk - Math.floor(Math.random()));
-    player.hp -= eDmg;
-    combatLog(`趁你吃东西时，${currentEnemy.name} 造成了 ${eDmg} 伤害！`, "red");
-    
-    // 受击震动
-    document.body.classList.remove('shake');
-    void document.body.offsetWidth;
-    document.body.classList.add('shake');
-
-    // 4. 刷新界面
     updateStatsUI();
     updateCombatUI();
 }
@@ -729,12 +597,11 @@ function craftItem(recipe) {
 // --- 7. 辅助功能与UI ---
 
 function refreshLocation() {
-    // 1. 记录探索：解锁当前位置 + 东南西北 (十字形)
+    // 1. 记录探索
     let currentMap = getCurrExplored();
     const offsets = [
         {dx: 0, dy: 0}, {dx: 0, dy: -1}, {dx: 0, dy: 1}, {dx: -1, dy: 0}, {dx: 1, dy: 0}
     ];
-
     offsets.forEach(offset => {
         let nx = player.x + offset.dx;
         let ny = player.y + offset.dy;
@@ -743,11 +610,11 @@ function refreshLocation() {
         }
     });
 
-    // 2. 获取当前地形信息
+    // 2. 获取地形
     const biomeKey = getBiome(player.x, player.y);
     const biome = BIOMES[biomeKey];
     
-    // 3. 标题显示
+    // 3. 标题
     let titleHtml = biome.name;
     if (currentDimension === "NETHER") {
         titleHtml = `<span style="color:#e74c3c">🔥 ${biome.name}</span>`;
@@ -755,7 +622,7 @@ function refreshLocation() {
     document.getElementById('loc-name').innerHTML = titleHtml;
     document.getElementById('coord').innerText = `${player.x},${player.y}`;
 
-    // 4. 背景变色
+    // 4. 背景色
     if (currentDimension === "NETHER") {
         document.body.style.backgroundColor = "#2c0505"; 
         document.querySelector('.app-container').style.borderColor = "#800";
@@ -764,16 +631,14 @@ function refreshLocation() {
         document.querySelector('.app-container').style.borderColor = "#fff";
     }
 
-    // 5. 生成场景和渲染
+    // 5. 渲染
     generateScene(biomeKey);
     renderScene();
     updateMiniMap();
-    
     if (!document.getElementById('map-modal').classList.contains('hidden')) {
         renderBigMap();
     }
 }
-
 
 function updateStatsUI() {
     document.getElementById('hp').innerText = player.hp;
@@ -812,11 +677,10 @@ function log(msg, color="black") {
     el.prepend(p);
 }
 
-// 地图相关函数 
+// 地图
 function openMap() { document.getElementById('map-modal').classList.remove('hidden'); renderBigMap(); }
 function closeMap() { document.getElementById('map-modal').classList.add('hidden'); }
 
-// 修复版 updateMiniMap
 function updateMiniMap() {
     const getBName = (x, y) => {
         if (x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE) return "边界";
@@ -845,7 +709,6 @@ function renderBigMap() {
                 const type = getBiome(x, y);
                 cell.className = `map-cell ${BIOMES[type].code}`;
                 cell.innerText = BIOMES[type].name.substring(0, 2);
-
                 const buildings = getCurrBuildings()[key] || [];
                 if(buildings.some(b => b.name === "下界传送门")) {
                     cell.style.border = "2px solid #8e44ad";
@@ -876,7 +739,7 @@ function die() {
 }
 
 function init() {
-    // --- 1. 自动更新底部导航栏图标 ---
+    // 自动更新导航图标
     const navMapping = {
         0: "导航_背包",
         1: "导航_制作",
@@ -884,7 +747,6 @@ function init() {
         3: "导航_地图",
         4: "导航_系统"
     };
-    
     const navIcons = document.querySelectorAll('.bottom-nav .nav-icon');
     navIcons.forEach((img, index) => {
         const key = navMapping[index];
@@ -893,23 +755,20 @@ function init() {
         }
     });
 
-    // --- 2. 初始赠送物品 ---
     addItemToInventory("木剑", 1);
     addItemToInventory("面包", 2);
 
-    // --- 3. 启动游戏逻辑 ---
     refreshLocation();
     updateStatsUI();
     updateDayNightCycle();
     log("MC 文字版启动！先去砍树吧！");
 }
 
-// --- 8. 新增功能逻辑区 ---
+// --- 8. 建筑与设施 ---
 
 function placeBuilding(name) {
     const buildings = getCurrBuildings(); 
     const key = `${player.x},${player.y}`;
-    
     if (!buildings[key]) buildings[key] = [];
     
     let newBuild = { name: name };
@@ -929,7 +788,6 @@ function usePortal() {
     if (currentDimension === "OVERWORLD") {
         log("穿过紫色的光幕... 进入下界！", "purple");
         playerPosMain = {x: player.x, y: player.y};
-        
         currentDimension = "NETHER";
         player.x = playerPosNether.x;
         player.y = playerPosNether.y;
@@ -943,7 +801,6 @@ function usePortal() {
     } else {
         log("逃离了炙热的地狱，回到主世界。", "blue");
         playerPosNether = {x: player.x, y: player.y};
-        
         currentDimension = "OVERWORLD";
         player.x = playerPosMain.x;
         player.y = playerPosMain.y;
