@@ -21,7 +21,7 @@ const BIOMES = {
     },
     MOUNTAIN: { 
         name: "山地", code: "bg-MOUNTAIN", 
-        res: ["石头", "铁矿石", "煤炭", "绿宝石矿"], // 这些都需要镐子
+        res: ["石头", "铁矿石", "煤炭", "绿宝石矿"], // 这些现在需要镐子
         mobs: [{name:"羊", hp:8, atk:0, loot:"生羊肉"}] 
     },
     SNOWY: { 
@@ -58,7 +58,7 @@ const BIOMES = {
 const RECIPES = [
     // === 建筑类 (不需要工作台，手搓) ===
     { name: "工作台", req: { "橡木原木": 4 }, type: "build", desc: "放置后解锁高级合成" }, 
-    { name: "熔炉", req: { "石头": 8 }, type: "build", desc: "放置后可烧炼/烹饪", station: "workbench" }, // 熔炉本身需要工作台做
+    { name: "熔炉", req: { "石头": 8 }, type: "build", desc: "放置后可烧炼/烹饪", station: "workbench" }, 
     { name: "下界传送门", req: { "黑曜石": 10, "打火石": 1 }, type: "build", desc: "放置后点击进入地狱" },
 
     // === 材料加工 (部分需要工作台) ===
@@ -94,6 +94,6 @@ const RECIPES = [
     // === 食物 (烧烤类需要熔炉) ===
     { name: "面包", req: { "小麦种子": 3 }, type: "use", effect: "food", val: 25, desc: "恢复 25 饥饿" }, // 面包可以手搓
     { name: "熟牛肉", req: { "生牛肉": 1, "煤炭": 1 }, type: "use", effect: "food", val: 40, desc: "恢复 40 饥饿", station: "furnace" },
-    { name: "烤猪排", req: { "生猪排": 1, "煤炭": 1 }, type: "use", effect: "food", val: 40, desc: "恢复 40 饥饿", station: "furnace" }, // 新增烤猪排
+    { name: "烤猪排", req: { "生猪排": 1, "煤炭": 1 }, type: "use", effect: "food", val: 40, desc: "恢复 40 饥饿", station: "furnace" },
     { name: "金苹果", req: { "苹果": 1, "金锭": 8 }, type: "use", effect: "heal", val: 100, desc: "瞬间恢复 100 HP", station: "workbench" }
 ];
