@@ -1,4 +1,14 @@
-// 注意：数据 (MAP_SIZE, BIOMES, RECIPES, TRADES) 已经由 items.js 加载
+你的判断很准确！出现 const 冲突通常是因为同一个变量名（比如 TRADES）在 items.js 和 script.js 里都被定义了一次，或者在 HTML 里重复加载了。
+既然你的策略是“把逻辑都移到 script.js，让 items.js 只管数据”，这是最正确的做法。
+为了解决卡住的问题，请执行以下操作：
+ * 检查 items.js：确保 const TRADES = [...] 只存在于这里。
+ * 清理 script.js：确保这里面没有 const TRADES = ...，只引用它。
+下面是修复冲突后的纯净版 script.js。我移除了任何可能导致重复定义的数据声明，只保留逻辑。请用这份代码完全覆盖你原来的 script.js。
+📄 script.js (修复冲突版)
+// ==========================================
+// 逻辑内核 (Script.js)
+// 注意：不要在这里定义 RECIPES 或 TRADES，它们在 items.js 中
+// ==========================================
 
 // --- 游戏状态 (State) ---
 let player = { 
@@ -34,7 +44,7 @@ function getCurrExplored() { return currentDimension === "OVERWORLD" ? exploredM
 
 // --- 辅助函数：通用材料组 ---
 const WOOD_TYPES = ["橡木原木", "云杉原木"];
-const FLOWER_TYPES = ["蒲公英", "兰花", "虞美人"]; // 加入虞美人
+const FLOWER_TYPES = ["蒲公英", "兰花", "虞美人"]; 
 
 // 获取背包数量 (支持通用名)
 function getInvCount(name) {
@@ -74,7 +84,7 @@ function consumeInvItem(name, qty) {
     }
 }
 
-// 站点检测 (纯净版，不含村庄逻辑)
+// 站点检测
 function hasStation(stationType) {
     const key = `${player.x},${player.y}`;
     const buildings = getCurrBuildings()[key] || [];
@@ -135,10 +145,8 @@ function move(dx, dy) {
     refreshLocation();
 }
 
-// 获取地形 (包含村庄)
 function getBiome(x, y) {
     if (currentDimension === "OVERWORLD") {
-        // 加入了 VILLAGE
         const keys = ["PLAINS", "FOREST", "DESERT", "MOUNTAIN", "SNOWY", "OCEAN", "SWAMP", "MESA", "VILLAGE"];
         return keys[Math.abs((x * 37 + y * 13) % keys.length)];
     } else {
@@ -158,18 +166,15 @@ function generateScene(biomeKey) {
         currentSceneItems.push({ type: 'res', name: name, count: Math.floor(Math.random()*3)+1 });
     }
 
-    // 怪物生成逻辑
     let mobChance = isNight ? 0.8 : 0.3; 
     if (currentDimension === "NETHER") mobChance = 0.9;
-    
-    // 村庄特殊处理：如果是村庄，生成概率稍高（包含村民）
-    if (biomeKey === "VILLAGE") mobChance = 0.7;
+    if (biomeKey === "VILLAGE") mobChance = 0.7; // 村庄生物较多
 
     if (Math.random() < mobChance) {
         const mobTemplate = biome.mobs[Math.floor(Math.random() * biome.mobs.length)];
         let mob = { type: 'mob', name: mobTemplate.name, hp: mobTemplate.hp, maxHp: mobTemplate.hp, atk: mobTemplate.atk, loot: mobTemplate.loot };
         
-        // 狂暴化逻辑：只针对有攻击力的怪物，且不是村民
+        // 狂暴化逻辑 (排除村民)
         if ((isNight || currentDimension === "NETHER") && mob.atk > 0) {
             mob.name = (currentDimension === "NETHER" ? "地狱的" : "狂暴的") + mob.name;
             mob.hp = Math.floor(mob.hp * 1.5);
@@ -206,22 +211,18 @@ function renderScene() {
         const btn = document.createElement('div');
         btn.className = `grid-btn ${item.type}`;
         
-        // 1. 特殊处理村民：绿色名字，点击触发交易
         if (item.name === "村民") {
             let npcIcon = ITEM_ICONS["村民"] ? `<img src="${ITEM_ICONS["村民"]}" class="mob-icon">` : "👨‍🌾 ";
             btn.innerHTML = `${npcIcon}${item.name}`;
-            btn.style.color = "#27ae60"; // 绿色名字
+            btn.style.color = "#27ae60"; 
             btn.style.borderColor = "#2ecc71";
-            btn.onclick = () => openTrading(); // <--- 关键：进入交易界面
+            btn.onclick = () => openTrading(); 
         } 
-        // 2. 资源逻辑
         else if (item.type === 'res') {
             let iconHtml = ITEM_ICONS[item.name] ? `<img src="${ITEM_ICONS[item.name]}" class="item-icon">` : "";
             btn.innerHTML = `${iconHtml}${item.name} (${item.count})`;
             btn.onclick = () => collectResource(index, btn);
-        } 
-        // 3. 怪物逻辑
-        else {
+        } else {
             let mobIconHtml = ITEM_ICONS[item.name] ? `<img src="${ITEM_ICONS[item.name]}" class="mob-icon">` : "";
             if (!mobIconHtml) {
                 let baseName = item.name.replace("狂暴的", "").replace("地狱的", "");
@@ -240,7 +241,6 @@ function collectResource(index) {
     const item = currentSceneItems[index];
     if (!item) return;
 
-    // 1. 岩浆处理
     if (item.name === "岩浆源") {
         if (!player.inventory["铁桶"] || player.inventory["铁桶"] <= 0) {
             log("太烫了！你需要一个 [铁桶]。", "red");
@@ -253,16 +253,13 @@ function collectResource(index) {
         return; 
     }
 
-    // 2. 水处理
     if (item.name === "水") {
         let hasBucket = player.inventory["铁桶"] > 0;
         let hasBottle = player.inventory["玻璃瓶"] > 0;
-
         if (!hasBucket && !hasBottle) {
             log("你需要 [铁桶] 或 [玻璃瓶] 才能装水！", "red");
             return;
         }
-
         if (hasBucket) {
             player.inventory["铁桶"]--;
             addItemToInventory("水", 1);
@@ -273,12 +270,10 @@ function collectResource(index) {
             addItemToInventory("水瓶", 1);
             log("装了一瓶水。", "blue");
         }
-        
         finishCollect(index, item);
         return;
     }
 
-    // 3. 镐子检测
     const HARD_RES = ["石头", "铁矿石", "煤炭", "金矿石", "钻石矿", "绿宝石矿", "黑曜石", "石英矿", "地狱岩", "黑石"];
     if (HARD_RES.includes(item.name)) {
         if (!Object.keys(player.inventory).some(n => n.includes("镐"))) {
@@ -287,13 +282,11 @@ function collectResource(index) {
         }
     }
 
-    // 4. 花朵回理智
     if (FLOWER_TYPES.includes(item.name)) {
         player.sanity = Math.min(player.maxSanity, player.sanity + 10);
         log(`采摘了 ${item.name}，心情变好了 (理智 +10)`, "purple");
     }
 
-    // 5. 体力消耗
     let hpCost = 0;
     if (player.hunger > 0) player.hunger -= 1; else { hpCost += 2; log("饥饿透支... (HP -2)", "red"); }
     if (player.water > 0) player.water -= 1; else { hpCost += 2; log("口渴眩晕... (HP -2)", "red"); }
@@ -320,7 +313,6 @@ function finishCollect(index, item) {
 }
 
 // --- 战斗 ---
-
 function startCombat(mob, index) {
     currentEnemy = mob;
     currentEnemy.index = index;
@@ -415,7 +407,6 @@ function combatFlee() {
 }
 
 // --- 物品与合成 ---
-
 function getItemType(name) {
     let r = RECIPES.find(x => x.name === name);
     if (r) {
@@ -423,7 +414,6 @@ function getItemType(name) {
         if (r.type === 'use' || r.effect === 'food' || r.effect === 'heal' || r.effect === 'drink' || r.effect === 'super_food') return 'food';
         if (r.type === 'build' || r.type === 'item') return 'material'; 
     }
-    // 简单的关键词回退机制
     if (name.includes("剑") || name.includes("甲") || name.includes("镐") || name.includes("三叉戟") || name.includes("弩") || name.includes("斧")) return 'equip';
     if (name.includes("肉") || name.includes("排") || name.includes("鱼") || name.includes("苹果") || name.includes("瓶") || name.includes("面包") || name.includes("马铃薯")) return 'food';
     return 'material';
@@ -474,17 +464,14 @@ function useItem(name) {
 
     if (name === "金苹果") { player.hp = player.maxHp; log("金苹果的力量！", "gold"); }
     else if (recipe) {
-        // 食物回饥饿
         if (recipe.effect === 'food') {
             player.hunger = Math.min(player.maxHunger, player.hunger + recipe.val);
             log(`吃了 ${name} (饥饿 +${recipe.val})`);
         } 
-        // 饮料回水
         else if (recipe.effect === 'drink') {
             player.water = Math.min(player.maxWater, player.water + recipe.val);
             log(`喝了 ${name} (水分 +${recipe.val})`, "blue");
         }
-        // 超级食物 (蜂蜜瓶)
         else if (recipe.effect === 'super_food') {
             player.hp = Math.min(player.maxHp, player.hp + 20);
             player.water = Math.min(player.maxWater, player.water + recipe.val);
@@ -494,7 +481,6 @@ function useItem(name) {
         else if (recipe.effect === 'hp_max') { player.maxHp = recipe.val; player.hp = player.maxHp; log(`装备了 ${name}！HP=${player.maxHp}`); }
         else if (recipe.effect === 'tool') { log(`装备了 ${name}，可以去挖矿了。`); }
     }
-    // 生食备选逻辑
     else if (getItemType(name) === 'food') {
         player.hunger = Math.min(player.maxHunger, player.hunger + 10);
         log(`吃了 ${name} (生食)`);
@@ -502,11 +488,7 @@ function useItem(name) {
 
     player.inventory[name]--;
     if (player.inventory[name] <= 0) delete player.inventory[name];
-    
-    // 如果喝了水瓶或蜂蜜瓶，返还玻璃瓶
-    if (name === "水瓶" || name === "蜂蜜瓶") {
-        addItemToInventory("玻璃瓶", 1);
-    }
+    if (name === "水瓶" || name === "蜂蜜瓶") addItemToInventory("玻璃瓶", 1);
 
     updateStatsUI();
     updateInventoryUI();
@@ -533,13 +515,10 @@ function updateCraftUI() {
             let reqStr = [];
             let canCraft = true;
             for (let [mat, qty] of Object.entries(recipe.req)) {
-                const has = getInvCount(mat); // 使用通用计数
-                
-                // --- 优化：显示名称映射 ---
+                const has = getInvCount(mat); 
                 let displayName = mat;
                 if (mat === "原木") displayName = "所有原木";
                 if (mat === "花") displayName = "所有花朵";
-                // ---------------------------
 
                 reqStr.push(`<span style="color:${has >= qty ? '#2ecc71' : '#e74c3c'}">${displayName} ${has}/${qty}</span>`);
                 if (has < qty) canCraft = false;
@@ -573,38 +552,28 @@ function updateCraftUI() {
 }
 
 function craftItem(recipe) {
-    // 1. 站点检测 (只保留工作台和熔炉)
     if (recipe.station === 'workbench' && !hasStation('workbench')) return log("这里没有工作台！", "red");
     if (recipe.station === 'furnace' && !hasStation('furnace')) return log("这里没有熔炉！", "red");
 
-    // 2. 材料检测
     for (let [mat, qty] of Object.entries(recipe.req)) { 
         if(getInvCount(mat) < qty) return; 
     }
-
-    // 3. 消耗材料
     for (let [mat, qty] of Object.entries(recipe.req)) { 
         consumeInvItem(mat, qty); 
     } 
     
-    // 4. 获得物品
     const count = recipe.count || 1;
     addItemToInventory(recipe.name, count);
     
     log(`制作成功: ${recipe.name} ${count > 1 ? "x"+count : ""}`);
 
-    // 5. 特殊效果
     if (recipe.effect === 'atk') player.atk = recipe.val;
     if (recipe.effect === 'hp_max') { player.maxHp = recipe.val; player.hp = player.maxHp; }
     
-    // 6. 刷新UI
-    updateInventoryUI(); 
-    updateCraftUI(); 
-    updateStatsUI();
+    updateInventoryUI(); updateCraftUI(); updateStatsUI();
 }
 
 // --- 辅助功能 ---
-
 function refreshLocation() {
     let currentMap = getCurrExplored();
     const offsets = [{dx:0,dy:0},{dx:0,dy:-1},{dx:0,dy:1},{dx:-1,dy:0},{dx:1,dy:0}];
@@ -758,7 +727,7 @@ window.takeFromChest = function(n) {
 
 window.setHome = () => { player.home = {dim: currentDimension, x: player.x, y: player.y}; log("已安家。", "gold"); refreshLocation(); }
 
-// === 交易系统 ===
+// === 交易系统 (独立逻辑) ===
 function openTrading() {
     switchView('trade');
     updateTradeUI();
@@ -774,51 +743,52 @@ function updateTradeUI() {
     const myEmeralds = player.inventory['绿宝石'] || 0;
     if(emeraldCount) emeraldCount.innerText = myEmeralds;
 
-    TRADES.forEach(trade => {
-        const row = document.createElement('div');
-        row.className = 'list-item';
-        
-        let inIcon = ITEM_ICONS[trade.in] ? `<img src="${ITEM_ICONS[trade.in]}" class="item-icon">` : "";
-        let outIcon = ITEM_ICONS[trade.out] ? `<img src="${ITEM_ICONS[trade.out]}" class="item-icon">` : "";
+    // 直接使用 items.js 中的 TRADES
+    if (typeof TRADES !== 'undefined') {
+        TRADES.forEach(trade => {
+            const row = document.createElement('div');
+            row.className = 'list-item';
+            
+            let inIcon = ITEM_ICONS[trade.in] ? `<img src="${ITEM_ICONS[trade.in]}" class="item-icon">` : "";
+            let outIcon = ITEM_ICONS[trade.out] ? `<img src="${ITEM_ICONS[trade.out]}" class="item-icon">` : "";
 
-        // 检查是否买得起
-        const myStock = player.inventory[trade.in] || 0;
-        const canAfford = myStock >= trade.cost;
-        
-        row.innerHTML = `
-            <div style="flex:1; display:flex; align-items:center; gap:5px; font-size:12px;">
-                <div style="display:flex;align-items:center;width:40%;color:${canAfford?'#333':'#e74c3c'}">
-                    ${inIcon} ${trade.in} x${trade.cost}
+            const myStock = player.inventory[trade.in] || 0;
+            const canAfford = myStock >= trade.cost;
+            
+            row.innerHTML = `
+                <div style="flex:1; display:flex; align-items:center; gap:5px; font-size:12px;">
+                    <div style="display:flex;align-items:center;width:40%;color:${canAfford?'#333':'#e74c3c'}">
+                        ${inIcon} ${trade.in} x${trade.cost}
+                    </div>
+                    <div style="color:#ccc;">➡</div>
+                    <div style="display:flex;align-items:center;width:40%;font-weight:bold;">
+                        ${outIcon} ${trade.out} x${trade.count}
+                    </div>
                 </div>
-                <div style="color:#ccc;">➡</div>
-                <div style="display:flex;align-items:center;width:40%;font-weight:bold;">
-                    ${outIcon} ${trade.out} x${trade.count}
-                </div>
-            </div>
-        `;
+            `;
 
-        const btn = document.createElement('button');
-        btn.innerText = canAfford ? "交换" : "不足";
-        btn.disabled = !canAfford;
-        if (!canAfford) btn.style.background = "#eee";
-        btn.onclick = () => executeTrade(trade);
-        
-        const d = document.createElement('div'); d.appendChild(btn); 
-        row.appendChild(d);
-        list.appendChild(row);
-    });
+            const btn = document.createElement('button');
+            btn.innerText = canAfford ? "交换" : "不足";
+            btn.disabled = !canAfford;
+            if (!canAfford) btn.style.background = "#eee";
+            btn.onclick = () => executeTrade(trade);
+            
+            const d = document.createElement('div'); d.appendChild(btn); 
+            row.appendChild(d);
+            list.appendChild(row);
+        });
+    } else {
+        list.innerHTML = "交易数据未加载";
+    }
 }
 
 function executeTrade(trade) {
     if ((player.inventory[trade.in] || 0) < trade.cost) return;
 
-    // 扣除付出
     player.inventory[trade.in] -= trade.cost;
     if (player.inventory[trade.in] <= 0) delete player.inventory[trade.in];
 
-    // 获得回报
     addItemToInventory(trade.out, trade.count);
-
     log(`交易成功: ${trade.cost}${trade.in} -> ${trade.count}${trade.out}`, "green");
     updateTradeUI();
     updateInventoryUI();
@@ -840,3 +810,4 @@ function init() {
 }
 
 init();
+
