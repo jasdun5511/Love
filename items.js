@@ -154,3 +154,10 @@ const ITEM_ICONS = {
     "熔炉": "https://zh.minecraft.wiki/images/Furnace_%28S%29_BE2.png?5793e",
     "下界传送门": "https://zh.minecraft.wiki/images/Nether_portal_%28animated%29.png?441e3"
 };
+
+
+    // === 镐子 (新增) ===
+    "木镐": "https://zh.minecraft.wiki/images/Wooden_Pickaxe_JE3_BE3.png",
+    "石镐": "https://zh.minecraft.wiki/images/Stone_Pickaxe_JE2_BE2.png",
+    "铁镐": "https://zh.minecraft.wiki/images/Iron_Pickaxe_JE3_BE2.png",
+    "钻石镐": "https://zh.minecraft.wiki/images/Diamond_Pickaxe_JE3_BE3.png",
