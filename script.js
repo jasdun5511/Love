@@ -1,10 +1,4 @@
-你的判断很准确！出现 const 冲突通常是因为同一个变量名（比如 TRADES）在 items.js 和 script.js 里都被定义了一次，或者在 HTML 里重复加载了。
-既然你的策略是“把逻辑都移到 script.js，让 items.js 只管数据”，这是最正确的做法。
-为了解决卡住的问题，请执行以下操作：
- * 检查 items.js：确保 const TRADES = [...] 只存在于这里。
- * 清理 script.js：确保这里面没有 const TRADES = ...，只引用它。
-下面是修复冲突后的纯净版 script.js。我移除了任何可能导致重复定义的数据声明，只保留逻辑。请用这份代码完全覆盖你原来的 script.js。
-📄 script.js (修复冲突版)
+
 // ==========================================
 // 逻辑内核 (Script.js)
 // 注意：不要在这里定义 RECIPES 或 TRADES，它们在 items.js 中
