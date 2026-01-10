@@ -674,3 +674,10 @@ body.night-mode .grid-btn.mob {
 
 .tab-btn:active { transform: scale(0.98); }
 
+
+/* 让被禁用的制作按钮更明显 */
+.list-item button:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
