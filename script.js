@@ -433,7 +433,50 @@ function combatFlee() {
     }
 }
 
-// --- 6. 物品系统与合成 ---
+// --- 6. 物品系统与合成 (含分类筛选功能) ---
+
+// 状态变量：记录当前选中的分类
+let currentInvFilter = 'all';
+let currentCraftFilter = 'all';
+
+// 辅助函数：判断物品类型 (用于背包分类)
+function getItemType(name) {
+    // 1. 先查配方表
+    let r = RECIPES.find(x => x.name === name);
+    if (r) {
+        if (r.type === 'equip') return 'equip';
+        if (r.type === 'use' || r.effect === 'food' || r.effect === 'heal') return 'food';
+        if (r.type === 'build') return 'material'; // 建筑算材料类
+        if (r.type === 'item') return 'material';
+    }
+
+    // 2. 如果配方表里没有 (比如掉落物)，根据名字关键词猜
+    // 装备类
+    if (name.includes("剑") || name.includes("甲") || name.includes("弓") || name.includes("三叉戟")) return 'equip';
+    // 食物类
+    if (name.includes("肉") || name.includes("排") || name.includes("鱼") || name.includes("苹果") || name.includes("腐肉") || name.includes("蘑菇")) return 'food';
+    
+    // 默认归为材料
+    return 'material';
+}
+
+// 切换背包分类
+window.setInvFilter = function(filter, btn) {
+    currentInvFilter = filter;
+    // 按钮样式切换
+    document.querySelectorAll('#inventory-view .tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    updateInventoryUI();
+}
+
+// 切换制作分类
+window.setCraftFilter = function(filter, btn) {
+    currentCraftFilter = filter;
+    // 按钮样式切换
+    document.querySelectorAll('#craft-view .tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    updateCraftUI();
+}
 
 function addItemToInventory(name, count) {
     if (!player.inventory[name]) player.inventory[name] = 0;
@@ -445,37 +488,52 @@ function updateInventoryUI() {
     list.innerHTML = '';
 
     if (Object.keys(player.inventory).length === 0) {
-        list.innerHTML = '<div style="padding:10px;color:#999">背包是空的</div>';
+        list.innerHTML = '<div style="padding:20px;text-align:center;color:#ccc;font-size:12px;">背包空空如也</div>';
         return;
     }
 
+    let hasItem = false;
+
     for (let [name, count] of Object.entries(player.inventory)) {
         if (count > 0) {
-            const row = document.createElement('div');
-            row.className = 'list-item';
-            
-            let iconHtml = "";
-            if (ITEM_ICONS[name]) {
-                iconHtml = `<img src="${ITEM_ICONS[name]}" class="item-icon">`;
+            // --- 筛选逻辑 ---
+            const type = getItemType(name);
+            let show = false;
+            if (currentInvFilter === 'all') show = true;
+            else if (currentInvFilter === 'equip' && type === 'equip') show = true;
+            else if (currentInvFilter === 'food' && type === 'food') show = true;
+            else if (currentInvFilter === 'material' && type === 'material') show = true;
+
+            if (show) {
+                hasItem = true;
+                const row = document.createElement('div');
+                row.className = 'list-item';
+                
+                let iconHtml = "";
+                if (ITEM_ICONS[name]) iconHtml = `<img src="${ITEM_ICONS[name]}" class="item-icon">`;
+
+                let r = RECIPES.find(x => x.name === name);
+                let btnText = "使用";
+                if (r && r.type === 'build') btnText = "放置";
+                else if (r && r.type === 'equip') btnText = "装备";
+
+                row.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:10px; flex:1;">
+                        ${iconHtml}
+                        <span style="font-weight:bold;">${name}</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <b style="color:#999;font-size:11px;">x${count}</b>
+                        <button onclick="useItem('${name}')">${btnText}</button>
+                    </div>
+                `;
+                list.appendChild(row);
             }
-
-            let r = RECIPES.find(x => x.name === name);
-            let btnText = "使用";
-            if (r && r.type === 'build') btnText = "放置";
-            else if (r && r.type === 'equip') btnText = "装备";
-
-            row.innerHTML = `
-                <div style="display:flex; align-items:center; gap:10px; flex:1;">
-                    ${iconHtml}
-                    <span style="font-weight:bold;">${name}</span>
-                </div>
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <b style="color:#666;">x${count}</b>
-                    <button onclick="useItem('${name}')">${btnText}</button>
-                </div>
-            `;
-            list.appendChild(row);
         }
+    }
+
+    if (!hasItem) {
+        list.innerHTML = '<div style="padding:20px;text-align:center;color:#ccc;font-size:12px;">该分类下没有物品</div>';
     }
 }
 
@@ -485,11 +543,13 @@ function useItem(name) {
 
     let recipe = RECIPES.find(r => r.name === name);
 
+    // 特殊逻辑：放置建筑
     if (recipe && recipe.type === 'build') {
         placeBuilding(name);
         return; 
     }
 
+    // 金苹果特殊逻辑
     if (name === "金苹果") {
         player.hp = player.maxHp; 
         player.sanity = 100; 
@@ -509,13 +569,18 @@ function useItem(name) {
         }
         else if (recipe.effect === 'atk') {
             player.atk = recipe.val;
-            log(`装备了 ${name}！`);
+            log(`装备了 ${name}！攻击力 ${player.atk}`);
         }
         else if (recipe.effect === 'hp_max') {
             player.maxHp = recipe.val;
-            player.hp = player.maxHp;
-            log(`装备了 ${name}！`);
+            player.hp = player.maxHp; // 穿装备补满血
+            log(`装备了 ${name}！HP上限 ${player.maxHp}`);
         }
+    }
+    // 如果没有配方（比如生牛肉），简单的食用逻辑
+    else if (getItemType(name) === 'food') {
+        player.hunger = Math.min(player.maxHunger, player.hunger + 10);
+        log(`吃了 ${name} (生食)`);
     }
 
     player.inventory[name]--;
@@ -529,47 +594,73 @@ function updateCraftUI() {
     const list = document.getElementById('craft-list');
     list.innerHTML = '';
 
+    let hasItem = false;
+
     RECIPES.forEach(recipe => {
-        const row = document.createElement('div');
-        row.className = 'list-item';
-        
-        let iconHtml = "";
-        if (ITEM_ICONS[recipe.name]) {
-            iconHtml = `<img src="${ITEM_ICONS[recipe.name]}" class="item-icon">`;
-        }
+        // --- 筛选逻辑 ---
+        let show = false;
+        if (currentCraftFilter === 'all') show = true;
+        else if (currentCraftFilter === 'equip' && recipe.type === 'equip') show = true;
+        // 烹饪：包括 type='use' (食物)
+        else if (currentCraftFilter === 'food' && recipe.type === 'use') show = true;
+        // 建筑/其他：包括 build, item, tool
+        else if (currentCraftFilter === 'build' && (recipe.type === 'build' || recipe.type === 'item')) show = true;
 
-        let reqStr = [];
-        let canCraft = true;
-        for (let [mat, qty] of Object.entries(recipe.req)) {
-            const has = player.inventory[mat] || 0;
-            const color = has >= qty ? '#2ecc71' : '#e74c3c';
-            reqStr.push(`<span style="color:${color}">${mat} ${has}/${qty}</span>`);
-            if (has < qty) canCraft = false;
-        }
+        if (show) {
+            hasItem = true;
+            const row = document.createElement('div');
+            row.className = 'list-item';
+            
+            let iconHtml = "";
+            if (ITEM_ICONS[recipe.name]) {
+                iconHtml = `<img src="${ITEM_ICONS[recipe.name]}" class="item-icon">`;
+            }
 
-        row.innerHTML = `
-            <div style="flex:1; display:flex; align-items:center; gap:10px;">
-                ${iconHtml}
-                <div>
-                    <div style="font-weight:bold">${recipe.name}</div>
-                    <div style="font-size:10px;color:#666">${recipe.desc}</div>
-                    <div style="font-size:10px;background:#f5f5f5;padding:2px;border-radius:2px;margin-top:2px;">${reqStr.join(' ')}</div>
+            let reqStr = [];
+            let canCraft = true;
+            for (let [mat, qty] of Object.entries(recipe.req)) {
+                const has = player.inventory[mat] || 0;
+                // 数量不足显示红色，足够显示绿色
+                const color = has >= qty ? '#2ecc71' : '#e74c3c';
+                reqStr.push(`<span style="color:${color}">${mat} ${has}/${qty}</span>`);
+                if (has < qty) canCraft = false;
+            }
+
+            row.innerHTML = `
+                <div style="flex:1; display:flex; align-items:center; gap:10px;">
+                    ${iconHtml}
+                    <div style="flex:1;">
+                        <div style="display:flex;justify-content:space-between;">
+                            <span style="font-weight:bold;font-size:12px;">${recipe.name}</span>
+                        </div>
+                        <div style="font-size:10px;color:#999;margin:2px 0;">${recipe.desc || ""}</div>
+                        <div style="font-size:10px;background:#f9f9f9;padding:3px;border-radius:4px;">${reqStr.join(' ')}</div>
+                    </div>
                 </div>
-            </div>
-        `;
-        
-        const btn = document.createElement('button');
-        btn.innerText = "制作";
-        btn.disabled = !canCraft;
-        if(!canCraft) btn.style.background = "#ccc";
-        btn.onclick = () => craftItem(recipe);
-        
-        const btnDiv = document.createElement('div');
-        btnDiv.appendChild(btn);
-        
-        row.appendChild(btnDiv);
-        list.appendChild(row);
+            `;
+            
+            const btn = document.createElement('button');
+            btn.innerText = "制作";
+            btn.disabled = !canCraft;
+            if(!canCraft) {
+                btn.style.background = "#eee";
+                btn.style.color = "#ccc";
+                btn.style.border = "1px solid #eee";
+            }
+            btn.onclick = () => craftItem(recipe);
+            
+            const btnDiv = document.createElement('div');
+            btnDiv.style.marginLeft = "8px";
+            btnDiv.appendChild(btn);
+            
+            row.appendChild(btnDiv);
+            list.appendChild(row);
+        }
     });
+
+    if (!hasItem) {
+        list.innerHTML = '<div style="padding:20px;text-align:center;color:#ccc;font-size:12px;">该分类下没有配方</div>';
+    }
 }
 
 
@@ -593,6 +684,8 @@ function craftItem(recipe) {
     updateCraftUI();
     updateStatsUI();
 }
+
+
 
 // --- 7. 辅助功能与UI ---
 
