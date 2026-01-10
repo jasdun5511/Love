@@ -681,3 +681,5 @@ body.night-mode .grid-btn.mob {
     opacity: 0.7;
 }
 
+.map-cell.bg-VILLAGE { color: #d35400; } /* 村庄为砖红色 */
+
