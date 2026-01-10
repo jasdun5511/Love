@@ -1,7 +1,5 @@
-
 // ==========================================
 // 逻辑内核 (Script.js)
-// 注意：不要在这里定义 RECIPES 或 TRADES，它们在 items.js 中
 // ==========================================
 
 // --- 游戏状态 (State) ---
@@ -23,6 +21,22 @@ let currentEnemy = null;
 // 状态变量
 let currentInvFilter = 'all';
 let currentCraftFilter = 'all';
+
+// --- 交易数据表 (已移入 script.js) ---
+const TRADES = [
+    // 买入
+    { in: "绿宝石", cost: 1, out: "面包", count: 3, desc: "买食物" },
+    { in: "绿宝石", cost: 1, out: "煤炭", count: 4, desc: "买燃料" },
+    { in: "绿宝石", cost: 3, out: "熟牛肉", count: 2, desc: "大餐" },
+    { in: "绿宝石", cost: 2, out: "铁镐", count: 1, desc: "现成的工具" },
+    { in: "绿宝石", cost: 6, out: "铁剑", count: 1, desc: "防身武器" },
+    { in: "绿宝石", cost: 2, out: "水瓶", count: 1, desc: "解渴" },
+    // 卖出
+    { in: "煤炭", cost: 8, out: "绿宝石", count: 1, desc: "出售煤炭" },
+    { in: "小麦种子", cost: 12, out: "绿宝石", count: 1, desc: "出售种子" },
+    { in: "腐肉", cost: 8, out: "绿宝石", count: 1, desc: "出售腐肉" },
+    { in: "金锭", cost: 1, out: "绿宝石", count: 1, desc: "金锭兑换" }
+];
 
 // --- 世界状态 ---
 let currentDimension = "OVERWORLD";
@@ -162,13 +176,12 @@ function generateScene(biomeKey) {
 
     let mobChance = isNight ? 0.8 : 0.3; 
     if (currentDimension === "NETHER") mobChance = 0.9;
-    if (biomeKey === "VILLAGE") mobChance = 0.7; // 村庄生物较多
+    if (biomeKey === "VILLAGE") mobChance = 0.7; 
 
     if (Math.random() < mobChance) {
         const mobTemplate = biome.mobs[Math.floor(Math.random() * biome.mobs.length)];
         let mob = { type: 'mob', name: mobTemplate.name, hp: mobTemplate.hp, maxHp: mobTemplate.hp, atk: mobTemplate.atk, loot: mobTemplate.loot };
         
-        // 狂暴化逻辑 (排除村民)
         if ((isNight || currentDimension === "NETHER") && mob.atk > 0) {
             mob.name = (currentDimension === "NETHER" ? "地狱的" : "狂暴的") + mob.name;
             mob.hp = Math.floor(mob.hp * 1.5);
@@ -721,7 +734,7 @@ window.takeFromChest = function(n) {
 
 window.setHome = () => { player.home = {dim: currentDimension, x: player.x, y: player.y}; log("已安家。", "gold"); refreshLocation(); }
 
-// === 交易系统 (独立逻辑) ===
+// === 交易系统 (逻辑) ===
 function openTrading() {
     switchView('trade');
     updateTradeUI();
@@ -737,7 +750,7 @@ function updateTradeUI() {
     const myEmeralds = player.inventory['绿宝石'] || 0;
     if(emeraldCount) emeraldCount.innerText = myEmeralds;
 
-    // 直接使用 items.js 中的 TRADES
+    // 直接使用 script.js 开头的 TRADES
     if (typeof TRADES !== 'undefined') {
         TRADES.forEach(trade => {
             const row = document.createElement('div');
@@ -771,8 +784,6 @@ function updateTradeUI() {
             row.appendChild(d);
             list.appendChild(row);
         });
-    } else {
-        list.innerHTML = "交易数据未加载";
     }
 }
 
@@ -804,4 +815,3 @@ function init() {
 }
 
 init();
-
