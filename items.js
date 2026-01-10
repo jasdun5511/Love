@@ -262,19 +262,3 @@ const RECIPES = [
     { name: "烤马铃薯", req: { "马铃薯": 1, "煤炭": 1 }, type: "use", effect: "food", val: 35, desc: "恢复 35 饥饿", station: "furnace" },
 
 
-// === 交易表 (NPC专属) ===
-const TRADES = [
-    // 买入
-    { in: "绿宝石", cost: 1, out: "面包", count: 3, desc: "买食物" },
-    { in: "绿宝石", cost: 1, out: "煤炭", count: 4, desc: "买燃料" },
-    { in: "绿宝石", cost: 3, out: "熟牛肉", count: 2, desc: "大餐" },
-    { in: "绿宝石", cost: 2, out: "铁镐", count: 1, desc: "现成的工具" },
-    { in: "绿宝石", cost: 6, out: "铁剑", count: 1, desc: "防身武器" },
-    { in: "绿宝石", cost: 2, out: "水瓶", count: 1, desc: "解渴" },
-    // 卖出
-    { in: "煤炭", cost: 8, out: "绿宝石", count: 1, desc: "出售煤炭" },
-    { in: "小麦种子", cost: 12, out: "绿宝石", count: 1, desc: "出售种子" },
-    { in: "腐肉", cost: 8, out: "绿宝石", count: 1, desc: "出售腐肉" },
-    { in: "金锭", cost: 1, out: "绿宝石", count: 1, desc: "金锭兑换" }
-];
-
