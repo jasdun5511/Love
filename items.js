@@ -182,17 +182,22 @@ const BIOMES = {
 };
 
 // ==========================================
+// ... (上面是图标和生物群系，保持不变) ...
+
+// ==========================================
 // 3. 配方表 (RECIPES)
 // ==========================================
 // station: 'workbench' (需工作台), 'furnace' (需熔炉)
 const RECIPES = [
     // === 建筑类 ===
-    { name: "工作台", req: { "橡木原木": 4 }, type: "build", desc: "放置后解锁高级合成" }, 
+    // 【修改】这里原来是 "橡木原木"，现在改成 "原木"，代表任意木头
+    { name: "工作台", req: { "原木": 4 }, type: "build", desc: "放置后解锁高级合成" }, 
     { name: "熔炉", req: { "石头": 8 }, type: "build", desc: "放置后可烧炼/烹饪", station: "workbench" }, 
     { name: "下界传送门", req: { "黑曜石": 10, "打火石": 1 }, type: "build", desc: "放置后点击进入地狱" },
 
     // === 材料加工 ===
-    { name: "木棍", req: { "橡木原木": 2 }, type: "item", desc: "基础材料" }, 
+    // 【修改】任意原木都能做木棍
+    { name: "木棍", req: { "原木": 2 }, type: "item", desc: "基础材料" }, 
     { name: "铁锭", req: { "铁矿石": 1, "煤炭": 1 }, type: "item", desc: "烧炼铁矿", station: "furnace" },
     { name: "金锭", req: { "金矿石": 1, "煤炭": 1 }, type: "item", desc: "烧炼金矿", station: "furnace" },
     { name: "钻石", req: { "钻石矿": 1 }, type: "item", desc: "敲碎矿石获得" },
@@ -203,14 +208,16 @@ const RECIPES = [
     { name: "铁桶", req: { "铁锭": 3 }, type: "item", desc: "装流体用", station: "workbench" },
     { name: "黑曜石", req: { "岩浆桶": 1, "水": 1 }, type: "item", desc: "坚硬方块" },
 
-    // === 镐子 (采集石头必须) ===
-    { name: "木镐", req: { "木棍": 2, "橡木原木": 3 }, type: "equip", effect: "tool", val: 1, desc: "采矿工具 LV1", station: "workbench" },
+    // === 镐子 ===
+    // 【修改】木镐现在可以用任意原木制作
+    { name: "木镐", req: { "木棍": 2, "原木": 3 }, type: "equip", effect: "tool", val: 1, desc: "采矿工具 LV1", station: "workbench" },
     { name: "石镐", req: { "木棍": 2, "石头": 3 }, type: "equip", effect: "tool", val: 2, desc: "采矿工具 LV2", station: "workbench" },
     { name: "铁镐", req: { "木棍": 2, "铁锭": 3 }, type: "equip", effect: "tool", val: 3, desc: "采矿工具 LV3", station: "workbench" },
     { name: "钻石镐", req: { "木棍": 2, "钻石": 3 }, type: "equip", effect: "tool", val: 4, desc: "采矿工具 LV4", station: "workbench" },
 
     // === 武器进化 ===
-    { name: "木剑", req: { "木棍": 1, "橡木原木": 2 }, type: "equip", effect: "atk", val: 8, desc: "攻击力 8", station: "workbench" },
+    // 【修改】木剑也可以用任意原木
+    { name: "木剑", req: { "木棍": 1, "原木": 2 }, type: "equip", effect: "atk", val: 8, desc: "攻击力 8", station: "workbench" },
     { name: "石剑", req: { "木棍": 1, "石头": 2 }, type: "equip", effect: "atk", val: 12, desc: "攻击力 12", station: "workbench" },
     { name: "铁剑", req: { "木棍": 1, "铁锭": 2 }, type: "equip", effect: "atk", val: 18, desc: "攻击力 18", station: "workbench" },
     { name: "钻石剑", req: { "木棍": 1, "钻石": 2 }, type: "equip", effect: "atk", val: 25, desc: "攻击力 25", station: "workbench" },
