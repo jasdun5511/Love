@@ -43,11 +43,23 @@
 
             <div id="inventory-view" class="view-container hidden">
                 <div class="view-title">背包物品</div>
+                <div class="category-tabs">
+                    <button class="tab-btn active" onclick="setInvFilter('all', this)">全部</button>
+                    <button class="tab-btn" onclick="setInvFilter('equip', this)">装备/武器</button>
+                    <button class="tab-btn" onclick="setInvFilter('food', this)">饮食/药水</button>
+                    <button class="tab-btn" onclick="setInvFilter('material', this)">材料/其他</button>
+                </div>
                 <div id="inventory-list" class="list-container"></div>
             </div>
 
             <div id="craft-view" class="view-container hidden">
                 <div class="view-title">生存制作</div>
+                <div class="category-tabs">
+                    <button class="tab-btn active" onclick="setCraftFilter('all', this)">全部</button>
+                    <button class="tab-btn" onclick="setCraftFilter('equip', this)">武器/防具</button>
+                    <button class="tab-btn" onclick="setCraftFilter('food', this)">烹饪/料理</button>
+                    <button class="tab-btn" onclick="setCraftFilter('build', this)">建筑/工具</button>
+                </div>
                 <div id="craft-list" class="list-container"></div>
             </div>
 
@@ -118,7 +130,7 @@
             </div>
         </div>
 
-                <nav class="bottom-nav">
+        <nav class="bottom-nav">
             <div class="nav-item" onclick="switchView('inventory')">
                 <img src="https://zh.minecraft.wiki/images/Chest_JE2_BE3.gif?4e19c" class="nav-icon">
                 <span>背包</span>
@@ -141,7 +153,6 @@
             </div>
         </nav>
 
-
     </div>
 
     <div id="map-modal" class="modal hidden">
@@ -163,12 +174,9 @@
         document.querySelector('.bottom-nav .nav-item:nth-child(4)').onclick = openMap;
     </script>
     
-        <script src="items.js"></script>
-    
+    <script src="items.js"></script>
     <script src="data.js"></script>
-
     <script src="script.js"></script>
 
 </body>
-
 </html>
