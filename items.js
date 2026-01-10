@@ -16,12 +16,17 @@ const ITEM_ICONS = {
     "杂草": "https://zh.minecraft.wiki/images/Grass_JE2_BE2.png", 
     "小麦种子": "https://zh.minecraft.wiki/images/Wheat_Seeds_JE2_BE2.png",
     "蒲公英": "https://zh.minecraft.wiki/images/Dandelion_JE2_BE2.png",
+    "兰花": "https://zh.minecraft.wiki/images/Blue_Orchid_JE2_BE2.png",
     "蘑菇": "https://zh.minecraft.wiki/images/Red_Mushroom_JE2_BE2.png",
     "仙人掌": "https://zh.minecraft.wiki/images/Cactus_JE4_BE2.png",
     "枯灌木": "https://zh.minecraft.wiki/images/Dead_Bush_JE2_BE2.png",
     "藤蔓": "https://zh.minecraft.wiki/images/Vines_JE3_BE2.png",
-    "兰花": "https://zh.minecraft.wiki/images/Blue_Orchid_JE2_BE2.png",
     "海带": "https://zh.minecraft.wiki/images/Kelp_JE2_BE2.png",
+
+    // 新增：瓶子系列
+    "玻璃瓶": "https://zh.minecraft.wiki/images/Glass_Bottle_JE2_BE2.png",
+    "水瓶": "https://zh.minecraft.wiki/images/Water_Bottle_JE2_BE2.png",
+    "蜂蜜瓶": "https://zh.minecraft.wiki/images/Honey_Bottle_JE1_BE1.png",
 
     // 地形方块
     "石头": "https://zh.minecraft.wiki/images/Stone_JE5_BE3.png",
@@ -85,8 +90,6 @@ const ITEM_ICONS = {
     "铁盔甲": "https://zh.minecraft.wiki/images/Iron_Chestplate_JE2_BE2.png",
     "钻石盔甲": "https://zh.minecraft.wiki/images/Diamond_Chestplate_JE3_BE3.png",
     "下界合金甲": "https://zh.minecraft.wiki/images/Netherite_Chestplate_JE2_BE2.png",
-
-    // === 新增：镐子 ===
     "木镐": "https://zh.minecraft.wiki/images/Wooden_Pickaxe_JE3_BE3.png",
     "石镐": "https://zh.minecraft.wiki/images/Stone_Pickaxe_JE2_BE2.png",
     "铁镐": "https://zh.minecraft.wiki/images/Iron_Pickaxe_JE3_BE2.png",
@@ -182,21 +185,20 @@ const BIOMES = {
 };
 
 // ==========================================
-// ... (上面是图标和生物群系，保持不变) ...
-
-// ==========================================
 // 3. 配方表 (RECIPES)
 // ==========================================
-// station: 'workbench' (需工作台), 'furnace' (需熔炉)
 const RECIPES = [
     // === 建筑类 ===
-    // 【修改】这里原来是 "橡木原木"，现在改成 "原木"，代表任意木头
     { name: "工作台", req: { "原木": 4 }, type: "build", desc: "放置后解锁高级合成" }, 
     { name: "熔炉", req: { "石头": 8 }, type: "build", desc: "放置后可烧炼/烹饪", station: "workbench" }, 
     { name: "下界传送门", req: { "黑曜石": 10, "打火石": 1 }, type: "build", desc: "放置后点击进入地狱" },
 
+    // === 药水与容器 (新增) ===
+    { name: "玻璃瓶", req: { "沙子": 3, "煤炭": 1 }, type: "item", desc: "烧制沙子获得", station: "furnace" },
+    { name: "水瓶", req: { "玻璃瓶": 1, "雪球": 1 }, type: "use", effect: "drink", val: 10, desc: "雪球融化成水(需熔炉)", station: "furnace" },
+    { name: "蜂蜜瓶", req: { "水瓶": 1, "花": 1 }, type: "use", effect: "super_food", val: 30, desc: "花蜜水 (恢复HP和水分)" },
+
     // === 材料加工 ===
-    // 【修改】任意原木都能做木棍
     { name: "木棍", req: { "原木": 2 }, type: "item", desc: "基础材料" }, 
     { name: "铁锭", req: { "铁矿石": 1, "煤炭": 1 }, type: "item", desc: "烧炼铁矿", station: "furnace" },
     { name: "金锭", req: { "金矿石": 1, "煤炭": 1 }, type: "item", desc: "烧炼金矿", station: "furnace" },
@@ -209,21 +211,17 @@ const RECIPES = [
     { name: "黑曜石", req: { "岩浆桶": 1, "水": 1 }, type: "item", desc: "坚硬方块" },
 
     // === 镐子 ===
-    // 【修改】木镐现在可以用任意原木制作
     { name: "木镐", req: { "木棍": 2, "原木": 3 }, type: "equip", effect: "tool", val: 1, desc: "采矿工具 LV1", station: "workbench" },
     { name: "石镐", req: { "木棍": 2, "石头": 3 }, type: "equip", effect: "tool", val: 2, desc: "采矿工具 LV2", station: "workbench" },
     { name: "铁镐", req: { "木棍": 2, "铁锭": 3 }, type: "equip", effect: "tool", val: 3, desc: "采矿工具 LV3", station: "workbench" },
     { name: "钻石镐", req: { "木棍": 2, "钻石": 3 }, type: "equip", effect: "tool", val: 4, desc: "采矿工具 LV4", station: "workbench" },
 
-    // === 武器进化 ===
-    // 【修改】木剑也可以用任意原木
+    // === 武器与防具 ===
     { name: "木剑", req: { "木棍": 1, "原木": 2 }, type: "equip", effect: "atk", val: 8, desc: "攻击力 8", station: "workbench" },
     { name: "石剑", req: { "木棍": 1, "石头": 2 }, type: "equip", effect: "atk", val: 12, desc: "攻击力 12", station: "workbench" },
     { name: "铁剑", req: { "木棍": 1, "铁锭": 2 }, type: "equip", effect: "atk", val: 18, desc: "攻击力 18", station: "workbench" },
     { name: "钻石剑", req: { "木棍": 1, "钻石": 2 }, type: "equip", effect: "atk", val: 25, desc: "攻击力 25", station: "workbench" },
     { name: "下界合金剑", req: { "钻石剑": 1, "下界合金锭": 1 }, type: "equip", effect: "atk", val: 35, desc: "攻击力 35", station: "workbench" },
-
-    // === 防具进化 ===
     { name: "铁盔甲", req: { "铁锭": 5 }, type: "equip", effect: "hp_max", val: 150, desc: "HP上限 -> 150", station: "workbench" },
     { name: "钻石盔甲", req: { "钻石": 5 }, type: "equip", effect: "hp_max", val: 200, desc: "HP上限 -> 200", station: "workbench" },
     { name: "下界合金甲", req: { "钻石盔甲": 1, "下界合金锭": 1 }, type: "equip", effect: "hp_max", val: 250, desc: "HP上限 -> 250", station: "workbench" },
