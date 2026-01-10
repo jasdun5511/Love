@@ -21,7 +21,7 @@ const BIOMES = {
     },
     MOUNTAIN: { 
         name: "山地", code: "bg-MOUNTAIN", 
-        res: ["石头", "铁矿石", "煤炭", "绿宝石矿"], 
+        res: ["石头", "铁矿石", "煤炭", "绿宝石矿"], // 这些都需要镐子
         mobs: [{name:"羊", hp:8, atk:0, loot:"生羊肉"}] 
     },
     SNOWY: { 
@@ -45,7 +45,7 @@ const BIOMES = {
         mobs: [{name:"蜘蛛", hp:16, atk:3, loot:"线"}] 
     },
 
-    // === 下界 (The Nether) ===
+    // === 下界 ===
     NETHER_WASTES: { name: "地狱", code: "bg-NETHER", res: ["地狱岩", "石英矿", "岩浆源", "金粒"], mobs: [{name:"僵尸猪人", hp:20, atk:5, loot:"金粒"}, {name:"恶魂", hp:10, atk:10, loot:"火药"}] },
     CRIMSON_FOREST: { name: "绯红", code: "bg-CRIMSON", res: ["绯红菌柄", "地狱疣", "萤石"], mobs: [{name:"猪灵", hp:16, atk:6, loot:"金锭"}, {name:"疣猪兽", hp:40, atk:8, loot:"生猪排"}] },
     SOUL_SAND_VALLEY: { name: "灵魂", code: "bg-SOUL", res: ["灵魂沙", "骨块", "玄武岩"], mobs: [{name:"骷髅", hp:20, atk:5, loot:"骨头"}] },
@@ -53,38 +53,47 @@ const BIOMES = {
 };
 
 // === 3. 合成配方配置 ===
+// station: 'workbench' 表示需要站在工作台方块上
+// station: 'furnace' 表示需要站在熔炉方块上
 const RECIPES = [
-    // === 建筑类 ===
-    { name: "工作台", req: { "橡木原木": 4 }, type: "build", desc: "放置后可存储物品" }, 
-    { name: "熔炉", req: { "石头": 8 }, type: "build", desc: "装饰性建筑" },
+    // === 建筑类 (不需要工作台，手搓) ===
+    { name: "工作台", req: { "橡木原木": 4 }, type: "build", desc: "放置后解锁高级合成" }, 
+    { name: "熔炉", req: { "石头": 8 }, type: "build", desc: "放置后可烧炼/烹饪", station: "workbench" }, // 熔炉本身需要工作台做
     { name: "下界传送门", req: { "黑曜石": 10, "打火石": 1 }, type: "build", desc: "放置后点击进入地狱" },
 
-    // === 材料加工 ===
-    { name: "木棍", req: { "橡木原木": 2 }, type: "item", desc: "基础材料" },
-    { name: "铁锭", req: { "铁矿石": 1, "煤炭": 1 }, type: "item", desc: "烧炼铁矿" },
-    { name: "金锭", req: { "金矿石": 1, "煤炭": 1 }, type: "item", desc: "烧炼金矿" },
-    { name: "钻石", req: { "钻石矿": 1 }, type: "item", desc: "敲碎矿石获得" }, 
-    { name: "下界合金锭", req: { "远古残骸": 1, "金锭": 1 }, type: "item", desc: "顶级材料" },
+    // === 材料加工 (部分需要工作台) ===
+    { name: "木棍", req: { "橡木原木": 2 }, type: "item", desc: "基础材料" }, // 手搓
+    { name: "铁锭", req: { "铁矿石": 1, "煤炭": 1 }, type: "item", desc: "烧炼铁矿", station: "furnace" },
+    { name: "金锭", req: { "金矿石": 1, "煤炭": 1 }, type: "item", desc: "烧炼金矿", station: "furnace" },
+    { name: "钻石", req: { "钻石矿": 1 }, type: "item", desc: "敲碎矿石获得" }, // 简化逻辑
+    { name: "下界合金锭", req: { "远古残骸": 1, "金锭": 1 }, type: "item", desc: "顶级材料", station: "workbench" },
 
     // === 核心工具 ===
-    { name: "打火石", req: { "铁锭": 1, "燧石": 1 }, type: "item", desc: "点火工具" },
-    { name: "铁桶", req: { "铁锭": 3 }, type: "item", desc: "装流体用" },
+    { name: "打火石", req: { "铁锭": 1, "燧石": 1 }, type: "item", desc: "点火工具", station: "workbench" },
+    { name: "铁桶", req: { "铁锭": 3 }, type: "item", desc: "装流体用", station: "workbench" },
     { name: "黑曜石", req: { "岩浆桶": 1, "水": 1 }, type: "item", desc: "坚硬方块" },
 
-    // === 武器进化 ===
-    { name: "木剑", req: { "木棍": 1, "橡木原木": 2 }, type: "equip", effect: "atk", val: 8, desc: "攻击力 8" },
-    { name: "石剑", req: { "木棍": 1, "石头": 2 }, type: "equip", effect: "atk", val: 12, desc: "攻击力 12" },
-    { name: "铁剑", req: { "木棍": 1, "铁锭": 2 }, type: "equip", effect: "atk", val: 18, desc: "攻击力 18" },
-    { name: "钻石剑", req: { "木棍": 1, "钻石": 2 }, type: "equip", effect: "atk", val: 25, desc: "攻击力 25" },
-    { name: "下界合金剑", req: { "钻石剑": 1, "下界合金锭": 1 }, type: "equip", effect: "atk", val: 35, desc: "攻击力 35" },
+    // === 新增：镐子 (采集石头必须) ===
+    { name: "木镐", req: { "木棍": 2, "橡木原木": 3 }, type: "equip", effect: "tool", val: 1, desc: "采矿工具 LV1", station: "workbench" },
+    { name: "石镐", req: { "木棍": 2, "石头": 3 }, type: "equip", effect: "tool", val: 2, desc: "采矿工具 LV2", station: "workbench" },
+    { name: "铁镐", req: { "木棍": 2, "铁锭": 3 }, type: "equip", effect: "tool", val: 3, desc: "采矿工具 LV3", station: "workbench" },
+    { name: "钻石镐", req: { "木棍": 2, "钻石": 3 }, type: "equip", effect: "tool", val: 4, desc: "采矿工具 LV4", station: "workbench" },
 
-    // === 防具进化 ===
-    { name: "铁盔甲", req: { "铁锭": 5 }, type: "equip", effect: "hp_max", val: 150, desc: "HP上限 -> 150" },
-    { name: "钻石盔甲", req: { "钻石": 5 }, type: "equip", effect: "hp_max", val: 200, desc: "HP上限 -> 200" },
-    { name: "下界合金甲", req: { "钻石盔甲": 1, "下界合金锭": 1 }, type: "equip", effect: "hp_max", val: 250, desc: "HP上限 -> 250" },
+    // === 武器进化 (都需要工作台) ===
+    { name: "木剑", req: { "木棍": 1, "橡木原木": 2 }, type: "equip", effect: "atk", val: 8, desc: "攻击力 8", station: "workbench" },
+    { name: "石剑", req: { "木棍": 1, "石头": 2 }, type: "equip", effect: "atk", val: 12, desc: "攻击力 12", station: "workbench" },
+    { name: "铁剑", req: { "木棍": 1, "铁锭": 2 }, type: "equip", effect: "atk", val: 18, desc: "攻击力 18", station: "workbench" },
+    { name: "钻石剑", req: { "木棍": 1, "钻石": 2 }, type: "equip", effect: "atk", val: 25, desc: "攻击力 25", station: "workbench" },
+    { name: "下界合金剑", req: { "钻石剑": 1, "下界合金锭": 1 }, type: "equip", effect: "atk", val: 35, desc: "攻击力 35", station: "workbench" },
 
-    // === 食物 ===
-    { name: "面包", req: { "小麦种子": 3 }, type: "use", effect: "food", val: 25, desc: "恢复 25 饥饿" },
-    { name: "熟牛肉", req: { "生牛肉": 1, "煤炭": 1 }, type: "use", effect: "food", val: 40, desc: "恢复 40 饥饿" },
-    { name: "金苹果", req: { "苹果": 1, "金锭": 8 }, type: "use", effect: "heal", val: 100, desc: "瞬间恢复 100 HP" }
+    // === 防具进化 (都需要工作台) ===
+    { name: "铁盔甲", req: { "铁锭": 5 }, type: "equip", effect: "hp_max", val: 150, desc: "HP上限 -> 150", station: "workbench" },
+    { name: "钻石盔甲", req: { "钻石": 5 }, type: "equip", effect: "hp_max", val: 200, desc: "HP上限 -> 200", station: "workbench" },
+    { name: "下界合金甲", req: { "钻石盔甲": 1, "下界合金锭": 1 }, type: "equip", effect: "hp_max", val: 250, desc: "HP上限 -> 250", station: "workbench" },
+
+    // === 食物 (烧烤类需要熔炉) ===
+    { name: "面包", req: { "小麦种子": 3 }, type: "use", effect: "food", val: 25, desc: "恢复 25 饥饿" }, // 面包可以手搓
+    { name: "熟牛肉", req: { "生牛肉": 1, "煤炭": 1 }, type: "use", effect: "food", val: 40, desc: "恢复 40 饥饿", station: "furnace" },
+    { name: "烤猪排", req: { "生猪排": 1, "煤炭": 1 }, type: "use", effect: "food", val: 40, desc: "恢复 40 饥饿", station: "furnace" }, // 新增烤猪排
+    { name: "金苹果", req: { "苹果": 1, "金锭": 8 }, type: "use", effect: "heal", val: 100, desc: "瞬间恢复 100 HP", station: "workbench" }
 ];
