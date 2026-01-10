@@ -128,6 +128,21 @@ const ITEM_ICONS = {
     "熔炉": "https://zh.minecraft.wiki/images/Furnace_%28S%29_BE2.png?5793e",
     "下界传送门": "https://zh.minecraft.wiki/images/Nether_portal_%28animated%29.png?441e3"
 };
+    // === 村庄与交易 ===
+    "绿宝石": "https://zh.minecraft.wiki/images/Emerald_JE3_BE3.png",
+    "马铃薯": "https://zh.minecraft.wiki/images/Potato_JE3_BE2.png",
+    "烤马铃薯": "https://zh.minecraft.wiki/images/Baked_Potato_JE4_BE2.png",
+    "虞美人": "https://zh.minecraft.wiki/images/Poppy_JE2_BE2.png",
+    
+    // 生物
+    "村民": "https://zh.minecraft.wiki/images/Villager_JE2_BE2.png",
+    "铁傀儡": "https://zh.minecraft.wiki/images/Iron_Golem_JE2_BE2.png",
+    "掠夺者": "https://zh.minecraft.wiki/images/Pillager_JE2_BE2.png",
+    "卫道士": "https://zh.minecraft.wiki/images/Vindicator_JE2_BE2.png",
+    
+    // 武器
+    "弩": "https://zh.minecraft.wiki/images/Crossbow_JE2_BE2.png",
+    "铁斧": "https://zh.minecraft.wiki/images/Iron_Axe_JE2_BE2.png",
 
 // ==========================================
 // 2. 游戏配置 (MAP & BIOMES)
@@ -136,6 +151,17 @@ const MAP_SIZE = 20;
 
 const BIOMES = {
     // === 主世界 ===
+    VILLAGE: { 
+        name: "村庄", code: "bg-VILLAGE", 
+        res: ["橡木原木", "小麦种子", "马铃薯", "虞美人", "绿宝石"], 
+        mobs: [
+            {name:"村民", hp:20, atk:0, loot:"绿宝石"}, // 点击交易
+            {name:"铁傀儡", hp:80, atk:15, loot:"铁锭"}, // 强力保镖
+            {name:"掠夺者", hp:30, atk:8, loot:"绿宝石"}, // 敌人
+            {name:"卫道士", hp:40, atk:12, loot:"绿宝石"} // 敌人
+        ] 
+    },
+
     PLAINS: { 
         name: "平原", code: "bg-PLAINS", 
         res: ["杂草", "小麦种子", "橡木原木", "蒲公英"], 
@@ -231,5 +257,24 @@ const RECIPES = [
     { name: "熟牛肉", req: { "生牛肉": 1, "煤炭": 1 }, type: "use", effect: "food", val: 40, desc: "恢复 40 饥饿", station: "furnace" },
     { name: "烤猪排", req: { "生猪排": 1, "煤炭": 1 }, type: "use", effect: "food", val: 40, desc: "恢复 40 饥饿", station: "furnace" },
     { name: "金苹果", req: { "苹果": 1, "金锭": 8 }, type: "use", effect: "heal", val: 100, desc: "瞬间恢复 100 HP", station: "workbench" }
+];
+    // 在 RECIPES 数组里加入这个即可，不要加 station:"village" 的东西
+    { name: "烤马铃薯", req: { "马铃薯": 1, "煤炭": 1 }, type: "use", effect: "food", val: 35, desc: "恢复 35 饥饿", station: "furnace" },
+
+
+// === 交易表 (NPC专属) ===
+const TRADES = [
+    // 买入
+    { in: "绿宝石", cost: 1, out: "面包", count: 3, desc: "买食物" },
+    { in: "绿宝石", cost: 1, out: "煤炭", count: 4, desc: "买燃料" },
+    { in: "绿宝石", cost: 3, out: "熟牛肉", count: 2, desc: "大餐" },
+    { in: "绿宝石", cost: 2, out: "铁镐", count: 1, desc: "现成的工具" },
+    { in: "绿宝石", cost: 6, out: "铁剑", count: 1, desc: "防身武器" },
+    { in: "绿宝石", cost: 2, out: "水瓶", count: 1, desc: "解渴" },
+    // 卖出
+    { in: "煤炭", cost: 8, out: "绿宝石", count: 1, desc: "出售煤炭" },
+    { in: "小麦种子", cost: 12, out: "绿宝石", count: 1, desc: "出售种子" },
+    { in: "腐肉", cost: 8, out: "绿宝石", count: 1, desc: "出售腐肉" },
+    { in: "金锭", cost: 1, out: "绿宝石", count: 1, desc: "金锭兑换" }
 ];
 
