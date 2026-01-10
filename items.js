@@ -128,6 +128,22 @@ const ITEM_ICONS = {
     "熔炉": "https://zh.minecraft.wiki/images/Furnace_%28S%29_BE2.png?5793e",
     "下界传送门": "https://zh.minecraft.wiki/images/Nether_portal_%28animated%29.png?441e3"
 };
+    // === 村庄与交易 ===
+    "绿宝石": "https://zh.minecraft.wiki/images/Emerald_JE3_BE3.png",
+    "马铃薯": "https://zh.minecraft.wiki/images/Potato_JE3_BE2.png",
+    "烤马铃薯": "https://zh.minecraft.wiki/images/Baked_Potato_JE4_BE2.png",
+    "虞美人": "https://zh.minecraft.wiki/images/Poppy_JE2_BE2.png",
+    
+    // 生物
+    "村民": "https://zh.minecraft.wiki/images/Villager_JE2_BE2.png",
+    "铁傀儡": "https://zh.minecraft.wiki/images/Iron_Golem_JE2_BE2.png",
+    "掠夺者": "https://zh.minecraft.wiki/images/Pillager_JE2_BE2.png",
+    "卫道士": "https://zh.minecraft.wiki/images/Vindicator_JE2_BE2.png",
+    
+    // 武器
+    "弩": "https://zh.minecraft.wiki/images/Crossbow_JE2_BE2.png",
+    "铁斧": "https://zh.minecraft.wiki/images/Iron_Axe_JE2_BE2.png",
+
 
 // ==========================================
 // 2. 游戏配置 (MAP & BIOMES)
@@ -136,6 +152,20 @@ const MAP_SIZE = 20;
 
 const BIOMES = {
     // === 主世界 ===
+    // 在 BIOMES 对象里添加：
+    VILLAGE: { 
+        name: "村庄", code: "bg-VILLAGE", 
+        // 资源：包含交易用的绿宝石(模拟翻箱子)和农作物
+        res: ["橡木原木", "小麦种子", "马铃薯", "虞美人", "绿宝石"], 
+        // 怪物：铁傀儡(中立/保镖)，掠夺者/卫道士(入侵者)
+        mobs: [
+            {name:"铁傀儡", hp:80, atk:15, loot:"铁锭"}, // 高血高攻，掉铁
+            {name:"掠夺者", hp:30, atk:8, loot:"绿宝石"}, // 掉钱
+            {name:"卫道士", hp:40, atk:12, loot:"绿宝石"} // 掉钱
+        ] 
+    },
+
+
     PLAINS: { 
         name: "平原", code: "bg-PLAINS", 
         res: ["杂草", "小麦种子", "橡木原木", "蒲公英"], 
@@ -232,3 +262,8 @@ const RECIPES = [
     { name: "烤猪排", req: { "生猪排": 1, "煤炭": 1 }, type: "use", effect: "food", val: 40, desc: "恢复 40 饥饿", station: "furnace" },
     { name: "金苹果", req: { "苹果": 1, "金锭": 8 }, type: "use", effect: "heal", val: 100, desc: "瞬间恢复 100 HP", station: "workbench" }
 ];
+    // === 村民交易 (需在村庄) ===
+    { name: "面包(买)", req: { "绿宝石": 1 }, type: "food", effect: "food", val: 3, desc: "交易: 1绿宝石 -> 3面包", station: "village", output: "面包", count: 3 },
+    { name: "煤炭(买)", req: { "绿宝石": 1 }, type: "item", desc: "交易: 1绿宝石 -> 5煤炭", station: "village", output: "煤炭", count: 5 },
+    { name: "铁剑(买)", req: { "绿宝石": 5 }, type: "equip", effect: "atk", val: 18, desc: "交易: 铁匠的存货", station: "village", output: "铁剑", count: 1 },
+    { name: "烤马铃薯", req: { "马铃薯": 1, "煤炭": 1 }, type: "use", effect: "food", val: 35, desc: "恢复 35 饥饿", station: "furnace" },
