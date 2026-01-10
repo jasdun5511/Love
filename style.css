@@ -640,3 +640,37 @@ body.night-mode .grid-btn.mob {
     min-height: 60px; /* 允许日志区变小 */
     margin-bottom: 5px;
 }
+
+/* --- 分类标签页样式 --- */
+.category-tabs {
+    display: flex;
+    gap: 6px;
+    padding: 0 0 10px 0;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #f0f0f0;
+    overflow-x: auto; /* 防止小屏显示不下 */
+}
+
+.tab-btn {
+    flex: 1; /* 平均分配宽度 */
+    padding: 6px 4px;
+    border: none;
+    background: #f7f8fa; /* 默认浅灰背景 */
+    color: #888;
+    border-radius: 6px;
+    font-size: 11px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+/* 选中状态：蓝色背景，白色文字 */
+.tab-btn.active {
+    background: #3498db;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
+}
+
+.tab-btn:active { transform: scale(0.98); }
+
