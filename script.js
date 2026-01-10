@@ -1,4 +1,4 @@
-// 注意：数据 (MAP_SIZE, BIOMES, RECIPES) 已经由 items.js 加载
+// 注意：数据 (MAP_SIZE, BIOMES, RECIPES, TRADES) 已经由 items.js 加载
 
 // --- 游戏状态 (State) ---
 let player = { 
@@ -34,7 +34,7 @@ function getCurrExplored() { return currentDimension === "OVERWORLD" ? exploredM
 
 // --- 辅助函数：通用材料组 ---
 const WOOD_TYPES = ["橡木原木", "云杉原木"];
-const FLOWER_TYPES = ["蒲公英", "兰花"]; // 新增：花的定义
+const FLOWER_TYPES = ["蒲公英", "兰花", "虞美人"]; // 加入虞美人
 
 // 获取背包数量 (支持通用名)
 function getInvCount(name) {
@@ -74,11 +74,14 @@ function consumeInvItem(name, qty) {
     }
 }
 
+// 站点检测 (纯净版，不含村庄逻辑)
 function hasStation(stationType) {
     const key = `${player.x},${player.y}`;
     const buildings = getCurrBuildings()[key] || [];
+    
     if (stationType === 'workbench') return buildings.some(b => b.name === '工作台');
     if (stationType === 'furnace') return buildings.some(b => b.name === '熔炉');
+    
     return false;
 }
 
@@ -132,9 +135,11 @@ function move(dx, dy) {
     refreshLocation();
 }
 
+// 获取地形 (包含村庄)
 function getBiome(x, y) {
     if (currentDimension === "OVERWORLD") {
-        const keys = ["PLAINS", "FOREST", "DESERT", "MOUNTAIN", "SNOWY", "OCEAN", "SWAMP", "MESA"];
+        // 加入了 VILLAGE
+        const keys = ["PLAINS", "FOREST", "DESERT", "MOUNTAIN", "SNOWY", "OCEAN", "SWAMP", "MESA", "VILLAGE"];
         return keys[Math.abs((x * 37 + y * 13) % keys.length)];
     } else {
         const keys = ["NETHER_WASTES", "CRIMSON_FOREST", "SOUL_SAND_VALLEY", "LAVA_SEA"];
@@ -153,12 +158,19 @@ function generateScene(biomeKey) {
         currentSceneItems.push({ type: 'res', name: name, count: Math.floor(Math.random()*3)+1 });
     }
 
+    // 怪物生成逻辑
     let mobChance = isNight ? 0.8 : 0.3; 
     if (currentDimension === "NETHER") mobChance = 0.9;
+    
+    // 村庄特殊处理：如果是村庄，生成概率稍高（包含村民）
+    if (biomeKey === "VILLAGE") mobChance = 0.7;
+
     if (Math.random() < mobChance) {
         const mobTemplate = biome.mobs[Math.floor(Math.random() * biome.mobs.length)];
         let mob = { type: 'mob', name: mobTemplate.name, hp: mobTemplate.hp, maxHp: mobTemplate.hp, atk: mobTemplate.atk, loot: mobTemplate.loot };
-        if (isNight || currentDimension === "NETHER") {
+        
+        // 狂暴化逻辑：只针对有攻击力的怪物，且不是村民
+        if ((isNight || currentDimension === "NETHER") && mob.atk > 0) {
             mob.name = (currentDimension === "NETHER" ? "地狱的" : "狂暴的") + mob.name;
             mob.hp = Math.floor(mob.hp * 1.5);
             mob.maxHp = mob.hp;
@@ -193,11 +205,23 @@ function renderScene() {
     currentSceneItems.forEach((item, index) => {
         const btn = document.createElement('div');
         btn.className = `grid-btn ${item.type}`;
-        if (item.type === 'res') {
+        
+        // 1. 特殊处理村民：绿色名字，点击触发交易
+        if (item.name === "村民") {
+            let npcIcon = ITEM_ICONS["村民"] ? `<img src="${ITEM_ICONS["村民"]}" class="mob-icon">` : "👨‍🌾 ";
+            btn.innerHTML = `${npcIcon}${item.name}`;
+            btn.style.color = "#27ae60"; // 绿色名字
+            btn.style.borderColor = "#2ecc71";
+            btn.onclick = () => openTrading(); // <--- 关键：进入交易界面
+        } 
+        // 2. 资源逻辑
+        else if (item.type === 'res') {
             let iconHtml = ITEM_ICONS[item.name] ? `<img src="${ITEM_ICONS[item.name]}" class="item-icon">` : "";
             btn.innerHTML = `${iconHtml}${item.name} (${item.count})`;
             btn.onclick = () => collectResource(index, btn);
-        } else {
+        } 
+        // 3. 怪物逻辑
+        else {
             let mobIconHtml = ITEM_ICONS[item.name] ? `<img src="${ITEM_ICONS[item.name]}" class="mob-icon">` : "";
             if (!mobIconHtml) {
                 let baseName = item.name.replace("狂暴的", "").replace("地狱的", "");
@@ -211,7 +235,7 @@ function renderScene() {
     });
 }
 
-// --- 采集逻辑 (含新机制) ---
+// --- 采集逻辑 ---
 function collectResource(index) {
     const item = currentSceneItems[index];
     if (!item) return;
@@ -229,9 +253,7 @@ function collectResource(index) {
         return; 
     }
 
-    // 2. 水处理 (新增机制)
-    // 只能用铁桶装成水桶，或者玻璃瓶装成水瓶 (这里指直接打水，不是雪球合成)
-    // 游戏设定：直接采集"水"资源代表在水源地打水
+    // 2. 水处理
     if (item.name === "水") {
         let hasBucket = player.inventory["铁桶"] > 0;
         let hasBottle = player.inventory["玻璃瓶"] > 0;
@@ -243,7 +265,7 @@ function collectResource(index) {
 
         if (hasBucket) {
             player.inventory["铁桶"]--;
-            addItemToInventory("水", 1); // 这里的"水"其实是水桶，Items里定义Water为水桶图
+            addItemToInventory("水", 1);
             log("装了一桶水。", "blue");
         } 
         else if (hasBottle) {
@@ -265,7 +287,7 @@ function collectResource(index) {
         }
     }
 
-    // 4. 花朵回理智 (新增机制)
+    // 4. 花朵回理智
     if (FLOWER_TYPES.includes(item.name)) {
         player.sanity = Math.min(player.maxSanity, player.sanity + 10);
         log(`采摘了 ${item.name}，心情变好了 (理智 +10)`, "purple");
@@ -342,7 +364,7 @@ function updateCombatUI() {
 
 function combatUseItem(name) {
     if (!currentEnemy || !player.inventory[name]) return;
-    useItem(name); // 复用通用逻辑
+    useItem(name); 
     const eDmg = Math.max(1, currentEnemy.atk - Math.floor(Math.random()));
     player.hp -= eDmg;
     combatLog(`趁你使用物品时，敌人造成 ${eDmg} 伤害`, "red");
@@ -401,8 +423,9 @@ function getItemType(name) {
         if (r.type === 'use' || r.effect === 'food' || r.effect === 'heal' || r.effect === 'drink' || r.effect === 'super_food') return 'food';
         if (r.type === 'build' || r.type === 'item') return 'material'; 
     }
-    if (name.includes("剑") || name.includes("甲") || name.includes("镐") || name.includes("三叉戟")) return 'equip';
-    if (name.includes("肉") || name.includes("排") || name.includes("鱼") || name.includes("苹果") || name.includes("瓶")) return 'food';
+    // 简单的关键词回退机制
+    if (name.includes("剑") || name.includes("甲") || name.includes("镐") || name.includes("三叉戟") || name.includes("弩") || name.includes("斧")) return 'equip';
+    if (name.includes("肉") || name.includes("排") || name.includes("鱼") || name.includes("苹果") || name.includes("瓶") || name.includes("面包") || name.includes("马铃薯")) return 'food';
     return 'material';
 }
 
@@ -512,7 +535,7 @@ function updateCraftUI() {
             for (let [mat, qty] of Object.entries(recipe.req)) {
                 const has = getInvCount(mat); // 使用通用计数
                 
-                // --- 核心修改：显示名称映射 ---
+                // --- 优化：显示名称映射 ---
                 let displayName = mat;
                 if (mat === "原木") displayName = "所有原木";
                 if (mat === "花") displayName = "所有花朵";
@@ -550,16 +573,34 @@ function updateCraftUI() {
 }
 
 function craftItem(recipe) {
+    // 1. 站点检测 (只保留工作台和熔炉)
     if (recipe.station === 'workbench' && !hasStation('workbench')) return log("这里没有工作台！", "red");
     if (recipe.station === 'furnace' && !hasStation('furnace')) return log("这里没有熔炉！", "red");
 
-    for (let [mat, qty] of Object.entries(recipe.req)) { if(getInvCount(mat) < qty) return; }
-    for (let [mat, qty] of Object.entries(recipe.req)) { consumeInvItem(mat, qty); } // 使用通用消耗
+    // 2. 材料检测
+    for (let [mat, qty] of Object.entries(recipe.req)) { 
+        if(getInvCount(mat) < qty) return; 
+    }
+
+    // 3. 消耗材料
+    for (let [mat, qty] of Object.entries(recipe.req)) { 
+        consumeInvItem(mat, qty); 
+    } 
     
-    addItemToInventory(recipe.name, 1);
-    log(`制作成功: ${recipe.name}`);
+    // 4. 获得物品
+    const count = recipe.count || 1;
+    addItemToInventory(recipe.name, count);
+    
+    log(`制作成功: ${recipe.name} ${count > 1 ? "x"+count : ""}`);
+
+    // 5. 特殊效果
     if (recipe.effect === 'atk') player.atk = recipe.val;
-    updateInventoryUI(); updateCraftUI(); updateStatsUI();
+    if (recipe.effect === 'hp_max') { player.maxHp = recipe.val; player.hp = player.maxHp; }
+    
+    // 6. 刷新UI
+    updateInventoryUI(); 
+    updateCraftUI(); 
+    updateStatsUI();
 }
 
 // --- 辅助功能 ---
@@ -589,7 +630,7 @@ function updateStatsUI() {
 }
 
 function switchView(viewName) {
-    ['scene','inventory','craft','combat','chest'].forEach(v => document.getElementById(v+'-view')?.classList.add('hidden'));
+    ['scene','inventory','craft','combat','chest','trade','furnace','enchant'].forEach(v => document.getElementById(v+'-view')?.classList.add('hidden'));
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     document.getElementById(viewName+'-view')?.classList.remove('hidden');
 
@@ -717,6 +758,72 @@ window.takeFromChest = function(n) {
 
 window.setHome = () => { player.home = {dim: currentDimension, x: player.x, y: player.y}; log("已安家。", "gold"); refreshLocation(); }
 
+// === 交易系统 ===
+function openTrading() {
+    switchView('trade');
+    updateTradeUI();
+    log("与村民开始交易。");
+}
+
+function updateTradeUI() {
+    const list = document.getElementById('trade-list');
+    const emeraldCount = document.getElementById('trade-emerald-count');
+    list.innerHTML = '';
+    
+    // 更新持有的绿宝石
+    const myEmeralds = player.inventory['绿宝石'] || 0;
+    if(emeraldCount) emeraldCount.innerText = myEmeralds;
+
+    TRADES.forEach(trade => {
+        const row = document.createElement('div');
+        row.className = 'list-item';
+        
+        let inIcon = ITEM_ICONS[trade.in] ? `<img src="${ITEM_ICONS[trade.in]}" class="item-icon">` : "";
+        let outIcon = ITEM_ICONS[trade.out] ? `<img src="${ITEM_ICONS[trade.out]}" class="item-icon">` : "";
+
+        // 检查是否买得起
+        const myStock = player.inventory[trade.in] || 0;
+        const canAfford = myStock >= trade.cost;
+        
+        row.innerHTML = `
+            <div style="flex:1; display:flex; align-items:center; gap:5px; font-size:12px;">
+                <div style="display:flex;align-items:center;width:40%;color:${canAfford?'#333':'#e74c3c'}">
+                    ${inIcon} ${trade.in} x${trade.cost}
+                </div>
+                <div style="color:#ccc;">➡</div>
+                <div style="display:flex;align-items:center;width:40%;font-weight:bold;">
+                    ${outIcon} ${trade.out} x${trade.count}
+                </div>
+            </div>
+        `;
+
+        const btn = document.createElement('button');
+        btn.innerText = canAfford ? "交换" : "不足";
+        btn.disabled = !canAfford;
+        if (!canAfford) btn.style.background = "#eee";
+        btn.onclick = () => executeTrade(trade);
+        
+        const d = document.createElement('div'); d.appendChild(btn); 
+        row.appendChild(d);
+        list.appendChild(row);
+    });
+}
+
+function executeTrade(trade) {
+    if ((player.inventory[trade.in] || 0) < trade.cost) return;
+
+    // 扣除付出
+    player.inventory[trade.in] -= trade.cost;
+    if (player.inventory[trade.in] <= 0) delete player.inventory[trade.in];
+
+    // 获得回报
+    addItemToInventory(trade.out, trade.count);
+
+    log(`交易成功: ${trade.cost}${trade.in} -> ${trade.count}${trade.out}`, "green");
+    updateTradeUI();
+    updateInventoryUI();
+}
+
 function init() {
     const navMapping = { 0: "导航_背包", 1: "导航_制作", 2: "导航_探索", 3: "导航_地图", 4: "导航_系统" };
     document.querySelectorAll('.bottom-nav .nav-icon').forEach((img, i) => {
@@ -729,7 +836,7 @@ function init() {
     refreshLocation();
     updateStatsUI();
     updateDayNightCycle();
-    log("MC 文字版启动！园艺与炼金更新。");
+    log("MC 文字版启动！村庄与交易更新。");
 }
 
 init();
