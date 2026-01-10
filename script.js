@@ -511,7 +511,14 @@ function updateCraftUI() {
             let canCraft = true;
             for (let [mat, qty] of Object.entries(recipe.req)) {
                 const has = getInvCount(mat); // 使用通用计数
-                reqStr.push(`<span style="color:${has >= qty ? '#2ecc71' : '#e74c3c'}">${mat} ${has}/${qty}</span>`);
+                
+                // --- 核心修改：显示名称映射 ---
+                let displayName = mat;
+                if (mat === "原木") displayName = "所有原木";
+                if (mat === "花") displayName = "所有花朵";
+                // ---------------------------
+
+                reqStr.push(`<span style="color:${has >= qty ? '#2ecc71' : '#e74c3c'}">${displayName} ${has}/${qty}</span>`);
                 if (has < qty) canCraft = false;
             }
 
