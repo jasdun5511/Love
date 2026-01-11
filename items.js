@@ -135,7 +135,7 @@ const ITEM_ICONS = {
     "虞美人": "https://zh.minecraft.wiki/images/Poppy_JE2_BE2.png",
     
     // 生物
-    "村民": "https://zh.minecraft.wiki/images/Villager_JE2_BE2.png",
+    "村民": "https://zh.minecraft.wiki/images/Swamp_Farmer_JE1_BE1.png?166dd",
     "铁傀儡": "https://zh.minecraft.wiki/images/Iron_Golem_JE2_BE2.png",
     "掠夺者": "https://zh.minecraft.wiki/images/Pillager_JE2_BE2.png",
     "卫道士": "https://zh.minecraft.wiki/images/Vindicator_JE2_BE2.png",
