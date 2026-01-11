@@ -25,8 +25,8 @@ const ITEM_ICONS = {
 
     // 瓶子系列
     "玻璃瓶": "https://zh.minecraft.wiki/images/Glass_Bottle_JE2_BE2.png",
-    "水瓶": "https://zh.minecraft.wiki/images/Water_Bottle_JE2_BE2.png",
-    "蜂蜜瓶": "https://zh.minecraft.wiki/images/Honey_Bottle_JE1_BE1.png",
+    "水瓶": "https://zh.minecraft.wiki/images/Water_Bottle_JE2_BE3.png?63599",
+    "蜂蜜瓶": "https://zh.minecraft.wiki/images/Honey_Bottle_JE1_BE2.png?865a4",
 
     // 地形方块
     "石头": "https://zh.minecraft.wiki/images/Stone_JE5_BE3.png",
