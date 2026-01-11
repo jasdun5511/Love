@@ -1,5 +1,5 @@
 // ==========================================
-// 逻辑内核 (Script.js) - 终极整合版
+// 逻辑内核 (Script.js) - 终极修复版
 // ==========================================
 
 // 1. 游戏状态与数据定义
@@ -125,7 +125,7 @@ function addExp(amount) {
         // 升级奖励：回满血
         player.hp = player.maxHp;
         log(`升级了！Lv.${player.level}，获得1属性点。状态已恢复。`, "gold");
-        updateStatsUI();
+        updateStatsUI(); // 升级后立即刷新界面
         // 递归：如果经验溢出很多，可能连升两级
         addExp(0);
     }
@@ -383,7 +383,7 @@ function collectResource(index) {
         if (player.hp <= 0) { die(); return; }
     }
     
-    // 获得经验
+    // 获得经验 (采集给1点)
     addExp(1);
 
     updateStatsUI(); 
@@ -547,6 +547,7 @@ function updateInventoryUI() {
 }
 
 function renderStatsTab() {
+    // 刷新等级、经验、点数
     if(!document.getElementById('stat-lv')) return;
     document.getElementById('stat-lv').innerText = player.level;
     document.getElementById('stat-exp').innerText = player.exp;
@@ -563,6 +564,7 @@ function renderStatsTab() {
     document.getElementById('val-atk').innerText = player.atk;
     document.getElementById('val-sanity').innerText = player.sanity;
 
+    // 激活/禁用加点按钮
     const btns = document.querySelectorAll('.plus-btn');
     btns.forEach(btn => {
         if (player.statPoints > 0) btn.classList.add('active');
@@ -889,7 +891,7 @@ function usePortal() {
 }
 
 
-// 15. UI 更新与通用功能
+// 15. UI 更新与通用功能 (核心更新逻辑)
 // ------------------------------------------
 function refreshLocation() {
     let currentMap = getCurrExplored();
@@ -908,6 +910,7 @@ function refreshLocation() {
     if (!document.getElementById('map-modal').classList.contains('hidden')) renderBigMap();
 }
 
+// 关键函数：更新顶部所有数据
 function updateStatsUI() {
     // 基础属性
     document.getElementById('hp').innerText = player.hp;
@@ -915,11 +918,13 @@ function updateStatsUI() {
     document.getElementById('water').innerText = player.water;
     document.getElementById('sanity').innerText = player.sanity; 
     
-    // 顶部等级栏 (防止报错)
+    // 更新顶部等级栏 (防止 HTML 没加载完报错)
     if (document.getElementById('header-lv')) {
         document.getElementById('header-lv').innerText = player.level;
+        
         let pct = Math.floor((player.exp / player.maxExp) * 100);
         document.getElementById('header-pct').innerText = pct + "%";
+        
         document.getElementById('header-exp').innerText = player.exp;
         document.getElementById('header-max-exp').innerText = player.maxExp;
     }
