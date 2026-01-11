@@ -153,7 +153,7 @@ const BIOMES = {
     // 这里的资源已更新为“橡树”、“云杉”、“小麦”
     VILLAGE: { 
         name: "村庄", code: "bg-VILLAGE", 
-        res: ["橡树", "小麦", "马铃薯", "虞美人", "绿宝石"], 
+        res: ["橡树", "小麦", "马铃薯", "虞美人"], 
         mobs: [
             {name:"村民", hp:20, atk:0, loot:"绿宝石"},
             {name:"铁傀儡", hp:80, atk:15, loot:"铁锭"},
