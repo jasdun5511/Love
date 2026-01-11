@@ -101,7 +101,7 @@ const ITEM_ICONS = {
     "生猪排": "https://zh.minecraft.wiki/images/Raw_Porkchop_JE4_BE3.png",
     "烤猪排": "https://zh.minecraft.wiki/images/Cooked_Porkchop_JE4_BE3.png",
     "生羊肉": "https://zh.minecraft.wiki/images/Raw_Mutton_JE3_BE2.png",
-    "鳕鱼": "https://zh.minecraft.wiki/images/Raw_Cod_JE4_BE3.png",
+    "鳕鱼": "https://zh.minecraft.wiki/images/Cod_BE1.gif?ed2b7",
     "苹果": "https://zh.minecraft.wiki/images/Apple_JE3_BE3.png",
     "金苹果": "https://zh.minecraft.wiki/images/Golden_Apple_JE2_BE2.png",
     "面包": "https://zh.minecraft.wiki/images/Bread_JE3_BE3.png",
