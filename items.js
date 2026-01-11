@@ -10,8 +10,8 @@ const ITEM_ICONS = {
     "导航_系统": "https://zh.minecraft.wiki/images/Impulse_Command_Block.gif?e65a3", 
 
     // 基础资源
-    "橡木原木": "https://zh.minecraft.wiki/images/Oak_Log_Axis_Y_JE5_BE3.png?da15a",
-    "云杉原木": "https://zh.minecraft.wiki/images/Spruce_Log_Axis_Y_JE5_BE3.png?b2671",
+    "橡木原木": "https://zh.minecraft.wiki/images/Oak.png?cbe39",
+    "云杉原木": "https://zh.minecraft.wiki/images/Spruce.png?88690",
     "木棍": "https://zh.minecraft.wiki/images/Stick_JE1_BE1.png?2ab19",
     "杂草": "https://zh.minecraft.wiki/images/Grass_JE2_BE2.png", 
     "小麦种子": "https://zh.minecraft.wiki/images/Wheat_Seeds_JE2_BE2.png",
