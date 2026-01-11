@@ -22,7 +22,7 @@ let currentEnemy = null;
 let currentInvFilter = 'all';
 let currentCraftFilter = 'all';
 
-// --- 交易数据表 (已移入 script.js) ---
+// --- 交易数据表 ---
 const TRADES = [
     // 买入
     { in: "绿宝石", cost: 1, out: "面包", count: 3, desc: "买食物" },
@@ -606,13 +606,18 @@ function updateStatsUI() {
 }
 
 function switchView(viewName) {
-    ['scene','inventory','craft','combat','chest','trade','furnace','enchant'].forEach(v => document.getElementById(v+'-view')?.classList.add('hidden'));
+    // 隐藏所有视图
+    ['scene','inventory','craft','combat','chest','trade','furnace','enchant','system'].forEach(v => document.getElementById(v+'-view')?.classList.add('hidden'));
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    
+    // 显示目标视图
     document.getElementById(viewName+'-view')?.classList.remove('hidden');
 
+    // 导航栏高亮逻辑
     if (viewName === 'scene') document.querySelectorAll('.bottom-nav .nav-item')[2].classList.add('active');
     else if (viewName === 'inventory') { updateInventoryUI(); document.querySelectorAll('.bottom-nav .nav-item')[0].classList.add('active'); }
     else if (viewName === 'craft') { updateCraftUI(); document.querySelectorAll('.bottom-nav .nav-item')[1].classList.add('active'); }
+    else if (viewName === 'system') { checkSaveStatus(); document.querySelectorAll('.bottom-nav .nav-item')[4].classList.add('active'); } 
 }
 
 function log(msg, color="black") {
@@ -799,29 +804,6 @@ function executeTrade(trade) {
     updateInventoryUI();
 }
 
-function init() {
-    const navMapping = { 0: "导航_背包", 1: "导航_制作", 2: "导航_探索", 3: "导航_地图", 4: "导航_系统" };
-    document.querySelectorAll('.bottom-nav .nav-icon').forEach((img, i) => {
-        if(ITEM_ICONS[navMapping[i]]) img.src = ITEM_ICONS[navMapping[i]];
-    });
-
-    addItemToInventory("木剑", 1);
-    addItemToInventory("面包", 2);
-
-    refreshLocation();
-    updateStatsUI();
-    updateDayNightCycle();
-    log("MC 文字版启动！村庄与交易更新。");
-function init() {
-    // ... 原有的代码 ...
-    
-    
-    // 如果有存档，尝试自动读取（或者你也可以让玩家手动点加载）
-    // loadGame(); // 去掉注释即可开启自动读取，但为了安全建议让玩家手动点
-    checkSaveStatus(); // 初始化时检查一下状态
-
-}
-
 // ==========================================
 // 存档与系统 (Save/Load System)
 // ==========================================
@@ -917,22 +899,22 @@ function resetGame() {
     }
 }
 
-// 修改 switchView 函数，加入 checkSaveStatus 的调用
-// 请找到原本的 switchView 函数，把下面这行加进去，或者直接用这个覆盖：
-const originalSwitchView = window.switchView; // 保存旧引用（如果不想完全覆盖）
-window.switchView = function(viewName) {
-    // 隐藏所有视图
-    ['scene','inventory','craft','combat','chest','trade','furnace','enchant','system'].forEach(v => document.getElementById(v+'-view')?.classList.add('hidden'));
-    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-    
-    // 显示目标视图
-    document.getElementById(viewName+'-view')?.classList.remove('hidden');
+function init() {
+    const navMapping = { 0: "导航_背包", 1: "导航_制作", 2: "导航_探索", 3: "导航_地图", 4: "导航_系统" };
+    document.querySelectorAll('.bottom-nav .nav-icon').forEach((img, i) => {
+        if(ITEM_ICONS[navMapping[i]]) img.src = ITEM_ICONS[navMapping[i]];
+    });
 
-    // 导航栏高亮逻辑
-    if (viewName === 'scene') document.querySelectorAll('.bottom-nav .nav-item')[2].classList.add('active');
-    else if (viewName === 'inventory') { updateInventoryUI(); document.querySelectorAll('.bottom-nav .nav-item')[0].classList.add('active'); }
-    else if (viewName === 'craft') { updateCraftUI(); document.querySelectorAll('.bottom-nav .nav-item')[1].classList.add('active'); }
-    else if (viewName === 'system') { checkSaveStatus(); document.querySelectorAll('.bottom-nav .nav-item')[4].classList.add('active'); } // 新增这一行
+    addItemToInventory("木剑", 1);
+    addItemToInventory("面包", 2);
+
+    refreshLocation();
+    updateStatsUI();
+    updateDayNightCycle();
+    log("MC 文字版启动！村庄与交易更新。");
+    
+    // 初始化存档状态
+    checkSaveStatus();
 }
 
 init();
