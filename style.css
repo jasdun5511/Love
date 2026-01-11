@@ -683,3 +683,21 @@ body.night-mode .grid-btn.mob {
 
 .map-cell.bg-VILLAGE { color: #d35400; } /* 村庄为砖红色 */
 
+/* 系统菜单按钮 */
+.menu-btn {
+    padding: 12px;
+    font-size: 14px;
+    font-weight: bold;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: all 0.2s;
+}
+.menu-btn:active { transform: scale(0.98); }
+
+.menu-btn.save { border-color: #2ecc71; color: #27ae60; }
+.menu-btn.load { border-color: #3498db; color: #2980b9; }
+.menu-btn.danger { border-color: #e74c3c; color: #c0392b; background: #fff5f5; }
+
