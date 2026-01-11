@@ -578,31 +578,154 @@ function addItemToInventory(name, count) {
     player.inventory[name] += count;
 }
 
-// 切换背包标签 (属性页/装备页)
+// ==========================================
+// 背包与界面渲染逻辑 (逻辑重构版)
+// ==========================================
+
+// 1. 切换标签页逻辑
 window.switchInvTab = function(tabName) {
     document.querySelectorAll('.inv-tab-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelectorAll('.inv-content').forEach(div => div.classList.add('hidden'));
     
     if (tabName === 'stats') {
+        // --- 切换到：属性/物品 ---
         document.querySelectorAll('.inv-tab-btn')[0].classList.add('active');
         document.getElementById('inv-tab-stats').classList.remove('hidden');
+        
+        // 默认显示“食物/药物”，方便吃东西
+        currentInvFilter = 'food'; 
+        // 视觉上激活第一个按钮
+        const btns = document.querySelectorAll('#inv-tab-stats .category-tabs .tab-btn');
+        if(btns.length > 0) { btns.forEach(b=>b.classList.remove('active')); btns[0].classList.add('active'); }
+        
         renderStatsTab();
     } else {
+        // --- 切换到：装备/工具 ---
         document.querySelectorAll('.inv-tab-btn')[1].classList.add('active');
         document.getElementById('inv-tab-equip').classList.remove('hidden');
+        
+        // 装备页不需要过滤器，显示所有装备
         renderEquipTab();
     }
 }
 
+// 2. 渲染属性页 (包含物品列表)
+function renderStatsTab() {
+    // (A) 渲染属性数值 (保持不变)
+    if(!document.getElementById('stat-lv')) return;
+    document.getElementById('stat-lv').innerText = player.level;
+    document.getElementById('stat-exp').innerText = player.exp;
+    document.getElementById('stat-max-exp').innerText = player.maxExp;
+    document.getElementById('stat-points').innerText = player.statPoints;
+    
+    const pct = (player.exp / player.maxExp) * 100;
+    document.getElementById('stat-exp-bar').style.width = `${pct}%`;
+
+    document.getElementById('val-hp').innerText = player.hp;
+    document.getElementById('val-max-hp').innerText = player.maxHp;
+    document.getElementById('val-max-hunger').innerText = player.maxHunger;
+    document.getElementById('val-max-water').innerText = player.maxWater;
+    document.getElementById('val-atk').innerText = player.atk;
+    document.getElementById('val-sanity').innerText = player.sanity;
+
+    // 激活加点按钮
+    const btns = document.querySelectorAll('.plus-btn');
+    btns.forEach(btn => {
+        if (player.statPoints > 0) btn.classList.add('active');
+        else btn.classList.remove('active');
+    });
+
+    // (B) 渲染下方的物品列表 (新增功能)
+    const list = document.getElementById('inventory-list-stats');
+    if (!list) return;
+    list.innerHTML = '';
+
+    let hasItem = false;
+    for (let [name, count] of Object.entries(player.inventory)) {
+        if (count > 0) {
+            const type = getItemType(name);
+            let show = false;
+            
+            // 根据当前过滤器筛选 (food 或 material)
+            if (currentInvFilter === 'food' && type === 'food') show = true;
+            else if (currentInvFilter === 'material' && type === 'material') show = true;
+
+            if (show) {
+                hasItem = true;
+                const row = document.createElement('div');
+                row.className = 'list-item';
+                let icon = ITEM_ICONS[name] ? `<img src="${ITEM_ICONS[name]}" class="item-icon">` : "";
+                
+                // 只有食物/药物显示“使用”按钮
+                let actionBtn = "";
+                if (type === 'food') {
+                    actionBtn = `<button onclick="useItem('${name}')">使用</button>`;
+                }
+
+                row.innerHTML = `
+                    <div style="flex:1;display:flex;align-items:center;gap:10px;">${icon}<b>${name}</b></div>
+                    <div><b style="color:#999;margin-right:10px;">x${count}</b>${actionBtn}</div>`;
+                list.appendChild(row);
+            }
+        }
+    }
+    if (!hasItem) list.innerHTML = '<div style="padding:15px;text-align:center;color:#ccc;">暂无此类物品</div>';
+}
+
+// 3. 渲染装备页
+function renderEquipTab() {
+    if(!document.getElementById('slot-weapon')) return;
+    document.getElementById('slot-weapon').innerText = player.equipWeapon || "无";
+    document.getElementById('slot-armor').innerText = player.equipArmor || "无";
+
+    const list = document.getElementById('inventory-list-equip');
+    if (!list) return;
+    list.innerHTML = '';
+
+    let hasItem = false;
+    for (let [name, count] of Object.entries(player.inventory)) {
+        if (count > 0) {
+            const type = getItemType(name);
+            
+            // 只显示装备类 (武器、防具、工具)
+            if (type === 'equip') {
+                hasItem = true;
+                const row = document.createElement('div');
+                row.className = 'list-item';
+                let icon = ITEM_ICONS[name] ? `<img src="${ITEM_ICONS[name]}" class="item-icon">` : "";
+                
+                row.innerHTML = `
+                    <div style="flex:1;display:flex;align-items:center;gap:10px;">${icon}<b>${name}</b></div>
+                    <div><b style="color:#999;margin-right:10px;">x${count}</b><button onclick="equipItem('${name}')">装备</button></div>`;
+                list.appendChild(row);
+            }
+        }
+    }
+    if (!hasItem) list.innerHTML = '<div style="padding:15px;text-align:center;color:#ccc;">暂无装备</div>';
+}
+
+// 4. 过滤器点击事件
+window.setInvFilter = (f, b) => { 
+    currentInvFilter = f; 
+    // 切换按钮高亮
+    document.querySelectorAll('#inv-tab-stats .category-tabs .tab-btn').forEach(x=>x.classList.remove('active')); 
+    b.classList.add('active'); 
+    
+    // 重新渲染当前页
+    renderStatsTab(); 
+}
+
+// 5. 统一刷新入口
 function updateInventoryUI() {
-    // 自动判断显示哪个标签页
     const activeTabBtn = document.querySelector('.inv-tab-btn.active');
-    if (!activeTabBtn || activeTabBtn.innerText.includes("属性")) {
-        renderStatsTab();
-    } else {
+    // 如果当前在装备页，刷新装备；否则刷新属性页
+    if (activeTabBtn && activeTabBtn.innerText.includes("装备")) {
         renderEquipTab();
+    } else {
+        renderStatsTab();
     }
 }
+
 
 function renderStatsTab() {
     // 刷新等级、经验、点数
