@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文字生存：荒野 (完整版)</title>
+    <title>文字生存：荒野 (RPG完整版)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,8 +17,9 @@
             <div class="time-info">1000年03月01日 <span id="clock-time">08:00</span></div>
 
             <div class="stats-grid">
-                <span>LV: 1(0%)</span>
-                <span>EXP: 0/5</span>
+                <span>LV: <b id="header-lv">1</b>(<span id="header-pct">0%</span>)</span>
+                <span>EXP: <b id="header-exp">0</b>/<span id="header-max-exp">10</span></span>
+                
                 <span class="stat-sanity">理智: <b id="sanity">100</b>/100</span>
                 <span class="stat-hp">HP: <b id="hp">100</b>/100</span>
                 <span class="stat-hunger">饥饿: <b id="hunger">100</b>/100</span>
@@ -42,57 +43,59 @@
                 <div id="scene-grid" class="item-grid"></div>
             </div>
 
-                        <div id="inventory-view" class="view-container hidden">
+            <div id="inventory-view" class="view-container hidden">
                 <div class="inv-header">
-                    <button class="close-inv-btn" onclick="switchView('scene')">关闭</button>
+                    <button class="close-inv-btn" onclick="switchView('scene')">╳ 关闭</button>
                     角色详情
                 </div>
                 
                 <div class="inv-tabs">
-                    <button class="inv-tab-btn active" onclick="switchInvTab('stats')">属性</button>
-                    <button class="inv-tab-btn" onclick="switchInvTab('equip')">装备</button>
+                    <button class="inv-tab-btn active" onclick="switchInvTab('stats')">属性加点</button>
+                    <button class="inv-tab-btn" onclick="switchInvTab('equip')">背包/装备</button>
                 </div>
 
-                <div id="inv-tab-stats" class="inv-content">
-                    <div style="padding:10px; background:#f9f9f9; border-radius:8px; margin-bottom:15px;">
-                        <div style="font-size:16px; font-weight:bold;">LV: <span id="stat-lv">1</span></div>
-                        <div style="font-size:12px; color:#666; margin-bottom:5px;">EXP: <span id="stat-exp">0</span> / <span id="stat-max-exp">10</span></div>
-                        <div style="height:6px; background:#ddd; border-radius:3px; overflow:hidden;">
-                            <div id="stat-exp-bar" style="height:100%; width:0%; background:#3498db;"></div>
+                <div id="inv-tab-stats" class="inv-content stat-panel">
+                    <div class="level-badge">
+                        <div style="font-size:24px; font-weight:bold;">LV. <span id="stat-lv">1</span></div>
+                        <div style="font-size:12px; opacity:0.9; margin-top:5px;">
+                            经验值: <span id="stat-exp">0</span> / <span id="stat-max-exp">10</span>
                         </div>
-                        <div style="margin-top:8px; font-size:12px; color:#e67e22;">
-                            可用属性点: <b id="stat-points">0</b>
+                        <div style="height:6px; background:rgba(0,0,0,0.2); border-radius:3px; margin-top:8px; overflow:hidden;">
+                            <div id="stat-exp-bar" style="height:100%; width:0%; background:#fff;"></div>
+                        </div>
+                        <div style="margin-top:10px; font-size:13px; font-weight:bold;">
+                            可用点数: <span id="stat-points" style="background:rgba(255,255,255,0.3); padding:2px 8px; border-radius:10px;">0</span>
                         </div>
                     </div>
 
                     <div class="stat-list">
                         <div class="stat-row">
-                            <span class="stat-label">生命值 (HP)</span>
-                            <div style="display:flex; align-items:center; gap:10px;">
-                                <span class="stat-val"><span id="val-hp">100</span>/<span id="val-max-hp">100</span></span>
+                            <span class="stat-label">❤️ 生命上限</span>
+                            <div style="display:flex; align-items:center;">
+                                <span class="stat-val"><span id="val-hp">100</span> / <span id="val-max-hp">100</span></span>
                                 <button class="plus-btn" id="btn-add-hp" onclick="addPoint('hp')">+</button>
                             </div>
                         </div>
                         <div class="stat-row">
-                            <span class="stat-label">饥饿上限</span>
-                            <div style="display:flex; align-items:center; gap:10px;">
+                            <span class="stat-label">🍗 饥饿上限</span>
+                            <div style="display:flex; align-items:center;">
                                 <span class="stat-val" id="val-max-hunger">100</span>
                                 <button class="plus-btn" id="btn-add-hunger" onclick="addPoint('hunger')">+</button>
                             </div>
                         </div>
                         <div class="stat-row">
-                            <span class="stat-label">水分上限</span>
-                            <div style="display:flex; align-items:center; gap:10px;">
+                            <span class="stat-label">💧 水分上限</span>
+                            <div style="display:flex; align-items:center;">
                                 <span class="stat-val" id="val-max-water">100</span>
                                 <button class="plus-btn" id="btn-add-water" onclick="addPoint('water')">+</button>
                             </div>
                         </div>
                         <div class="stat-row">
-                            <span class="stat-label">攻击力</span>
+                            <span class="stat-label">⚔️ 攻击力</span>
                             <span class="stat-val" id="val-atk">5</span>
                         </div>
                          <div class="stat-row">
-                            <span class="stat-label">理智 (Sanity)</span>
+                            <span class="stat-label">🧠 理智值</span>
                             <span class="stat-val" id="val-sanity">100</span>
                         </div>
                     </div>
@@ -102,24 +105,23 @@
                     <div class="equip-slots">
                         <div class="equip-slot">
                             <span>主手武器</span>
-                            <div id="slot-weapon">无</div>
+                            <div id="slot-weapon" style="color:#e74c3c">无</div>
                         </div>
                         <div class="equip-slot">
-                            <span>身体护甲</span>
-                            <div id="slot-armor">无</div>
+                            <span>身体防具</span>
+                            <div id="slot-armor" style="color:#3498db">无</div>
                         </div>
                     </div>
 
-                    <div class="category-tabs">
+                    <div class="category-tabs" style="margin-bottom:10px;">
                         <button class="tab-btn active" onclick="setInvFilter('all', this)">全部</button>
                         <button class="tab-btn" onclick="setInvFilter('equip', this)">装备</button>
-                        <button class="tab-btn" onclick="setInvFilter('food', this)">食物/恢复</button>
-                        <button class="tab-btn" onclick="setInvFilter('material', this)">材料/杂物</button>
+                        <button class="tab-btn" onclick="setInvFilter('food', this)">食物/药物</button>
+                        <button class="tab-btn" onclick="setInvFilter('material', this)">材料</button>
                     </div>
                     <div id="inventory-list" class="list-container"></div>
                 </div>
             </div>
-
 
             <div id="craft-view" class="view-container hidden">
                 <div class="view-title">生存制作</div>
@@ -201,7 +203,7 @@
                     </button>
                     
                     <div style="font-size: 10px; color: #999; text-align: center; margin-top: 20px;">
-                        文字生存：荒野 v1.3<br>
+                        文字生存：荒野 v1.4<br>
                         Local Storage System
                     </div>
                 </div>
@@ -255,7 +257,8 @@
             </div>
             <div class="nav-item" onclick="switchView('system')">
                 <img src="https://zh.minecraft.wiki/images/Impulse_Command_Block.gif?e65a3" class="nav-icon">
-                <span>系统/存档</span> </div>
+                <span>系统/存档</span>
+            </div>
         </nav>
 
     </div>
@@ -272,7 +275,7 @@
             </div>
         </div>
     </div>
-    
+
     <script src="items.js"></script>
     <script src="script.js"></script>
 </body>
