@@ -11,7 +11,7 @@ const ITEM_ICONS = {
 
     // 基础资源
     "橡木原木": "https://zh.minecraft.wiki/images/Oak_Log_Axis_Y_JE5_BE3.png?da15a",
-    "云杉原木": "https://zh.minecraft.wiki/images/Spruce_Log_JE4_BE2.png",
+    "云杉原木": "https://zh.minecraft.wiki/images/Spruce_Log_Axis_Y_JE5_BE3.png?b2671",
     "木棍": "https://zh.minecraft.wiki/images/Stick_JE1_BE1.png?2ab19",
     "杂草": "https://zh.minecraft.wiki/images/Grass_JE2_BE2.png", 
     "小麦种子": "https://zh.minecraft.wiki/images/Wheat_Seeds_JE2_BE2.png",
@@ -65,7 +65,7 @@ const ITEM_ICONS = {
     "骷髅": "https://zh.minecraft.wiki/images/Skeleton_JE6_BE4.png?9ca7c",
     "蜘蛛": "https://zh.minecraft.wiki/images/thumb/Spider_JE5_BE4.png/1280px-Spider_JE5_BE4.png?6206b",
     "尸壳": "https://zh.minecraft.wiki/images/Husk_JE2_BE2.png",
-    "流浪者": "https://zh.minecraft.wiki/images/Stray_JE2_BE2.png",
+    "流浪者": "https://zh.minecraft.wiki/images/Stray_JE2_BE4.png?7f6cc",
     "溺尸": "https://zh.minecraft.wiki/images/Drowned_with_Trident.png?ce04b",
     "史莱姆": "https://zh.minecraft.wiki/images/Slime_JE2_BE2.png",
     "女巫": "https://zh.minecraft.wiki/images/Witch_JE4.png?c2f4f",
