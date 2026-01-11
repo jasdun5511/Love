@@ -21,7 +21,7 @@ const ITEM_ICONS = {
     "仙人掌": "https://zh.minecraft.wiki/images/Cactus_JE4_BE2.png",
     "枯灌木": "https://zh.minecraft.wiki/images/Dead_Bush_JE2_BE2.png",
     "藤蔓": "https://zh.minecraft.wiki/images/Vines_JE3_BE2.png",
-    "海带": "https://zh.minecraft.wiki/images/Kelp_JE2_BE2.png",
+    "海带": "https://zh.minecraft.wiki/images/Kelp_JE3_BE2.gif?3b31c",
 
     // 瓶子系列
     "玻璃瓶": "https://zh.minecraft.wiki/images/Glass_Bottle_JE2_BE2.png",
