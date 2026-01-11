@@ -9,6 +9,11 @@ const ITEM_ICONS = {
     "导航_地图": "https://zh.minecraft.wiki/images/Invicon_Locked_Map.png?af5e7",   
     "导航_系统": "https://zh.minecraft.wiki/images/Impulse_Command_Block.gif?e65a3", 
 
+    // --- 新增/修改：自然资源别名 ---
+    "橡树": "https://zh.minecraft.wiki/images/Oak_Sapling_JE3_BE2.png", // 地图上显示为树苗或原木皆可
+    "云杉": "https://zh.minecraft.wiki/images/Spruce_Sapling_JE3_BE2.png",
+    "小麦": "https://zh.minecraft.wiki/images/Wheat_JE2_BE2.png", 
+
     // 基础资源
     "橡木原木": "https://zh.minecraft.wiki/images/Oak.png?cbe39",
     "云杉原木": "https://zh.minecraft.wiki/images/Spruce.png?88690",
@@ -127,23 +132,17 @@ const ITEM_ICONS = {
     "工作台": "https://zh.minecraft.wiki/images/Crafting_Table_JE4_BE3.png",
     "熔炉": "https://zh.minecraft.wiki/images/Furnace_%28S%29_BE2.png?5793e",
     "下界传送门": "https://zh.minecraft.wiki/images/Nether_portal_%28animated%29.png?441e3",
-
-    // === 村庄与交易 (修复：把这些移进大括号里面了) ===
     "绿宝石": "https://zh.minecraft.wiki/images/Emerald_JE3_BE3.png",
     "马铃薯": "https://zh.minecraft.wiki/images/Potato_JE3_BE2.png",
     "烤马铃薯": "https://zh.minecraft.wiki/images/Baked_Potato_JE4_BE2.png",
     "虞美人": "https://zh.minecraft.wiki/images/Poppy_JE2_BE2.png",
-    
-    // 生物
     "村民": "https://zh.minecraft.wiki/images/Swamp_Farmer_JE1_BE1.png?166dd",
     "铁傀儡": "https://zh.minecraft.wiki/images/Iron_Golem_JE2_BE2.png",
     "掠夺者": "https://zh.minecraft.wiki/images/Pillager_JE2_BE2.png",
     "卫道士": "https://zh.minecraft.wiki/images/Vindicator_JE2_BE2.png",
-    
-    // 武器
     "弩": "https://zh.minecraft.wiki/images/Crossbow_JE2_BE2.png",
     "铁斧": "https://zh.minecraft.wiki/images/Iron_Axe_JE2_BE2.png"
-}; // <--- 修复：这里才是大括号闭合的地方
+};
 
 // ==========================================
 // 2. 游戏配置 (MAP & BIOMES)
@@ -151,9 +150,10 @@ const ITEM_ICONS = {
 const MAP_SIZE = 20;
 
 const BIOMES = {
+    // 这里的资源已更新为“橡树”、“云杉”、“小麦”
     VILLAGE: { 
         name: "村庄", code: "bg-VILLAGE", 
-        res: ["橡木原木", "小麦种子", "马铃薯", "虞美人", "绿宝石"], 
+        res: ["橡树", "小麦", "马铃薯", "虞美人", "绿宝石"], 
         mobs: [
             {name:"村民", hp:20, atk:0, loot:"绿宝石"},
             {name:"铁傀儡", hp:80, atk:15, loot:"铁锭"},
@@ -161,11 +161,11 @@ const BIOMES = {
             {name:"卫道士", hp:40, atk:12, loot:"绿宝石"}
         ] 
     },
-    PLAINS: { name: "平原", code: "bg-PLAINS", res: ["杂草", "小麦种子", "橡木原木", "蒲公英"], mobs: [{name:"牛", hp:10, atk:0, loot:"生牛肉"}, {name:"僵尸", hp:20, atk:3, loot:"腐肉"}, {name:"苦力怕", hp:20, atk:15, loot:"火药"}] },
-    FOREST: { name: "森林", code: "bg-FOREST", res: ["橡木原木", "云杉原木", "木棍", "苹果", "蘑菇"], mobs: [{name:"猪", hp:10, atk:0, loot:"生猪排"}, {name:"骷髅", hp:20, atk:4, loot:"骨头"}, {name:"蜘蛛", hp:16, atk:3, loot:"线"}] },
+    PLAINS: { name: "平原", code: "bg-PLAINS", res: ["杂草", "小麦", "橡树", "蒲公英"], mobs: [{name:"牛", hp:10, atk:0, loot:"生牛肉"}, {name:"僵尸", hp:20, atk:3, loot:"腐肉"}, {name:"苦力怕", hp:20, atk:15, loot:"火药"}] },
+    FOREST: { name: "森林", code: "bg-FOREST", res: ["橡树", "云杉", "木棍", "苹果", "蘑菇"], mobs: [{name:"猪", hp:10, atk:0, loot:"生猪排"}, {name:"骷髅", hp:20, atk:4, loot:"骨头"}, {name:"蜘蛛", hp:16, atk:3, loot:"线"}] },
     DESERT: { name: "沙漠", code: "bg-DESERT", res: ["沙子", "仙人掌", "枯灌木", "岩浆源"], mobs: [{name:"尸壳", hp:20, atk:4, loot:"腐肉"}] },
     MOUNTAIN: { name: "山地", code: "bg-MOUNTAIN", res: ["石头", "铁矿石", "煤炭", "绿宝石矿"], mobs: [{name:"羊", hp:8, atk:0, loot:"生羊肉"}] },
-    SNOWY: { name: "雪原", code: "bg-SNOWY", res: ["冰", "雪球", "云杉原木"], mobs: [{name:"流浪者", hp:20, atk:4, loot:"箭"}] },
+    SNOWY: { name: "雪原", code: "bg-SNOWY", res: ["冰", "雪球", "云杉"], mobs: [{name:"流浪者", hp:20, atk:4, loot:"箭"}] },
     OCEAN: { name: "深海", code: "bg-OCEAN", res: ["水", "鳕鱼", "海带"], mobs: [{name:"溺尸", hp:20, atk:5, loot:"三叉戟"}, {name:"鱿鱼", hp:10, atk:0, loot:"墨囊"}] },
     SWAMP: { name: "沼泽", code: "bg-SWAMP", res: ["粘土", "藤蔓", "兰花"], mobs: [{name:"史莱姆", hp:16, atk:2, loot:"粘液球"}, {name:"女巫", hp:26, atk:6, loot:"红石"}] },
     MESA: { name: "恶地", code: "bg-MESA", res: ["红沙", "金矿石", "枯灌木"], mobs: [{name:"蜘蛛", hp:16, atk:3, loot:"线"}] },
@@ -222,7 +222,5 @@ const RECIPES = [
     { name: "熟牛肉", req: { "生牛肉": 1, "煤炭": 1 }, type: "use", effect: "food", val: 40, desc: "恢复 40 饥饿", station: "furnace" },
     { name: "烤猪排", req: { "生猪排": 1, "煤炭": 1 }, type: "use", effect: "food", val: 40, desc: "恢复 40 饥饿", station: "furnace" },
     { name: "金苹果", req: { "苹果": 1, "金锭": 8 }, type: "use", effect: "heal", val: 100, desc: "瞬间恢复 100 HP", station: "workbench" },
-    
-    // 修复：把烤马铃薯放进数组里面了
     { name: "烤马铃薯", req: { "马铃薯": 1, "煤炭": 1 }, type: "use", effect: "food", val: 35, desc: "恢复 35 饥饿", station: "furnace" }
-]; // <--- 修复：这里才是数组闭合的地方
+];
