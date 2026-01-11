@@ -338,83 +338,59 @@ function renderScene() {
 }
 
 
-// 8. 交互：资源采集 (修正版：去除了采集经验，修复了掉落转换)
-// ------------------------------------------
+// ==========================================
+// 修复版：采集与移除逻辑
+// ==========================================
+
+// 8. 交互：资源采集
 function collectResource(index) {
-    const item = currentSceneItems[index];
-    if (!item) return;
-
-    // --- 1. 特殊掉落逻辑 (树木 -> 原木) ---
+    // 安全检查：防止数组越界
+    if (!currentSceneItems || !currentSceneItems[index]) return;
     
-    // 如果地图上是“橡树”，采集得到“橡木原木”
-    if (item.name === "橡树") {
-        let hpCost = 1; 
-        if(player.hunger<=0) hpCost=2;
-        player.hp -= hpCost;
-        if (player.hp <= 0) { die(); return; }
+    const item = currentSceneItems[index];
 
+    // --- 特殊掉落逻辑 (树木 -> 原木) ---
+    if (item.name === "橡树") {
+        doCollectWork();
         addItemToInventory("橡木原木", 1);
-        // 注意：这里删除了 addExp(1)
         log("砍倒了橡树，获得 橡木原木。", "green");
         finishCollect(index, item);
-        updateStatsUI();
         return;
     }
 
-    // 如果地图上是“云杉”，采集得到“云杉原木”
     if (item.name === "云杉") {
-        let hpCost = 1;
-        if(player.hunger<=0) hpCost=2;
-        player.hp -= hpCost;
-        if (player.hp <= 0) { die(); return; }
-
+        doCollectWork();
         addItemToInventory("云杉原木", 1);
-        // 注意：这里删除了 addExp(1)
         log("砍倒了云杉，获得 云杉原木。", "green");
         finishCollect(index, item);
-        updateStatsUI();
         return;
     }
 
-    // 如果地图上是“小麦”，采集得到“小麦”和“种子”
     if (item.name === "小麦") {
-        let hpCost = 1;
-        if(player.hunger<=0) hpCost=2;
-        player.hp -= hpCost;
-        if (player.hp <= 0) { die(); return; }
-
+        doCollectWork();
         addItemToInventory("小麦", 1);
         addItemToInventory("小麦种子", 2);
-        // 注意：这里删除了 addExp(1)
         log("收割了小麦，获得 小麦x1 + 种子x2。", "gold");
         finishCollect(index, item);
-        updateStatsUI();
         return;
     }
-
-    // --- 2. 绿宝石矿 (需要镐子) ---
+    
+    // --- 绿宝石矿 (需要镐子) ---
     if (item.name === "绿宝石矿") {
-        if (!Object.keys(player.inventory).some(n => n.includes("镐"))) {
-            log(`太硬了！你需要一把 [镐子] 才能采集 ${item.name}。`, "red");
-            return;
-        }
-        let hpCost = 1;
-        if(player.hunger<=0) hpCost=2;
-        player.hp -= hpCost;
-        if (player.hp <= 0) { die(); return; }
-
+        if (!checkTool("镐")) return;
+        doCollectWork();
         addItemToInventory("绿宝石", 1);
-        addExp(2); // 只有挖珍贵矿石可以给少量经验(如果不想要也可以删掉这行)
+        addExp(2); // 只有珍贵矿石给经验
         log("开采了绿宝石矿，获得 绿宝石！", "gold");
         finishCollect(index, item);
-        updateStatsUI();
         return;
     }
 
-    // --- 3. 液体采集 ---
+    // --- 液体采集 ---
     if (item.name === "岩浆源") {
-        if (!player.inventory["铁桶"] || player.inventory["铁桶"] <= 0) { log("太烫了！需[铁桶]。", "red"); return; }
-        player.inventory["铁桶"]--; addItemToInventory("岩浆桶", 1); log("装了岩浆。", "orange"); finishCollect(index, item); return; 
+        if (!player.inventory["铁桶"]) { log("太烫了！需[铁桶]。", "red"); return; }
+        player.inventory["铁桶"]--; addItemToInventory("岩浆桶", 1); log("装了岩浆。", "orange"); 
+        finishCollect(index, item); return; 
     }
     if (item.name === "水") {
         let hasBucket = player.inventory["铁桶"] > 0; let hasBottle = player.inventory["玻璃瓶"] > 0;
@@ -424,37 +400,60 @@ function collectResource(index) {
         finishCollect(index, item); return;
     }
 
-    // --- 4. 硬度检测 ---
+    // --- 硬度检测 ---
     const HARD_RES = ["石头", "铁矿石", "煤炭", "金矿石", "钻石矿", "绿宝石矿", "黑曜石", "石英矿", "地狱岩", "黑石"];
-    if (HARD_RES.includes(item.name)) {
-        if (!Object.keys(player.inventory).some(n => n.includes("镐"))) {
-            log(`太硬了！你需要一把 [镐子] 才能采集 ${item.name}。`, "red");
-            return;
-        }
-    }
+    if (HARD_RES.includes(item.name) && !checkTool("镐")) return;
 
-    // --- 5. 普通采集 (通用逻辑) ---
+    // --- 普通采集 ---
     if (FLOWER_TYPES.includes(item.name)) {
         player.sanity = Math.min(player.maxSanity, player.sanity + 10);
-        log(`采摘了 ${item.name}，心情变好了 (理智 +10)`, "purple");
+        log(`采摘了 ${item.name} (理智 +10)`, "purple");
     }
 
-    let hpCost = 0;
-    if (player.hunger > 0) player.hunger -= 1; else { hpCost += 2; log("饥饿透支... (HP -2)", "red"); }
-    if (player.water > 0) player.water -= 1; else { hpCost += 2; log("口渴眩晕... (HP -2)", "red"); }
+    doCollectWork(); // 扣体力
+    addItemToInventory(item.name, 1);
+    finishCollect(index, item); // 移除
+    if (!FLOWER_TYPES.includes(item.name)) log(`采集了 1个 ${item.name}`);
+}
 
+// 辅助：移除物品逻辑 (修复版)
+function finishCollect(index, item) {
+    // 强制检查：确保 count 是数字
+    if (typeof item.count !== 'number') item.count = 1;
+
+    item.count--; // 数量减1
+    
+    // 如果数量归零，从数组中彻底删除
+    if (item.count <= 0) {
+        currentSceneItems.splice(index, 1);
+    }
+    
+    // 强制刷新界面 (这步最关键，否则UI不会变)
+    renderScene();
+    updateInventoryUI();
+    updateStatsUI();
+}
+
+// 辅助：统一扣体力逻辑
+function doCollectWork() {
+    let hpCost = 0;
+    if (player.hunger > 0) player.hunger -= 1; else hpCost += 2;
+    if (player.water > 0) player.water -= 1; else hpCost += 2;
+    
     if (hpCost > 0) {
         player.hp -= hpCost;
-        if (player.hp <= 0) { die(); return; }
+        if (player.hp <= 0) die();
+        else log(`体力透支 (HP -${hpCost})`, "red");
     }
-    
-    // 注意：这里删除了 addExp(1)，普通采集不再加经验
-    
-    updateStatsUI(); 
-    addItemToInventory(item.name, 1);
-    finishCollect(index, item);
-    
-    if (hpCost === 0 && !FLOWER_TYPES.includes(item.name)) log(`采集了 1个 ${item.name}`);
+}
+
+// 辅助：检查工具
+function checkTool(type) {
+    if (!Object.keys(player.inventory).some(n => n.includes(type))) {
+        log(`你需要一把 [${type}子] 才能采集。`, "red");
+        return false;
+    }
+    return true;
 }
 
 
