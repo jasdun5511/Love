@@ -241,13 +241,49 @@ function move(dx, dy) {
     refreshLocation();
 }
 
+// 修改 getBiome 函数：增加随机性与稀有度权重
 function getBiome(x, y) {
     if (currentDimension === "OVERWORLD") {
-        const keys = ["PLAINS", "FOREST", "DESERT", "MOUNTAIN", "SNOWY", "OCEAN", "SWAMP", "MESA", "VILLAGE"];
-        return keys[Math.abs((x * 37 + y * 13) % keys.length)];
+        // 1. 生成伪随机数 (0.0 ~ 1.0)
+        // 使用正弦函数算法，确保同一个坐标 (x,y) 每次计算出的随机数是固定的，但分布看起来很混乱
+        const dot = x * 12.9898 + y * 78.233;
+        const val = Math.abs(Math.sin(dot) * 43758.5453) % 1;
+
+        // 2. 权重分布 (数值越小越常见，数值越大越稀有)
+        // ------------------------------------------------
+        // 0.00 - 0.20 (20%) : 海洋 (最常见)
+        // 0.20 - 0.40 (20%) : 平原 (常见)
+        // 0.40 - 0.55 (15%) : 森林 (常见)
+        // 0.55 - 0.65 (10%) : 沙漠 (普通)
+        // 0.65 - 0.75 (10%) : 山地 (普通)
+        // 0.75 - 0.85 (10%) : 雪地 (普通)
+        // 0.85 - 0.92 ( 7%) : 沼泽 (稍少)
+        // 0.92 - 0.97 ( 5%) : 恶地 (稀有)
+        // 0.97 - 1.00 ( 3%) : 村庄 (非常稀有！)
+        // ------------------------------------------------
+
+        if (val < 0.20) return "OCEAN";
+        if (val < 0.40) return "PLAINS";
+        if (val < 0.55) return "FOREST";
+        
+        if (val < 0.65) return "DESERT";
+        if (val < 0.75) return "MOUNTAIN";
+        if (val < 0.85) return "SNOWY";
+        
+        if (val < 0.92) return "SWAMP";
+        if (val < 0.97) return "MESA";
+        
+        return "VILLAGE"; // 只有 3% 的概率生成村庄
+
     } else {
+        // 下界保持简单的随机
         const keys = ["NETHER_WASTES", "CRIMSON_FOREST", "SOUL_SAND_VALLEY", "LAVA_SEA"];
-        return keys[Math.abs((x * 7 + y * 19) % keys.length)];
+        // 下界稍微打乱一点顺序
+        const val = Math.abs(Math.sin(x * 37 + y * 19) * 1000) % 1;
+        if (val < 0.4) return "NETHER_WASTES";   // 40% 荒地
+        if (val < 0.7) return "LAVA_SEA";        // 30% 岩浆海
+        if (val < 0.9) return "CRIMSON_FOREST";  // 20% 绯红森林
+        return "SOUL_SAND_VALLEY";               // 10% 灵魂沙峡谷
     }
 }
 
