@@ -10,8 +10,8 @@ const ITEM_ICONS = {
     "导航_系统": "https://zh.minecraft.wiki/images/Impulse_Command_Block.gif?e65a3", 
 
     // --- 新增/修改：自然资源别名 ---
-    "橡树": "https://zh.minecraft.wiki/images/Oak_Sapling_JE3_BE2.png", // 地图上显示为树苗或原木皆可
-    "云杉": "https://zh.minecraft.wiki/images/Spruce_Sapling_JE3_BE2.png",
+    "橡树": "https://zh.minecraft.wiki/images/Oak.png?cbe39", // 地图上显示为树苗或原木皆可
+    "云杉": "https://zh.minecraft.wiki/images/Spruce.png?88690",
     "小麦": "https://zh.minecraft.wiki/images/Wheat_JE2_BE2.png", 
 
     // 基础资源
