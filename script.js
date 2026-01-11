@@ -338,11 +338,85 @@ function renderScene() {
 }
 
 
-// 8. 交互：资源采集
+// 8. 交互：资源采集 (已修改掉落逻辑)
 // ------------------------------------------
 function collectResource(index) {
     const item = currentSceneItems[index];
     if (!item) return;
+
+    // --- 新增：特殊掉落逻辑 ---
+    // 地图上是“橡树”，采集得到“橡木原木”
+    if (item.name === "橡树") {
+        let hpCost = 1; 
+        if(player.hunger<=0) hpCost=2;
+        player.hp -= hpCost;
+        if (player.hp <= 0) { die(); return; }
+
+        addItemToInventory("橡木原木", 1);
+        addExp(1);
+        log("砍倒了橡树，获得 橡木原木。", "green");
+        finishCollect(index, item);
+        updateStatsUI();
+        return;
+    }
+
+    // 地图上是“云杉”，采集得到“云杉原木”
+    if (item.name === "云杉") {
+        let hpCost = 1;
+        if(player.hunger<=0) hpCost=2;
+        player.hp -= hpCost;
+        if (player.hp <= 0) { die(); return; }
+
+        addItemToInventory("云杉原木", 1);
+        addExp(1);
+        log("砍倒了云杉，获得 云杉原木。", "green");
+        finishCollect(index, item);
+        updateStatsUI();
+        return;
+    }
+
+    // 地图上是“小麦”，采集得到“小麦”和“种子”
+    if (item.name === "小麦") {
+        let hpCost = 1;
+        if(player.hunger<=0) hpCost=2;
+        player.hp -= hpCost;
+        if (player.hp <= 0) { die(); return; }
+
+        addItemToInventory("小麦", 1);
+        addItemToInventory("小麦种子", 2);
+        addExp(1);
+        log("收割了小麦，获得 小麦x1 + 种子x2。", "gold");
+        finishCollect(index, item);
+        updateStatsUI();
+        return;
+    }
+        // ... (接在小麦的判断后面) ...
+
+    // 地图上是“绿宝石矿”，采集得到“绿宝石” (需要镐子)
+    if (item.name === "绿宝石矿") {
+        // 1. 先检查有没有镐子
+        if (!Object.keys(player.inventory).some(n => n.includes("镐"))) {
+            log(`太硬了！你需要一把 [镐子] 才能采集 ${item.name}。`, "red");
+            return;
+        }
+
+        // 2. 扣除体力
+        let hpCost = 1;
+        if(player.hunger<=0) hpCost=2;
+        player.hp -= hpCost;
+        if (player.hp <= 0) { die(); return; }
+
+        // 3. 获得成品绿宝石
+        addItemToInventory("绿宝石", 1);
+        addExp(2); // 挖矿给2点经验
+        log("开采了绿宝石矿，获得 绿宝石！", "gold");
+        finishCollect(index, item);
+        updateStatsUI();
+        return;
+    }
+
+    // ... (下面接原来的 "特殊物品检测：岩浆" 代码) ...
+
 
     // 特殊物品检测：岩浆
     if (item.name === "岩浆源") {
@@ -390,13 +464,6 @@ function collectResource(index) {
     addItemToInventory(item.name, 1);
     finishCollect(index, item);
     if (hpCost === 0 && !FLOWER_TYPES.includes(item.name)) log(`采集了 1个 ${item.name} (+1 exp)`);
-}
-
-function finishCollect(index, item) {
-    item.count--;
-    if (item.count <= 0) currentSceneItems.splice(index, 1);
-    renderScene();
-    updateInventoryUI();
 }
 
 
