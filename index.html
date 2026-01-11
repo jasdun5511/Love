@@ -12,7 +12,7 @@
         <header class="top-bar">
             <div class="loc-info">
                 <span>孤岛: <b id="loc-name">戈壁</b> [<span id="coord">11,3</span>]</span>
-                <span class="mini-map-btn">小地图</span>
+                <span class="mini-map-btn" onclick="openMap()">小地图</span>
             </div>
             <div class="time-info">1000年03月01日 <span id="clock-time">08:00</span></div>
 
@@ -204,12 +204,6 @@
             </div>
         </div>
     </div>
-
-    <script>
-        document.querySelector('.mini-map-btn').onclick = openMap;
-        // 地图按钮是第4个，保持逻辑不变
-        document.querySelector('.bottom-nav .nav-item:nth-child(4)').onclick = openMap;
-    </script>
     
     <script src="items.js"></script>
     <script src="script.js"></script>
