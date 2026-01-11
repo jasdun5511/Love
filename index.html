@@ -42,16 +42,84 @@
                 <div id="scene-grid" class="item-grid"></div>
             </div>
 
-            <div id="inventory-view" class="view-container hidden">
-                <div class="view-title">背包物品</div>
-                <div class="category-tabs">
-                    <button class="tab-btn active" onclick="setInvFilter('all', this)">全部</button>
-                    <button class="tab-btn" onclick="setInvFilter('equip', this)">装备/武器</button>
-                    <button class="tab-btn" onclick="setInvFilter('food', this)">饮食/药水</button>
-                    <button class="tab-btn" onclick="setInvFilter('material', this)">材料/其他</button>
+                        <div id="inventory-view" class="view-container hidden">
+                <div class="inv-header">
+                    <button class="close-inv-btn" onclick="switchView('scene')">关闭</button>
+                    角色详情
                 </div>
-                <div id="inventory-list" class="list-container"></div>
+                
+                <div class="inv-tabs">
+                    <button class="inv-tab-btn active" onclick="switchInvTab('stats')">属性</button>
+                    <button class="inv-tab-btn" onclick="switchInvTab('equip')">装备</button>
+                </div>
+
+                <div id="inv-tab-stats" class="inv-content">
+                    <div style="padding:10px; background:#f9f9f9; border-radius:8px; margin-bottom:15px;">
+                        <div style="font-size:16px; font-weight:bold;">LV: <span id="stat-lv">1</span></div>
+                        <div style="font-size:12px; color:#666; margin-bottom:5px;">EXP: <span id="stat-exp">0</span> / <span id="stat-max-exp">10</span></div>
+                        <div style="height:6px; background:#ddd; border-radius:3px; overflow:hidden;">
+                            <div id="stat-exp-bar" style="height:100%; width:0%; background:#3498db;"></div>
+                        </div>
+                        <div style="margin-top:8px; font-size:12px; color:#e67e22;">
+                            可用属性点: <b id="stat-points">0</b>
+                        </div>
+                    </div>
+
+                    <div class="stat-list">
+                        <div class="stat-row">
+                            <span class="stat-label">生命值 (HP)</span>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span class="stat-val"><span id="val-hp">100</span>/<span id="val-max-hp">100</span></span>
+                                <button class="plus-btn" id="btn-add-hp" onclick="addPoint('hp')">+</button>
+                            </div>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">饥饿上限</span>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span class="stat-val" id="val-max-hunger">100</span>
+                                <button class="plus-btn" id="btn-add-hunger" onclick="addPoint('hunger')">+</button>
+                            </div>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">水分上限</span>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span class="stat-val" id="val-max-water">100</span>
+                                <button class="plus-btn" id="btn-add-water" onclick="addPoint('water')">+</button>
+                            </div>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">攻击力</span>
+                            <span class="stat-val" id="val-atk">5</span>
+                        </div>
+                         <div class="stat-row">
+                            <span class="stat-label">理智 (Sanity)</span>
+                            <span class="stat-val" id="val-sanity">100</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="inv-tab-equip" class="inv-content hidden">
+                    <div class="equip-slots">
+                        <div class="equip-slot">
+                            <span>主手武器</span>
+                            <div id="slot-weapon">无</div>
+                        </div>
+                        <div class="equip-slot">
+                            <span>身体护甲</span>
+                            <div id="slot-armor">无</div>
+                        </div>
+                    </div>
+
+                    <div class="category-tabs">
+                        <button class="tab-btn active" onclick="setInvFilter('all', this)">全部</button>
+                        <button class="tab-btn" onclick="setInvFilter('equip', this)">装备</button>
+                        <button class="tab-btn" onclick="setInvFilter('food', this)">消耗</button>
+                        <button class="tab-btn" onclick="setInvFilter('material', this)">材料</button>
+                    </div>
+                    <div id="inventory-list" class="list-container"></div>
+                </div>
             </div>
+
 
             <div id="craft-view" class="view-container hidden">
                 <div class="view-title">生存制作</div>
