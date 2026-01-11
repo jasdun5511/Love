@@ -812,6 +812,127 @@ function init() {
     updateStatsUI();
     updateDayNightCycle();
     log("MC 文字版启动！村庄与交易更新。");
+function init() {
+    // ... 原有的代码 ...
+    
+    
+    // 如果有存档，尝试自动读取（或者你也可以让玩家手动点加载）
+    // loadGame(); // 去掉注释即可开启自动读取，但为了安全建议让玩家手动点
+    checkSaveStatus(); // 初始化时检查一下状态
+
+}
+
+// ==========================================
+// 存档与系统 (Save/Load System)
+// ==========================================
+const SAVE_KEY = "mc_text_survival_save_v1";
+
+function checkSaveStatus() {
+    const statusEl = document.getElementById('save-status');
+    if (!statusEl) return;
+    if (localStorage.getItem(SAVE_KEY)) {
+        statusEl.innerText = "已检测到本地存档";
+        statusEl.style.color = "#27ae60";
+    } else {
+        statusEl.innerText = "暂无存档";
+        statusEl.style.color = "#e74c3c";
+    }
+}
+
+function saveGame() {
+    if (player.hp <= 0) return alert("死人是不能存档的！");
+
+    const saveData = {
+        player: player,
+        gameTime: gameTime,
+        currentDimension: currentDimension,
+        // 地图数据
+        exploredMapMain: exploredMapMain,
+        exploredMapNether: exploredMapNether,
+        buildingsMain: buildingsMain,
+        buildingsNether: buildingsNether,
+        // 坐标记忆
+        playerPosMain: playerPosMain,
+        playerPosNether: playerPosNether
+    };
+
+    try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+        log("游戏进度已保存。", "green");
+        alert("保存成功！");
+        checkSaveStatus();
+    } catch (e) {
+        alert("保存失败！可能是浏览器空间不足或隐私模式限制。");
+        console.error(e);
+    }
+}
+
+function loadGame() {
+    const json = localStorage.getItem(SAVE_KEY);
+    if (!json) return alert("没有找到存档！");
+
+    if (!confirm("确定要读取旧存档吗？当前未保存的进度将丢失。")) return;
+
+    try {
+        const data = JSON.parse(json);
+
+        // 恢复数据 (覆盖全局变量)
+        player = data.player;
+        gameTime = data.gameTime;
+        currentDimension = data.currentDimension;
+        
+        exploredMapMain = data.exploredMapMain || {};
+        exploredMapNether = data.exploredMapNether || {};
+        buildingsMain = data.buildingsMain || {};
+        buildingsNether = data.buildingsNether || {};
+        
+        playerPosMain = data.playerPosMain || {x:10, y:10};
+        playerPosNether = data.playerPosNether || {x:10, y:10};
+
+        // 强制刷新所有 UI
+        log("读取存档成功。", "blue");
+        
+        // 恢复时间显示
+        document.getElementById('clock-time').innerText = `${String(gameTime.hour).padStart(2, '0')}:00`;
+        updateDayNightCycle();
+        
+        // 恢复位置和场景
+        refreshLocation(); 
+        updateStatsUI();
+        updateInventoryUI();
+        
+        // 切回主界面
+        switchView('scene');
+        
+    } catch (e) {
+        alert("存档损坏，无法读取！");
+        console.error(e);
+    }
+}
+
+function resetGame() {
+    if (confirm("⚠️ 警告：这将永久删除你的存档并重置游戏！确定吗？")) {
+        localStorage.removeItem(SAVE_KEY);
+        location.reload();
+    }
+}
+
+// 修改 switchView 函数，加入 checkSaveStatus 的调用
+// 请找到原本的 switchView 函数，把下面这行加进去，或者直接用这个覆盖：
+const originalSwitchView = window.switchView; // 保存旧引用（如果不想完全覆盖）
+window.switchView = function(viewName) {
+    // 隐藏所有视图
+    ['scene','inventory','craft','combat','chest','trade','furnace','enchant','system'].forEach(v => document.getElementById(v+'-view')?.classList.add('hidden'));
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    
+    // 显示目标视图
+    document.getElementById(viewName+'-view')?.classList.remove('hidden');
+
+    // 导航栏高亮逻辑
+    if (viewName === 'scene') document.querySelectorAll('.bottom-nav .nav-item')[2].classList.add('active');
+    else if (viewName === 'inventory') { updateInventoryUI(); document.querySelectorAll('.bottom-nav .nav-item')[0].classList.add('active'); }
+    else if (viewName === 'craft') { updateCraftUI(); document.querySelectorAll('.bottom-nav .nav-item')[1].classList.add('active'); }
+    else if (viewName === 'system') { checkSaveStatus(); document.querySelectorAll('.bottom-nav .nav-item')[4].classList.add('active'); } // 新增这一行
 }
 
 init();
