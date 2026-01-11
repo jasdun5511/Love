@@ -37,7 +37,7 @@ const ITEM_ICONS = {
     "雪球": "https://zh.minecraft.wiki/images/Snowball_JE3_BE3.png",
     "黑曜石": "https://zh.minecraft.wiki/images/Obsidian_JE3_BE2.png",
     "岩浆源": "https://zh.minecraft.wiki/images/Lava_JE2.png", 
-    "水": "https://zh.minecraft.wiki/images/Water_Bucket_JE2_BE2.png",
+    "水": "https://zh.minecraft.wiki/images/Water_BE_%28animated%29.png?6cf9b",
 
     // 矿物
     "煤炭": "https://zh.minecraft.wiki/images/Coal_JE3_BE2.png?b473d",
