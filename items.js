@@ -142,8 +142,8 @@ const ITEM_ICONS = {
     "掠夺者": "https://zh.minecraft.wiki/images/Pillager_JE2_BE2.png",
     "卫道士": "https://zh.minecraft.wiki/images/Vindicator_JE2_BE2.png",
     "弩": "https://zh.minecraft.wiki/images/Crossbow_JE2_BE2.png",
-    "铁斧": "https://zh.minecraft.wiki/images/Iron_Axe_JE2_BE2.png"
-    "简易绷带": "https://zh.minecraft.wiki/images/Paper_JE2_BE2.png",
+    "铁斧": "https://zh.minecraft.wiki/images/Iron_Axe_JE2_BE2.png",
+    "简易绷带": "https://zh.minecraft.wiki/images/Paper_JE2_BE2.png"
 
 };
 
