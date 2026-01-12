@@ -23,7 +23,7 @@ const ITEM_ICONS = {
     "蒲公英": "https://zh.minecraft.wiki/images/Dandelion_JE7_BE4.png?80f41",
     "兰花": "https://zh.minecraft.wiki/images/Blue_Orchid_JE2_BE2.png",
     "蘑菇": "https://zh.minecraft.wiki/images/Cactus_JE4.png?36286",
-    "仙人掌": "https://zh.minecraft.wiki/images/Cactus_JE4_BE2.png",
+    "仙人掌": "https://zh.minecraft.wiki/images/Cactus_JE4.png?36286",
     "枯灌木": "https://zh.minecraft.wiki/images/Dead_Bush_JE2_BE2.png",
     "藤蔓": "https://zh.minecraft.wiki/images/Vines_JE3_BE2.png",
     "海带": "https://zh.minecraft.wiki/images/Kelp_JE3_BE2.gif?3b31c",
@@ -61,9 +61,9 @@ const ITEM_ICONS = {
     "下界合金锭": "https://zh.minecraft.wiki/images/Netherite_Ingot_JE1_BE1.png",
 
     // 生物
-    "牛": "https://zh.minecraft.wiki/images/Cow_JE4_BE2.png",
+    "牛": "https://zh.minecraft.wiki/images/Cow_JE7_BE3.png?682ef",
     "猪": "https://zh.minecraft.wiki/images/Pig_JE2_BE2.png",
-    "羊": "https://zh.minecraft.wiki/images/Sheep_JE2_BE2.png",
+    "羊": "https://zh.minecraft.wiki/images/White_Sheep_JE5.png?ccbd6",
     "鱿鱼": "https://zh.minecraft.wiki/images/Squid_JE2_BE2.png",
     "僵尸": "https://zh.minecraft.wiki/images/Zombie_JE2_BE2.png?0893d",
     "苦力怕": "https://zh.minecraft.wiki/images/Charged_Creeper_Animated.gif?8f8af",
