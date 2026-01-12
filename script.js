@@ -28,7 +28,7 @@ let currentSceneItems = [];
 let currentEnemy = null; 
 
 // UI 状态变量
-let currentInvFilter = 'all';
+let currentInvFilter = 'food'; // 默认显示食物
 let currentCraftFilter = 'all';
 
 // 交易表配置
@@ -206,7 +206,7 @@ function move(dx, dy) {
 
 function getBiome(x, y) {
     if (currentDimension === "OVERWORLD") {
-        // 伪随机算法：基于坐标生成固定随机数
+        // 伪随机算法
         const dot = x * 12.9898 + y * 78.233;
         const val = Math.abs(Math.sin(dot) * 43758.5453) % 1;
 
@@ -219,7 +219,7 @@ function getBiome(x, y) {
         if (val < 0.85) return "SNOWY";
         if (val < 0.92) return "SWAMP";
         if (val < 0.97) return "MESA";
-        return "VILLAGE"; // 0.97 - 1.00 (稀有)
+        return "VILLAGE"; 
 
     } else {
         const val = Math.abs(Math.sin(x * 37 + y * 19) * 1000) % 1;
@@ -252,8 +252,7 @@ function generateScene(biomeKey) {
 
     if (Math.random() < mobChance) {
         const mobTemplate = biome.mobs[Math.floor(Math.random() * biome.mobs.length)];
-        
-        // 动态等级算法：距离出生点越远，怪物越强 (每10格升1级)
+        // 动态等级算法
         const dist = Math.abs(player.x - 10) + Math.abs(player.y - 10);
         const levelBonus = Math.floor(dist / 10); 
         let mobLevel = Math.max(1, 1 + levelBonus); 
@@ -266,7 +265,7 @@ function generateScene(biomeKey) {
             maxHp: mobTemplate.hp + (mobLevel * 5),
             atk: mobTemplate.atk + Math.floor(mobLevel * 0.5),
             loot: mobTemplate.loot,
-            baseExp: (mobTemplate.atk + 2) // 基础经验
+            baseExp: (mobTemplate.atk + 2) 
         };
         
         if ((isNight || currentDimension === "NETHER") && mob.atk > 0) {
@@ -328,7 +327,6 @@ function renderScene() {
                 let baseName = item.name.replace("狂暴的", "").replace("地狱的", "");
                 if (ITEM_ICONS[baseName]) mobIconHtml = `<img src="${ITEM_ICONS[baseName]}" class="mob-icon">`;
             }
-            // 显示怪物等级标签
             btn.innerHTML = `${mobIconHtml}${item.name} <span class="lv-tag">Lv.${item.level}</span>`;
             btn.classList.add('mob');
             btn.onclick = () => startCombat(item, index);
@@ -338,15 +336,10 @@ function renderScene() {
 }
 
 
-// ==========================================
-// 修复版：采集与移除逻辑
-// ==========================================
-
-// 8. 交互：资源采集
+// 8. 交互：资源采集 (修正版)
+// ------------------------------------------
 function collectResource(index) {
-    // 安全检查：防止数组越界
     if (!currentSceneItems || !currentSceneItems[index]) return;
-    
     const item = currentSceneItems[index];
 
     // --- 特殊掉落逻辑 (树木 -> 原木) ---
@@ -416,19 +409,13 @@ function collectResource(index) {
     if (!FLOWER_TYPES.includes(item.name)) log(`采集了 1个 ${item.name}`);
 }
 
-// 辅助：移除物品逻辑 (修复版)
+// 辅助：移除物品逻辑
 function finishCollect(index, item) {
-    // 强制检查：确保 count 是数字
     if (typeof item.count !== 'number') item.count = 1;
-
-    item.count--; // 数量减1
-    
-    // 如果数量归零，从数组中彻底删除
+    item.count--; 
     if (item.count <= 0) {
         currentSceneItems.splice(index, 1);
     }
-    
-    // 强制刷新界面 (这步最关键，否则UI不会变)
     renderScene();
     updateInventoryUI();
     updateStatsUI();
@@ -439,7 +426,6 @@ function doCollectWork() {
     let hpCost = 0;
     if (player.hunger > 0) player.hunger -= 1; else hpCost += 2;
     if (player.water > 0) player.water -= 1; else hpCost += 2;
-    
     if (hpCost > 0) {
         player.hp -= hpCost;
         if (player.hp <= 0) die();
@@ -455,7 +441,6 @@ function checkTool(type) {
     }
     return true;
 }
-
 
 
 // 9. 交互：战斗系统
@@ -529,7 +514,6 @@ function combatAttack() {
 
     if (currentEnemy.hp <= 0) {
         const loot = currentEnemy.loot;
-        // 计算战斗经验
         const expGain = (currentEnemy.baseExp || 5) + currentEnemy.level * 2;
         combatLog(`胜利！获得 ${loot}，EXP +${expGain}`, "gold");
         addItemToInventory(loot, 1);
@@ -559,7 +543,7 @@ function combatFlee() {
 }
 
 
-// 10. 交互：物品与背包系统 (含装备)
+// 10. 交互：物品与背包系统 (数据处理与分类)
 // ------------------------------------------
 function getItemType(name) {
     let r = RECIPES.find(x => x.name === name);
@@ -568,6 +552,7 @@ function getItemType(name) {
         if (r.type === 'use' || r.effect === 'food' || r.effect === 'heal' || r.effect === 'drink' || r.effect === 'super_food') return 'food';
         if (r.type === 'build' || r.type === 'item') return 'material'; 
     }
+    // 兜底关键词判断
     if (name.includes("剑") || name.includes("甲") || name.includes("镐") || name.includes("三叉戟") || name.includes("弩") || name.includes("斧")) return 'equip';
     if (name.includes("肉") || name.includes("排") || name.includes("鱼") || name.includes("苹果") || name.includes("瓶") || name.includes("面包") || name.includes("马铃薯")) return 'food';
     return 'material';
@@ -578,40 +563,34 @@ function addItemToInventory(name, count) {
     player.inventory[name] += count;
 }
 
-// ==========================================
-// 背包与界面渲染逻辑 (逻辑重构版)
-// ==========================================
 
-// 1. 切换标签页逻辑
+// 10.1 UI渲染与交互 (修复背包空白的核心逻辑)
+// ------------------------------------------
 window.switchInvTab = function(tabName) {
     document.querySelectorAll('.inv-tab-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelectorAll('.inv-content').forEach(div => div.classList.add('hidden'));
     
     if (tabName === 'stats') {
-        // --- 切换到：属性/物品 ---
         document.querySelectorAll('.inv-tab-btn')[0].classList.add('active');
         document.getElementById('inv-tab-stats').classList.remove('hidden');
-        
-        // 默认显示“食物/药物”，方便吃东西
-        currentInvFilter = 'food'; 
-        // 视觉上激活第一个按钮
-        const btns = document.querySelectorAll('#inv-tab-stats .category-tabs .tab-btn');
-        if(btns.length > 0) { btns.forEach(b=>b.classList.remove('active')); btns[0].classList.add('active'); }
-        
         renderStatsTab();
     } else {
-        // --- 切换到：装备/工具 ---
         document.querySelectorAll('.inv-tab-btn')[1].classList.add('active');
         document.getElementById('inv-tab-equip').classList.remove('hidden');
-        
-        // 装备页不需要过滤器，显示所有装备
         renderEquipTab();
     }
 }
 
-// 2. 渲染属性页 (包含物品列表)
+// 确保过滤器点击生效
+window.setInvFilter = (f, b) => { 
+    currentInvFilter = f; 
+    document.querySelectorAll('#inv-tab-stats .category-tabs .tab-btn').forEach(x=>x.classList.remove('active')); 
+    if(b) b.classList.add('active'); 
+    renderStatsTab(); 
+}
+
 function renderStatsTab() {
-    // (A) 渲染属性数值 (保持不变)
+    // 刷新等级、经验、点数
     if(!document.getElementById('stat-lv')) return;
     document.getElementById('stat-lv').innerText = player.level;
     document.getElementById('stat-exp').innerText = player.exp;
@@ -621,6 +600,7 @@ function renderStatsTab() {
     const pct = (player.exp / player.maxExp) * 100;
     document.getElementById('stat-exp-bar').style.width = `${pct}%`;
 
+    // 属性面板数值
     document.getElementById('val-hp').innerText = player.hp;
     document.getElementById('val-max-hp').innerText = player.maxHp;
     document.getElementById('val-max-hunger').innerText = player.maxHunger;
@@ -628,17 +608,18 @@ function renderStatsTab() {
     document.getElementById('val-atk').innerText = player.atk;
     document.getElementById('val-sanity').innerText = player.sanity;
 
-    // 激活加点按钮
-    const btns = document.querySelectorAll('.plus-btn');
-    btns.forEach(btn => {
+    // 激活/禁用加点按钮
+    document.querySelectorAll('.plus-btn').forEach(btn => {
         if (player.statPoints > 0) btn.classList.add('active');
         else btn.classList.remove('active');
     });
 
-    // (B) 渲染下方的物品列表 (新增功能)
+    // 渲染物品列表 (修复空白问题的关键)
     const list = document.getElementById('inventory-list-stats');
     if (!list) return;
-    list.innerHTML = '';
+    list.innerHTML = ''; 
+
+    if (typeof currentInvFilter === 'undefined') currentInvFilter = 'food';
 
     let hasItem = false;
     for (let [name, count] of Object.entries(player.inventory)) {
@@ -646,7 +627,6 @@ function renderStatsTab() {
             const type = getItemType(name);
             let show = false;
             
-            // 根据当前过滤器筛选 (food 或 material)
             if (currentInvFilter === 'food' && type === 'food') show = true;
             else if (currentInvFilter === 'material' && type === 'material') show = true;
 
@@ -656,11 +636,8 @@ function renderStatsTab() {
                 row.className = 'list-item';
                 let icon = ITEM_ICONS[name] ? `<img src="${ITEM_ICONS[name]}" class="item-icon">` : "";
                 
-                // 只有食物/药物显示“使用”按钮
                 let actionBtn = "";
-                if (type === 'food') {
-                    actionBtn = `<button onclick="useItem('${name}')">使用</button>`;
-                }
+                if (type === 'food') actionBtn = `<button onclick="useItem('${name}')">使用</button>`;
 
                 row.innerHTML = `
                     <div style="flex:1;display:flex;align-items:center;gap:10px;">${icon}<b>${name}</b></div>
@@ -669,10 +646,12 @@ function renderStatsTab() {
             }
         }
     }
-    if (!hasItem) list.innerHTML = '<div style="padding:15px;text-align:center;color:#ccc;">暂无此类物品</div>';
+    if (!hasItem) {
+        let label = currentInvFilter === 'food' ? "没有食物/药物" : "没有材料/杂物";
+        list.innerHTML = `<div style="padding:15px;text-align:center;color:#ccc;font-size:12px;">${label}</div>`;
+    }
 }
 
-// 3. 渲染装备页
 function renderEquipTab() {
     if(!document.getElementById('slot-weapon')) return;
     document.getElementById('slot-weapon').innerText = player.equipWeapon || "无";
@@ -686,8 +665,6 @@ function renderEquipTab() {
     for (let [name, count] of Object.entries(player.inventory)) {
         if (count > 0) {
             const type = getItemType(name);
-            
-            // 只显示装备类 (武器、防具、工具)
             if (type === 'equip') {
                 hasItem = true;
                 const row = document.createElement('div');
@@ -701,96 +678,8 @@ function renderEquipTab() {
             }
         }
     }
-    if (!hasItem) list.innerHTML = '<div style="padding:15px;text-align:center;color:#ccc;">暂无装备</div>';
+    if (!hasItem) list.innerHTML = '<div style="padding:15px;text-align:center;color:#ccc;font-size:12px;">背包里没有可穿戴的装备</div>';
 }
-
-// 4. 过滤器点击事件
-window.setInvFilter = (f, b) => { 
-    currentInvFilter = f; 
-    // 切换按钮高亮
-    document.querySelectorAll('#inv-tab-stats .category-tabs .tab-btn').forEach(x=>x.classList.remove('active')); 
-    b.classList.add('active'); 
-    
-    // 重新渲染当前页
-    renderStatsTab(); 
-}
-
-// 5. 统一刷新入口
-function updateInventoryUI() {
-    const activeTabBtn = document.querySelector('.inv-tab-btn.active');
-    // 如果当前在装备页，刷新装备；否则刷新属性页
-    if (activeTabBtn && activeTabBtn.innerText.includes("装备")) {
-        renderEquipTab();
-    } else {
-        renderStatsTab();
-    }
-}
-
-
-function renderStatsTab() {
-    // 刷新等级、经验、点数
-    if(!document.getElementById('stat-lv')) return;
-    document.getElementById('stat-lv').innerText = player.level;
-    document.getElementById('stat-exp').innerText = player.exp;
-    document.getElementById('stat-max-exp').innerText = player.maxExp;
-    document.getElementById('stat-points').innerText = player.statPoints;
-    
-    const pct = (player.exp / player.maxExp) * 100;
-    document.getElementById('stat-exp-bar').style.width = `${pct}%`;
-
-    document.getElementById('val-hp').innerText = player.hp;
-    document.getElementById('val-max-hp').innerText = player.maxHp;
-    document.getElementById('val-max-hunger').innerText = player.maxHunger;
-    document.getElementById('val-max-water').innerText = player.maxWater;
-    document.getElementById('val-atk').innerText = player.atk;
-    document.getElementById('val-sanity').innerText = player.sanity;
-
-    // 激活/禁用加点按钮
-    const btns = document.querySelectorAll('.plus-btn');
-    btns.forEach(btn => {
-        if (player.statPoints > 0) btn.classList.add('active');
-        else btn.classList.remove('active');
-    });
-}
-
-function renderEquipTab() {
-    if(!document.getElementById('slot-weapon')) return;
-    document.getElementById('slot-weapon').innerText = player.equipWeapon || "无";
-    document.getElementById('slot-armor').innerText = player.equipArmor || "无";
-
-    const list = document.getElementById('inventory-list');
-    list.innerHTML = '';
-    if (Object.keys(player.inventory).length === 0) { list.innerHTML = '<div style="padding:20px;text-align:center;color:#ccc;">背包空空如也</div>'; return; }
-
-    for (let [name, count] of Object.entries(player.inventory)) {
-        if (count > 0) {
-            const type = getItemType(name);
-            let show = false;
-            if (currentInvFilter === 'all') show = true;
-            else if (currentInvFilter === 'equip' && type === 'equip') show = true;
-            else if (currentInvFilter === 'food' && type === 'food') show = true;
-            else if (currentInvFilter === 'material' && type === 'material') show = true;
-
-            if (show) {
-                const row = document.createElement('div');
-                row.className = 'list-item';
-                let icon = ITEM_ICONS[name] ? `<img src="${ITEM_ICONS[name]}" class="item-icon">` : "";
-                
-                let actionBtn = `<button onclick="useItem('${name}')">使用</button>`;
-                if (type === 'equip') {
-                    actionBtn = `<button onclick="equipItem('${name}')">装备</button>`;
-                }
-                
-                row.innerHTML = `
-                    <div style="flex:1;display:flex;align-items:center;gap:10px;">${icon}<b>${name}</b></div>
-                    <div><b style="color:#999;margin-right:10px;">x${count}</b>${actionBtn}</div>`;
-                list.appendChild(row);
-            }
-        }
-    }
-}
-
-window.setInvFilter = (f, b) => { currentInvFilter = f; document.querySelectorAll('.category-tabs .tab-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); renderEquipTab(); }
 
 window.equipItem = function(name) {
     let r = RECIPES.find(x => x.name === name);
@@ -853,6 +742,15 @@ function useItem(name) {
 
     updateStatsUI();
     updateInventoryUI();
+}
+
+function updateInventoryUI() {
+    const activeTabBtn = document.querySelector('.inv-tab-btn.active');
+    if (activeTabBtn && activeTabBtn.innerText.includes("装备")) {
+        renderEquipTab();
+    } else {
+        renderStatsTab();
+    }
 }
 
 
@@ -1072,7 +970,7 @@ function usePortal() {
 }
 
 
-// 15. UI 更新与通用功能 (核心更新逻辑)
+// 15. UI 更新与通用功能 (包含上限显示修复)
 // ------------------------------------------
 function refreshLocation() {
     let currentMap = getCurrExplored();
@@ -1091,15 +989,20 @@ function refreshLocation() {
     if (!document.getElementById('map-modal').classList.contains('hidden')) renderBigMap();
 }
 
-// 关键函数：更新顶部所有数据
+// 关键函数：更新顶部所有数据 (修复上限显示)
 function updateStatsUI() {
-    // 基础属性
+    // 基础属性 (当前值)
     document.getElementById('hp').innerText = player.hp;
     document.getElementById('hunger').innerText = player.hunger;
     document.getElementById('water').innerText = player.water;
     document.getElementById('sanity').innerText = player.sanity; 
     
-    // 更新顶部等级栏 (防止 HTML 没加载完报错)
+    // 更新属性上限 (最大值) - 修复 105/100 显示错误
+    if (document.getElementById('header-max-hp')) document.getElementById('header-max-hp').innerText = player.maxHp;
+    if (document.getElementById('header-max-hunger')) document.getElementById('header-max-hunger').innerText = player.maxHunger;
+    if (document.getElementById('header-max-water')) document.getElementById('header-max-water').innerText = player.maxWater;
+    
+    // 更新顶部等级栏
     if (document.getElementById('header-lv')) {
         document.getElementById('header-lv').innerText = player.level;
         
