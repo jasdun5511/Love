@@ -143,6 +143,8 @@ const ITEM_ICONS = {
     "卫道士": "https://zh.minecraft.wiki/images/Vindicator_JE2_BE2.png",
     "弩": "https://zh.minecraft.wiki/images/Crossbow_JE2_BE2.png",
     "铁斧": "https://zh.minecraft.wiki/images/Iron_Axe_JE2_BE2.png"
+    "简易绷带": "https://zh.minecraft.wiki/images/Paper_JE2_BE2.png",
+
 };
 
 // ==========================================
@@ -229,5 +231,12 @@ const RECIPES = [
     { name: "谜之炖菜", req: { "蘑菇": 6 }, type: "use", desc: "恢复10饥饿和水分", station: "furnace" },
     // 配方2：用仙人掌做 (需熔炉)
     { name: "谜之炖菜", req: { "仙人掌": 6 }, type: "use", desc: "恢复10饥饿和水分", station: "furnace" },
+    // === 更新：藤蔓的用途 (调整比例) ===
+    // 1. 搓绳子：2个藤蔓 -> 1个线
+    { name: "线", req: { "藤蔓": 2 }, type: "item", desc: "手工编织的绳线" },
+    
+    // 2. 做绷带：4个藤蔓 -> 1个简易绷带
+    { name: "简易绷带", req: { "藤蔓": 4 }, type: "use", effect: "heal", val: 15, desc: "止血包扎 (HP +15)" },
+
 ];
 
