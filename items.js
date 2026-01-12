@@ -223,5 +223,11 @@ const RECIPES = [
     { name: "熟牛肉", req: { "生牛肉": 1, "煤炭": 1 }, type: "use", effect: "food", val: 40, desc: "恢复 40 饥饿", station: "furnace" },
     { name: "烤猪排", req: { "生猪排": 1, "煤炭": 1 }, type: "use", effect: "food", val: 40, desc: "恢复 40 饥饿", station: "furnace" },
     { name: "金苹果", req: { "苹果": 1, "金锭": 8 }, type: "use", effect: "heal", val: 100, desc: "瞬间恢复 100 HP", station: "workbench" },
-    { name: "烤马铃薯", req: { "马铃薯": 1, "煤炭": 1 }, type: "use", effect: "food", val: 35, desc: "恢复 35 饥饿", station: "furnace" }
+    { name: "烤马铃薯", req: { "马铃薯": 1, "煤炭": 1 }, type: "use", effect: "food", val: 35, desc: "恢复 35 饥饿", station: "furnace" },
+    // === 新增：谜之炖菜 ===
+    // 配方1：用蘑菇做 (需熔炉)
+    { name: "谜之炖菜", req: { "蘑菇": 6 }, type: "use", desc: "恢复10饥饿和水分", station: "furnace" },
+    // 配方2：用仙人掌做 (需熔炉)
+    { name: "谜之炖菜", req: { "仙人掌": 6 }, type: "use", desc: "恢复10饥饿和水分", station: "furnace" },
 ];
+
