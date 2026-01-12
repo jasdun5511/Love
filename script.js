@@ -564,7 +564,7 @@ function addItemToInventory(name, count) {
 }
 
 
-// 10.1 UI渲染与交互 (修复背包空白的核心逻辑)
+/// 10.1 UI渲染与交互 (修复背包空白 + 装备显示优化 + 属性实时显示)
 // ------------------------------------------
 window.switchInvTab = function(tabName) {
     document.querySelectorAll('.inv-tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -600,11 +600,14 @@ function renderStatsTab() {
     const pct = (player.exp / player.maxExp) * 100;
     document.getElementById('stat-exp-bar').style.width = `${pct}%`;
 
-    // 属性面板数值
+    // 属性面板数值 (优化：饥饿和水分现在显示 当前/上限)
     document.getElementById('val-hp').innerText = player.hp;
     document.getElementById('val-max-hp').innerText = player.maxHp;
-    document.getElementById('val-max-hunger').innerText = player.maxHunger;
-    document.getElementById('val-max-water').innerText = player.maxWater;
+    
+    // 修改点：实时显示饥饿和水分状态
+    document.getElementById('val-max-hunger').innerText = `${player.hunger} / ${player.maxHunger}`;
+    document.getElementById('val-max-water').innerText = `${player.water} / ${player.maxWater}`;
+    
     document.getElementById('val-atk').innerText = player.atk;
     document.getElementById('val-sanity').innerText = player.sanity;
 
@@ -614,7 +617,7 @@ function renderStatsTab() {
         else btn.classList.remove('active');
     });
 
-    // 渲染物品列表 (修复空白问题的关键)
+    // 渲染物品列表
     const list = document.getElementById('inventory-list-stats');
     if (!list) return;
     list.innerHTML = ''; 
@@ -653,10 +656,38 @@ function renderStatsTab() {
 }
 
 function renderEquipTab() {
-    if(!document.getElementById('slot-weapon')) return;
-    document.getElementById('slot-weapon').innerText = player.equipWeapon || "无";
-    document.getElementById('slot-armor').innerText = player.equipArmor || "无";
+    // 1. 渲染已装备的槽位 (优化：显示图片和属性加成)
+    const renderSlot = (domId, itemName, type) => {
+        const el = document.getElementById(domId);
+        if (!el) return;
+        
+        if (itemName) {
+            // 获取图标
+            let icon = ITEM_ICONS[itemName] ? `<img src="${ITEM_ICONS[itemName]}" style="width:32px;height:32px;margin-bottom:2px;">` : "";
+            // 获取属性加成
+            let r = RECIPES.find(x => x.name === itemName);
+            let bonusText = "";
+            if (r) {
+                if (type === 'weapon') bonusText = `<span style="color:#e74c3c;font-size:10px;">攻击+${r.val}</span>`;
+                if (type === 'armor') bonusText = `<span style="color:#2ecc71;font-size:10px;">生命+${r.val}</span>`;
+            }
+            
+            el.innerHTML = `
+                <div style="display:flex;flex-direction:column;align-items:center;">
+                    ${icon}
+                    <div style="font-weight:bold;color:#333;">${itemName}</div>
+                    ${bonusText}
+                </div>`;
+        } else {
+            // 空槽位显示
+            el.innerHTML = `<div style="color:#ccc;line-height:40px;">无</div>`;
+        }
+    };
 
+    renderSlot('slot-weapon', player.equipWeapon, 'weapon');
+    renderSlot('slot-armor', player.equipArmor, 'armor');
+
+    // 2. 渲染下方装备列表
     const list = document.getElementById('inventory-list-equip');
     if (!list) return;
     list.innerHTML = '';
@@ -671,8 +702,17 @@ function renderEquipTab() {
                 row.className = 'list-item';
                 let icon = ITEM_ICONS[name] ? `<img src="${ITEM_ICONS[name]}" class="item-icon">` : "";
                 
+                // 查找属性方便显示在列表中
+                let r = RECIPES.find(x => x.name === name);
+                let statInfo = "";
+                if(r && r.effect === 'atk') statInfo = `<span style="font-size:10px;color:#e74c3c;margin-left:5px;">(攻${r.val})</span>`;
+                if(r && r.effect === 'hp_max') statInfo = `<span style="font-size:10px;color:#2ecc71;margin-left:5px;">(血${r.val})</span>`;
+
                 row.innerHTML = `
-                    <div style="flex:1;display:flex;align-items:center;gap:10px;">${icon}<b>${name}</b></div>
+                    <div style="flex:1;display:flex;align-items:center;gap:10px;">
+                        ${icon}
+                        <div><b>${name}</b>${statInfo}</div>
+                    </div>
                     <div><b style="color:#999;margin-right:10px;">x${count}</b><button onclick="equipItem('${name}')">装备</button></div>`;
                 list.appendChild(row);
             }
@@ -680,6 +720,7 @@ function renderEquipTab() {
     }
     if (!hasItem) list.innerHTML = '<div style="padding:15px;text-align:center;color:#ccc;font-size:12px;">背包里没有可穿戴的装备</div>';
 }
+
 
 window.equipItem = function(name) {
     let r = RECIPES.find(x => x.name === name);
