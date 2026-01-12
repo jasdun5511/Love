@@ -18,7 +18,7 @@ const ITEM_ICONS = {
     "橡木原木": "https://zh.minecraft.wiki/images/Oak_Log_Axis_Y_JE5_BE3.png?da15a",
     "云杉原木": "https://zh.minecraft.wiki/images/Spruce_Log_Axis_Y_JE5_BE3.png?b2671",
     "木棍": "https://zh.minecraft.wiki/images/Stick_JE1_BE1.png?2ab19",
-    "杂草": "https://zh.minecraft.wiki/images/Grass_JE2_BE2.png", 
+    "杂草": "https://zh.minecraft.wiki/images/Short_Grass_JE7_BE6.png?f6247", 
     "小麦种子": "https://zh.minecraft.wiki/images/Wheat_Seeds_JE2_BE2.png",
     "蒲公英": "https://zh.minecraft.wiki/images/Dandelion_JE7_BE4.png?80f41",
     "兰花": "https://zh.minecraft.wiki/images/Blue_Orchid_JE2_BE2.png",
