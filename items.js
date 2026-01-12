@@ -99,6 +99,8 @@ const ITEM_ICONS = {
     "石镐": "https://zh.minecraft.wiki/images/Stone_Pickaxe_JE2_BE2.png",
     "铁镐": "https://zh.minecraft.wiki/images/Iron_Pickaxe_JE3_BE2.png",
     "钻石镐": "https://zh.minecraft.wiki/images/Diamond_Pickaxe_JE3_BE3.png",
+    "盾牌": "https://zh.minecraft.wiki/images/Shield_JE2_BE1.png",
+
 
     // 食物与杂项
     "谜之炖菜": "https://zh.minecraft.wiki/images/Suspicious_Stew_JE1_BE1.png",
@@ -219,6 +221,9 @@ const RECIPES = [
     { name: "铁盔甲", req: { "铁锭": 5 }, type: "equip", effect: "hp_max", val: 150, desc: "HP上限 -> 150", station: "workbench" },
     { name: "钻石盔甲", req: { "钻石": 5 }, type: "equip", effect: "hp_max", val: 200, desc: "HP上限 -> 200", station: "workbench" },
     { name: "下界合金甲", req: { "钻石盔甲": 1, "下界合金锭": 1 }, type: "equip", effect: "hp_max", val: 250, desc: "HP上限 -> 250", station: "workbench" },
+    // === 新增：盾牌 ===
+    { name: "盾牌", req: { "原木": 6, "铁锭": 6 }, type: "item", desc: "25%几率抵挡伤害" },
+
 
     // === 食物 ===
     { name: "面包", req: { "小麦种子": 3 }, type: "use", effect: "food", val: 25, desc: "恢复 25 饥饿" },
