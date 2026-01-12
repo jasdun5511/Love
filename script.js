@@ -767,13 +767,28 @@ window.equipItem = function(name) {
     log(`装备了 ${name}！`);
 }
 
+// 交互：使用物品 (已添加谜之炖菜)
 function useItem(name) {
     if (!player.inventory[name]) return;
     let recipe = RECIPES.find(r => r.name === name);
 
+    // 1. 建筑类
     if (recipe && recipe.type === 'build') { placeBuilding(name); return; }
 
-    if (name === "金苹果") { player.hp = player.maxHp; log("金苹果的力量！", "gold"); }
+    // 2. 特殊物品：金苹果
+    if (name === "金苹果") { 
+        player.hp = player.maxHp; 
+        log("金苹果的力量涌上来！(HP回满)", "gold"); 
+    }
+    // 3. 新增：谜之炖菜 (同时回饥饿和水)
+    else if (name === "谜之炖菜") {
+        player.hunger = Math.min(player.maxHunger, player.hunger + 10);
+        player.water = Math.min(player.maxWater, player.water + 10);
+        log("喝下了谜之炖菜，味道有点...微妙。(饥饿/水分 +10)", "gold");
+        // 吃完返还一个碗(在这个简化版里我们返还个木棍意思一下，或者不返还)
+        // 这里暂时不返还物品，直接消耗
+    }
+    // 4. 普通配方物品
     else if (recipe) {
         if (recipe.effect === 'food') {
             player.hunger = Math.min(player.maxHunger, player.hunger + recipe.val);
@@ -789,18 +804,23 @@ function useItem(name) {
             log(`喝了 ${name}，感觉好多了！`, "gold");
         }
     }
+    // 5. 生吃食物 (兜底逻辑)
     else if (getItemType(name) === 'food') {
-        player.hunger = Math.min(player.maxHunger, player.hunger + 10);
-        log(`吃了 ${name} (生食)`);
+        player.hunger = Math.min(player.maxHunger, player.hunger + 5);
+        log(`勉强吃了 ${name} (生食 +5)`);
     }
 
+    // 消耗物品
     player.inventory[name]--;
     if (player.inventory[name] <= 0) delete player.inventory[name];
+    
+    // 喝完水返还瓶子
     if (name === "水瓶" || name === "蜂蜜瓶") addItemToInventory("玻璃瓶", 1);
 
     updateStatsUI();
     updateInventoryUI();
 }
+
 
 function updateInventoryUI() {
     const activeTabBtn = document.querySelector('.inv-tab-btn.active');
