@@ -367,6 +367,23 @@ function collectResource(index) {
         finishCollect(index, item);
         return;
     }
+
+    // --- 杂草 (除草机制) ---
+    if (item.name === "杂草") {
+        // 除草不扣体力，或者扣很少
+        // 30% 几率掉落种子
+        if (Math.random() < 0.3) {
+            addItemToInventory("小麦种子", 1);
+            log("清理了杂草，意外发现了 [小麦种子]！", "green");
+        } else {
+            log("清理了杂草，什么都没找到。");
+        }
+        
+        // 注意：这里不给“杂草”物品，直接清除地图上的草
+        finishCollect(index, item);
+        return;
+    }
+
     
     // --- 绿宝石矿 (需要镐子) ---
     if (item.name === "绿宝石矿") {
