@@ -242,7 +242,17 @@ function generateScene(biomeKey) {
     const resCount = 3 + Math.floor(Math.random() * 4);
     for(let i=0; i<resCount; i++) {
         const name = biome.res[Math.floor(Math.random() * biome.res.length)];
-        currentSceneItems.push({ type: 'res', name: name, count: Math.floor(Math.random()*3)+1 });
+        
+        // --- 修改：稀有矿物数量变为 1 ---
+        const RARE_ORES = ["铁矿", "金矿", "钻石矿", "古骸", "青石矿"];
+        let count;
+        if (RARE_ORES.includes(name)) {
+            count = 1; // 稀有矿物固定为1个
+        } else {
+            count = Math.floor(Math.random() * 3) + 1; // 普通资源(如原木、草)保持不变
+        }
+        
+        currentSceneItems.push({ type: 'res', name: name, count: count });
     }
 
     // --- 怪物生成逻辑 ---
