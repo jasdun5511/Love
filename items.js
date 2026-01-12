@@ -22,7 +22,7 @@ const ITEM_ICONS = {
     "小麦种子": "https://zh.minecraft.wiki/images/Wheat_Seeds_JE2_BE2.png",
     "蒲公英": "https://zh.minecraft.wiki/images/Dandelion_JE7_BE4.png?80f41",
     "兰花": "https://zh.minecraft.wiki/images/Blue_Orchid_JE2_BE2.png",
-    "蘑菇": "https://zh.minecraft.wiki/images/Red_Mushroom_JE2_BE2.png",
+    "蘑菇": "https://zh.minecraft.wiki/images/Cactus_JE4.png?36286",
     "仙人掌": "https://zh.minecraft.wiki/images/Cactus_JE4_BE2.png",
     "枯灌木": "https://zh.minecraft.wiki/images/Dead_Bush_JE2_BE2.png",
     "藤蔓": "https://zh.minecraft.wiki/images/Vines_JE3_BE2.png",
