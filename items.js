@@ -101,6 +101,7 @@ const ITEM_ICONS = {
     "钻石镐": "https://zh.minecraft.wiki/images/Diamond_Pickaxe_JE3_BE3.png",
 
     // 食物与杂项
+    "谜之炖菜": "https://zh.minecraft.wiki/images/Suspicious_Stew_JE1_BE1.png",
     "生牛肉": "https://zh.minecraft.wiki/images/Raw_Beef_JE4_BE3.png",
     "熟牛肉": "https://zh.minecraft.wiki/images/Steak_JE4_BE3.png",
     "生猪排": "https://zh.minecraft.wiki/images/Raw_Porkchop_JE4_BE3.png",
