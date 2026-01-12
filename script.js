@@ -231,7 +231,7 @@ function getBiome(x, y) {
 }
 
 
-// 6. 场景生成 (含怪物动态等级)
+// 6. 场景生成 (只有亡灵突袭，无随时间增强)
 // ------------------------------------------
 function generateScene(biomeKey) {
     currentSceneItems = [];
@@ -245,14 +245,15 @@ function generateScene(biomeKey) {
         currentSceneItems.push({ type: 'res', name: name, count: Math.floor(Math.random()*3)+1 });
     }
 
-    // 随机生成怪物
+    // --- 怪物生成逻辑 ---
     let mobChance = isNight ? 0.8 : 0.3; 
     if (currentDimension === "NETHER") mobChance = 0.9;
     if (biomeKey === "VILLAGE") mobChance = 0.7; 
 
     if (Math.random() < mobChance) {
         const mobTemplate = biome.mobs[Math.floor(Math.random() * biome.mobs.length)];
-        // 动态等级算法
+        
+        // 动态等级：只保留距离加成 (走得越远怪越强)，删除了 weekBonus
         const dist = Math.abs(player.x - 10) + Math.abs(player.y - 10);
         const levelBonus = Math.floor(dist / 10); 
         let mobLevel = Math.max(1, 1 + levelBonus); 
@@ -265,19 +266,30 @@ function generateScene(biomeKey) {
             maxHp: mobTemplate.hp + (mobLevel * 5),
             atk: mobTemplate.atk + Math.floor(mobLevel * 0.5),
             loot: mobTemplate.loot,
-            baseExp: (mobTemplate.atk + 2) 
+            baseExp: (mobTemplate.atk + 2),
+            isAmbush: false 
         };
         
+        // --- 亡灵主动攻击判定 (50% 概率) ---
+        const UNDEADS = ["僵尸", "骷髅", "尸壳", "流浪者", "溺尸", "僵尸猪人", "恶魂", "苦力怕", "烈焰人", "凋灵骷髅"];
+        if (UNDEADS.includes(mob.name)) {
+            if (Math.random() < 0.5) {
+                mob.isAmbush = true; 
+            }
+        }
+
+        // 夜晚或地狱增强 (保留，这是环境buff)
         if ((isNight || currentDimension === "NETHER") && mob.atk > 0) {
             mob.name = (currentDimension === "NETHER" ? "地狱的" : "狂暴的") + mob.name;
             mob.hp = Math.floor(mob.hp * 1.5);
             mob.maxHp = mob.hp;
             mob.atk = Math.floor(mob.atk * 1.5);
-            mob.baseExp = Math.floor(mob.baseExp * 1.5);
         }
+        
         currentSceneItems.push(mob);
     }
 }
+
 
 
 // 7. 场景渲染 (网格生成)
