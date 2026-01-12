@@ -780,7 +780,7 @@ function useItem(name) {
         player.hp = player.maxHp; 
         log("金苹果的力量涌上来！(HP回满)", "gold"); 
     }
-    // 3. 新增：谜之炖菜 (同时回饥饿和水)
+    // 3. 新增：谜之炖菜与绷带
     else if (name === "谜之炖菜") {
         player.hunger = Math.min(player.maxHunger, player.hunger + 10);
         player.water = Math.min(player.maxWater, player.water + 10);
@@ -788,6 +788,17 @@ function useItem(name) {
         // 吃完返还一个碗(在这个简化版里我们返还个木棍意思一下，或者不返还)
         // 这里暂时不返还物品，直接消耗
     }
+    
+    else if (name === "简易绷带") {
+        if (player.hp >= player.maxHp) {
+            log("你并没有受伤，不需要包扎。", "red");
+            return; // 满血不消耗
+        }
+        player.hp = Math.min(player.maxHp, player.hp + 15);
+        log("使用了简易绷带，伤口不再流血了。(HP +15)", "green");
+        // 消耗物品在函数最后统一处理
+    }
+
     // 4. 普通配方物品
     else if (recipe) {
         if (recipe.effect === 'food') {
