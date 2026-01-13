@@ -357,13 +357,41 @@ function renderScene() {
 }
 
 
-// 8. 交互：资源采集 (修正版)
+// 8. 交互：资源采集 (新增：采集惊扰机制)
 // ------------------------------------------
 function collectResource(index) {
     if (!currentSceneItems || !currentSceneItems[index]) return;
     const item = currentSceneItems[index];
 
-    // --- 特殊掉落逻辑 (树木 -> 原木) ---
+    // --- 新增：采集时的风险 (10% 概率引来怪物) ---
+    // 只有在非安全区(比如不是自己家，或者周围有怪)才触发，这里简化为任何采集都有风险
+    if (Math.random() < 0.1) {
+        log("💥 采集的声音惊扰了附近的生物！", "orange");
+        
+        // 临时生成一只怪
+        const biomeKey = getBiome(player.x, player.y);
+        const biome = BIOMES[biomeKey];
+        const mobTemplate = biome.mobs[Math.floor(Math.random() * biome.mobs.length)];
+        
+        // 简单的怪物属性生成
+        let mob = { 
+            type: 'mob', 
+            name: "被惊扰的" + mobTemplate.name,
+            level: player.level, // 跟随玩家等级
+            hp: mobTemplate.hp, maxHp: mobTemplate.hp,
+            atk: mobTemplate.atk, loot: mobTemplate.loot,
+            baseExp: mobTemplate.atk + 5,
+            index: -1 // 特殊标记，不在场景数组里
+        };
+
+        // 强制进入战斗
+        setTimeout(() => { startCombat(mob, -1); }, 100);
+        return; // 阻止本次采集
+    }
+
+    // --- 下面是原本的采集逻辑 (保持不变) ---
+
+    // 树木 -> 原木
     if (item.name === "橡树") {
         doCollectWork();
         addItemToInventory("橡木原木", 1);
@@ -371,7 +399,6 @@ function collectResource(index) {
         finishCollect(index, item);
         return;
     }
-
     if (item.name === "云杉") {
         doCollectWork();
         addItemToInventory("云杉原木", 1);
@@ -379,7 +406,7 @@ function collectResource(index) {
         finishCollect(index, item);
         return;
     }
-
+    // 小麦
     if (item.name === "小麦") {
         doCollectWork();
         addItemToInventory("小麦", 1);
@@ -388,36 +415,28 @@ function collectResource(index) {
         finishCollect(index, item);
         return;
     }
-
-    // --- 杂草 (除草机制) ---
+    // 杂草
     if (item.name === "杂草") {
-        // 除草不扣体力，或者扣很少
-        // 30% 几率掉落种子
         if (Math.random() < 0.3) {
             addItemToInventory("小麦种子", 1);
             log("清理了杂草，意外发现了 [小麦种子]！", "green");
         } else {
             log("清理了杂草，什么都没找到。");
         }
-        
-        // 注意：这里不给“杂草”物品，直接清除地图上的草
         finishCollect(index, item);
         return;
     }
-
-    
-    // --- 绿宝石矿 (需要镐子) ---
+    // 绿宝石矿
     if (item.name === "绿宝石矿") {
         if (!checkTool("镐")) return;
         doCollectWork();
         addItemToInventory("绿宝石", 1);
-        addExp(2); // 只有珍贵矿石给经验
+        addExp(2);
         log("开采了绿宝石矿，获得 绿宝石！", "gold");
         finishCollect(index, item);
         return;
     }
-
-    // --- 液体采集 ---
+    // 液体
     if (item.name === "岩浆源") {
         if (!player.inventory["铁桶"]) { log("太烫了！需[铁桶]。", "red"); return; }
         player.inventory["铁桶"]--; addItemToInventory("岩浆桶", 1); log("装了岩浆。", "orange"); 
@@ -431,21 +450,22 @@ function collectResource(index) {
         finishCollect(index, item); return;
     }
 
-    // --- 硬度检测 ---
+    // 硬度检测
     const HARD_RES = ["石头", "铁矿石", "煤炭", "金矿石", "钻石矿", "绿宝石矿", "黑曜石", "石英矿", "地狱岩", "黑石"];
     if (HARD_RES.includes(item.name) && !checkTool("镐")) return;
 
-    // --- 普通采集 ---
+    // 花朵
     if (FLOWER_TYPES.includes(item.name)) {
         player.sanity = Math.min(player.maxSanity, player.sanity + 10);
         log(`采摘了 ${item.name} (理智 +10)`, "purple");
     }
 
-    doCollectWork(); // 扣体力
+    doCollectWork(); 
     addItemToInventory(item.name, 1);
-    finishCollect(index, item); // 移除
+    finishCollect(index, item); 
     if (!FLOWER_TYPES.includes(item.name)) log(`采集了 1个 ${item.name}`);
 }
+
 
 // 辅助：移除物品逻辑
 function finishCollect(index, item) {
@@ -1112,7 +1132,7 @@ function usePortal() {
 }
 
 
-// 15. UI 更新与通用功能 (包含上限显示修复)
+// 15. UI 更新与通用功能 (已修复：亡灵突袭检测)
 // ------------------------------------------
 function refreshLocation() {
     let currentMap = getCurrExplored();
@@ -1126,9 +1146,22 @@ function refreshLocation() {
     document.body.style.backgroundColor = currentDimension==="NETHER" ? "#2c0505" : "#333";
 
     generateScene(biomeKey);
+    
+    // --- 新增：检测是否有怪在埋伏 (Move/Search 触发) ---
+    const ambusher = currentSceneItems.find(item => item.type === 'mob' && item.isAmbush);
+    
     renderScene();
     updateMiniMap();
     if (!document.getElementById('map-modal').classList.contains('hidden')) renderBigMap();
+
+    // 如果有伏击怪，强制进入战斗
+    if (ambusher) {
+        log(`⚠️ 遭遇突袭！${ambusher.name} 主动发起了攻击！`, "red");
+        // 延迟 200ms 让玩家先看一眼地图，然后进战斗
+        setTimeout(() => {
+            startCombat(ambusher, currentSceneItems.indexOf(ambusher));
+        }, 200);
+    }
 }
 
 // 关键函数：更新顶部所有数据 (修复上限显示)
