@@ -145,7 +145,16 @@ const ITEM_ICONS = {
     "卫道士": "https://zh.minecraft.wiki/images/Vindicator_JE2_BE2.png",
     "弩": "https://zh.minecraft.wiki/images/Crossbow_JE2_BE2.png",
     "铁斧": "https://zh.minecraft.wiki/images/Iron_Axe_JE2_BE2.png",
-    "简易绷带": "https://zh.minecraft.wiki/images/Paper_JE2_BE2.png"
+    "简易绷带": "https://zh.minecraft.wiki/images/Paper_JE2_BE2.png",
+    // --- 新增：矿井与宝箱 ---
+    "矿井": "https://zh.minecraft.wiki/images/Stone_JE5_BE3.png", // 地形图标
+    "宝箱": "https://zh.minecraft.wiki/images/Chest_JE2_BE3.gif?4e19c",
+    "经验瓶": "https://zh.minecraft.wiki/images/Experience_Bottle_JE2_BE2.png",
+    
+    // --- 新增：怪物 ---
+    "毒蜘蛛": "https://zh.minecraft.wiki/images/Cave_Spider_JE2_BE2.png",
+    "末影人": "https://zh.minecraft.wiki/images/Enderman_JE1_BE1.png",
+
 
 };
 
