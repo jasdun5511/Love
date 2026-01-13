@@ -10,7 +10,11 @@ let player = {
     hunger: 100, maxHunger: 100,
     water: 100, maxWater: 100,
     sanity: 100, maxSanity: 100,
-    atk: 5, 
+    atk: 5,  
+    // ... (前面的属性保持不变) 
+    isPoisoned: false, // <--- 新增：中毒状态
+    // ... (后面的属性保持不变)
+
     // RPG 属性
     level: 1,
     exp: 0,
