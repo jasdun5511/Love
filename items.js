@@ -183,7 +183,17 @@ const BIOMES = {
     OCEAN: { name: "深海", code: "bg-OCEAN", res: ["水", "鳕鱼", "海带"], mobs: [{name:"溺尸", hp:20, atk:5, loot:"三叉戟"}, {name:"鱿鱼", hp:10, atk:0, loot:"墨囊"}] },
     SWAMP: { name: "沼泽", code: "bg-SWAMP", res: ["粘土", "藤蔓", "兰花"], mobs: [{name:"史莱姆", hp:16, atk:2, loot:"粘液球"}, {name:"女巫", hp:26, atk:6, loot:"红石"}] },
     MESA: { name: "恶地", code: "bg-MESA", res: ["红沙", "金矿石", "枯灌木"], mobs: [{name:"蜘蛛", hp:16, atk:3, loot:"线"}] },
-    NETHER_WASTES: { name: "地狱", code: "bg-NETHER", res: ["地狱岩", "石英矿", "岩浆源", "金粒"], mobs: [{name:"僵尸猪人", hp:20, atk:5, loot:"金粒"}, {name:"恶魂", hp:10, atk:10, loot:"火药"}] },
+
+    MINE: { 
+        name: "矿井", code: "bg-MOUNTAIN", // 复用山地背景色
+        res: ["宝箱", "煤炭", "铁矿石", "金矿石", "红石", "钻石矿", "青石矿"], 
+        mobs: [
+            {name:"毒蜘蛛", hp:30, atk:8, loot:"线"}, // 会中毒
+            {name:"僵尸", hp:40, atk:10, loot:"腐肉"}, 
+            {name:"骷髅", hp:40, atk:12, loot:"骨头"},
+            {name:"苦力怕", hp:30, atk:25, loot:"火药"},
+            {name:"末影人", hp:80, atk:20, loot:"末影珍珠"}] },
+
     CRIMSON_FOREST: { name: "绯红", code: "bg-CRIMSON", res: ["绯红菌柄", "地狱疣", "萤石"], mobs: [{name:"猪灵", hp:16, atk:6, loot:"金锭"}, {name:"疣猪兽", hp:40, atk:8, loot:"生猪排"}] },
     SOUL_SAND_VALLEY: { name: "灵魂", code: "bg-SOUL", res: ["灵魂沙", "骨块", "玄武岩"], mobs: [{name:"骷髅", hp:20, atk:5, loot:"骨头"}] },
     LAVA_SEA: { name: "熔岩", code: "bg-LAVA", res: ["岩浆源", "黑石", "远古残骸"], mobs: [{name:"烈焰人", hp:20, atk:6, loot:"烈焰棒"}, {name:"岩浆怪", hp:16, atk:4, loot:"岩浆膏"}] }
