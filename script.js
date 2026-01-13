@@ -530,14 +530,14 @@ function checkTool(type) {
 }
 
 
-// 9. 交互：战斗系统 (修复：连点BUG、无限刷物品、增加回合锁)
+// 9. 交互：战斗系统 (极速响应版)
 // ------------------------------------------
-let isCombatBusy = false; // --- 新增：战斗状态锁 ---
+let isCombatBusy = false; // 战斗状态锁
 
 function startCombat(mob, index) {
     currentEnemy = mob;
     currentEnemy.index = index;
-    isCombatBusy = false; // 进入战斗时重置锁
+    isCombatBusy = false; // 重置锁
     switchView('combat');
     
     let imgUrl = ITEM_ICONS[mob.name] || (ITEM_ICONS[mob.name.replace(/狂暴的|地狱的/, "")] || "");
@@ -553,13 +553,11 @@ function startCombat(mob, index) {
     }
     updateCombatUI();
 
-    // 偷袭逻辑
+    // 偷袭逻辑 (缩短延迟到 0.2s，给你一点点反应时间)
     if (mob.isAmbush) {
         combatLog(`⚡ ${mob.name} 发起了偷袭！`, "red");
-        isCombatBusy = true; // 偷袭时锁住操作
-        setTimeout(() => {
-            enemyTurnLogic('ambush'); 
-        }, 500);
+        isCombatBusy = true; 
+        setTimeout(() => { enemyTurnLogic('ambush'); }, 200); 
     }
 }
 
@@ -579,7 +577,7 @@ function updateCombatUI() {
                 btn.className = 'heal-btn';
                 let icon = ITEM_ICONS[name] ? `<img src="${ITEM_ICONS[name]}">` : "";
                 btn.innerHTML = `${icon} ${name} x${count}`;
-                // 吃药也要检查锁
+                // 点击吃药
                 btn.onclick = () => { if(!isCombatBusy) combatUseItem(name); };
                 c.appendChild(btn);
             }
@@ -587,7 +585,7 @@ function updateCombatUI() {
     }
 }
 
-// --- 核心：敌人回合 (回合结束才解锁) ---
+// --- 核心：敌人回合 (极速版) ---
 function enemyTurnLogic(actionType) {
     if (!currentEnemy) { isCombatBusy = false; return; }
 
@@ -597,7 +595,7 @@ function enemyTurnLogic(actionType) {
             combatLog(`🛡️ 你的盾牌抵挡了 ${currentEnemy.name} 的攻击！`, "gold");
             updateCombatUI();
             updateStatsUI();
-            isCombatBusy = false; // 格挡成功，解锁让玩家操作
+            isCombatBusy = false; // 立即解锁
             return; 
         }
     }
@@ -613,12 +611,12 @@ function enemyTurnLogic(actionType) {
     
     combatLog(`${prefix}受到 ${eDmg} 伤害`, "red");
 
-    // 3. 震动特效
+    // 震动特效
     document.body.classList.remove('shake'); 
     void document.body.offsetWidth; 
     document.body.classList.add('shake');
     
-    // 4. 毒蜘蛛判定
+    // 毒蜘蛛判定
     if (currentEnemy.name.includes("毒蜘蛛")) {
         if (Math.random() < 0.4 && !player.isPoisoned) {
             player.isPoisoned = true;
@@ -626,25 +624,25 @@ function enemyTurnLogic(actionType) {
         }
     }
 
-    // 5. 死亡判定
     if (player.hp <= 0) {
-        setTimeout(die, 200);
+        setTimeout(die, 100);
         return;
     }
 
     updateStatsUI();
     updateCombatUI();
     
-    // --- 回合结束，解锁 ---
+    // --- 立即解锁，允许玩家下一次操作 ---
     isCombatBusy = false; 
 }
 
 function combatUseItem(name) {
     if (isCombatBusy || !currentEnemy || !player.inventory[name]) return;
-    isCombatBusy = true; // 上锁
+    isCombatBusy = true; 
 
     useItem(name); 
-    setTimeout(() => enemyTurnLogic('use'), 300);
+    // 极速模式：0.05秒后敌人攻击
+    setTimeout(() => enemyTurnLogic('use'), 50);
 }
 
 function combatLog(msg, color="#333") {
@@ -656,23 +654,19 @@ function combatLog(msg, color="#333") {
 }
 
 function combatAttack() {
-    // --- 关键修改：检查锁、检查怪物是否存在、检查怪物是否已死 ---
     if (isCombatBusy || !currentEnemy || currentEnemy.hp <= 0) return;
     
-    isCombatBusy = true; // 1. 立即上锁，防止连点
+    isCombatBusy = true; // 上锁
 
-    // 2. 玩家造成伤害
     const pDmg = player.atk + Math.floor(Math.random() * 3);
     currentEnemy.hp -= pDmg;
     combatLog(`你造成 ${pDmg} 伤害`, "green");
     
-    // 震动特效
     const box = document.querySelector('.enemy-box');
     box.classList.remove('shake'); 
     void box.offsetWidth; 
     box.classList.add('shake');
 
-    // 3. 胜利判定
     if (currentEnemy.hp <= 0) {
         const loot = currentEnemy.loot;
         const expGain = (currentEnemy.baseExp || 5) + currentEnemy.level * 2;
@@ -681,35 +675,32 @@ function combatAttack() {
         addItemToInventory(loot, 1);
         addExp(expGain); 
         
-        // 移除怪物
         if (currentEnemy.index !== -1 && currentSceneItems[currentEnemy.index]) {
             currentSceneItems.splice(currentEnemy.index, 1);
         }
         
-        // --- 关键：立即清空 currentEnemy，防止后续点击生效 ---
-        currentEnemy = null; 
+        currentEnemy = null; // 清空敌人防止连点
         
-        // 延迟退出战斗 (不需要解锁 isCombatBusy，因为直接切视图了)
-        setTimeout(() => { switchView('scene'); renderScene(); }, 800);
+        // 胜利结算稍快一点 (0.4秒)
+        setTimeout(() => { switchView('scene'); renderScene(); }, 400);
         return; 
     }
     
-    // 4. 没死，进入敌人回合 (保持锁定状态)
-    setTimeout(() => enemyTurnLogic('atk'), 400);
+    // 极速模式：0.05秒后敌人攻击
+    setTimeout(() => enemyTurnLogic('atk'), 50);
 }
 
 function combatFlee() {
     if (isCombatBusy || !currentEnemy) return;
-    isCombatBusy = true; // 上锁
+    isCombatBusy = true;
 
     if (Math.random() > 0.5) { 
         log("逃跑成功！", "orange"); 
         currentEnemy = null; 
         switchView('scene'); 
-        isCombatBusy = false; // 逃跑成功也要解锁，以防万一
+        isCombatBusy = false; 
     }
     else {
-        // 逃跑失败，敌人攻击
         enemyTurnLogic('flee');
     }
 }
