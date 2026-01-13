@@ -357,120 +357,124 @@ function renderScene() {
 }
 
 
-// 8. 交互：资源采集 (最终修正：去除任何前缀，确保图片显示)
+// 8. 交互：资源采集 (集成：宝箱、镐子限制、惊扰修正)
 // ------------------------------------------
 function collectResource(index) {
-    // 1. 安全检查
     if (!currentSceneItems || !currentSceneItems[index]) return;
     const item = currentSceneItems[index];
 
-    // 2. 采集惊扰机制 (10% 概率)
+    // 1. 采集惊扰机制 (10% 概率，但宝箱不会变成怪)
     // ------------------------------------------
-    if (Math.random() < 0.1) {
+    if (Math.random() < 0.1 && item.name !== "宝箱") {
         const biomeKey = getBiome(player.x, player.y);
         const biome = BIOMES[biomeKey];
-        // 随机抽一个本地怪物
         const mobTemplate = biome.mobs[Math.floor(Math.random() * biome.mobs.length)];
         
         log(`💥 采集的动静引来了 ${mobTemplate.name}！`, "orange");
         
-        // --- 关键修正点 ---
+        // 生成怪物 (名字不加前缀，确保图片显示)
         let mob = { 
             type: 'mob', 
-            name: mobTemplate.name, // <--- 绝对不加 "被惊扰的" 前缀！
-            level: player.level,
+            name: mobTemplate.name, // <--- 修正：原名
+            level: player.level, 
             hp: mobTemplate.hp, 
-            maxHp: mobTemplate.hp,
+            maxHp: mobTemplate.hp, 
             atk: mobTemplate.atk, 
-            loot: mobTemplate.loot,
-            baseExp: mobTemplate.atk + 5,
+            loot: mobTemplate.loot, 
+            baseExp: mobTemplate.atk + 5, 
             index: -1 
         };
-
-        // 强制开战
         setTimeout(() => { startCombat(mob, -1); }, 100);
-        return; // 停止采集，直接战斗
+        return; 
     }
 
-    // 3. 正常的采集逻辑 (以下保持不变)
+    // 2. 宝箱逻辑 (必得食物，概率得杂项/稀有矿)
     // ------------------------------------------
+    if (item.name === "宝箱") {
+        log("📦 打开了宝箱...", "gold");
+        // 必得食物
+        const foods = ["面包", "熟牛肉", "苹果", "金苹果"];
+        let food = foods[Math.floor(Math.random() * foods.length)];
+        addItemToInventory(food, Math.floor(Math.random()*2)+1);
+        log(`获得了 ${food}`);
 
-    // 树木 -> 原木
-    if (item.name === "橡树") {
-        doCollectWork();
-        addItemToInventory("橡木原木", 1);
-        log("砍倒了橡树，获得 橡木原木。", "green");
+        // 概率资源
+        if (Math.random() < 0.6) { addItemToInventory("煤炭", Math.floor(Math.random()*3)+1); log("获得了 煤炭"); }
+        if (Math.random() < 0.4) { addItemToInventory("经验瓶", 1); log("获得了 ✨经验瓶✨", "purple"); }
+        if (Math.random() < 0.2) { addItemToInventory("绿宝石", 1); log("获得了 💎绿宝石", "green"); }
+        if (Math.random() < 0.1) { addItemToInventory("钻石", 1); log("获得了 💎钻石！", "cyan"); }
+
         finishCollect(index, item);
         return;
     }
-    if (item.name === "云杉") {
-        doCollectWork();
-        addItemToInventory("云杉原木", 1);
-        log("砍倒了云杉，获得 云杉原木。", "green");
-        finishCollect(index, item);
-        return;
-    }
-    // 小麦
-    if (item.name === "小麦") {
-        doCollectWork();
-        addItemToInventory("小麦", 1);
-        addItemToInventory("小麦种子", 2);
-        log("收割了小麦，获得 小麦x1 + 种子x2。", "gold");
-        finishCollect(index, item);
-        return;
-    }
-    // 杂草
-    if (item.name === "杂草") {
-        if (Math.random() < 0.3) {
-            addItemToInventory("小麦种子", 1);
-            log("清理了杂草，意外发现了 [小麦种子]！", "green");
-        } else {
-            log("清理了杂草，什么都没找到。");
+
+    // 3. 镐子挖掘等级限制
+    // ------------------------------------------
+    const ORE_LEVEL = {
+        "石头": 1, "煤炭": 1, 
+        "铁矿石": 2, "青石矿": 2,
+        "金矿石": 3, "钻石矿": 3, "绿宝石矿": 3, "红石": 3,
+        "黑曜石": 4, "远古残骸": 4
+    };
+
+    if (ORE_LEVEL[item.name]) {
+        let pickLevel = 0;
+        if (player.inventory["下界合金镐"]) pickLevel = 5;
+        else if (player.inventory["钻石镐"]) pickLevel = 4;
+        else if (player.inventory["铁镐"]) pickLevel = 3;
+        else if (player.inventory["石镐"]) pickLevel = 2;
+        else if (player.inventory["木镐"]) pickLevel = 1;
+
+        if (pickLevel < ORE_LEVEL[item.name]) {
+            let need = "木镐";
+            if(ORE_LEVEL[item.name]===2) need="石镐";
+            if(ORE_LEVEL[item.name]===3) need="铁镐";
+            if(ORE_LEVEL[item.name]===4) need="钻石镐";
+            log(`你的镐子太差了！需要 [${need}] 或更好。`, "red");
+            return;
         }
-        finishCollect(index, item);
-        return;
     }
-    // 绿宝石矿
-    if (item.name === "绿宝石矿") {
-        if (!checkTool("镐")) return;
-        doCollectWork();
-        addItemToInventory("绿宝石", 1);
-        addExp(2);
-        log("开采了绿宝石矿，获得 绿宝石！", "gold");
-        finishCollect(index, item);
-        return;
-    }
-    // 液体
-    if (item.name === "岩浆源") {
-        if (!player.inventory["铁桶"]) { log("太烫了！需[铁桶]。", "red"); return; }
-        player.inventory["铁桶"]--; addItemToInventory("岩浆桶", 1); log("装了岩浆。", "orange"); 
+
+    // 4. 普通资源采集逻辑
+    // ------------------------------------------
+    if (item.name === "橡树") { doCollectWork(); addItemToInventory("橡木原木", 1); log("砍倒了橡树，获得 橡木原木。", "green"); finishCollect(index, item); return; }
+    if (item.name === "云杉") { doCollectWork(); addItemToInventory("云杉原木", 1); log("砍倒了云杉，获得 云杉原木。", "green"); finishCollect(index, item); return; }
+    if (item.name === "小麦") { doCollectWork(); addItemToInventory("小麦", 1); addItemToInventory("小麦种子", 2); log("收割了小麦。", "gold"); finishCollect(index, item); return; }
+    if (item.name === "杂草") { 
+        if(Math.random()<0.3) {addItemToInventory("小麦种子", 1); log("发现种子。", "green");} 
+        else log("清理杂草。"); 
         finishCollect(index, item); return; 
     }
-    if (item.name === "水") {
-        let hasBucket = player.inventory["铁桶"] > 0; let hasBottle = player.inventory["玻璃瓶"] > 0;
-        if (!hasBucket && !hasBottle) { log("需[铁桶]或[玻璃瓶]。", "red"); return; }
-        if (hasBucket) { player.inventory["铁桶"]--; addItemToInventory("水", 1); log("装了水。", "blue"); } 
-        else if (hasBottle) { player.inventory["玻璃瓶"]--; addItemToInventory("水瓶", 1); log("装了瓶水。", "blue"); }
+    
+    // 矿物采集 (通过等级检测后)
+    if (ORE_LEVEL[item.name] || item.name === "绿宝石矿") {
+        doCollectWork();
+        let drop = item.name.replace("矿石", "").replace("矿", ""); // 简化掉落名
+        if(item.name==="石头") drop="石头";
+        addItemToInventory(drop, 1);
+        addExp(2);
+        log(`采集了 ${item.name}`, "gold");
+        finishCollect(index, item);
+        return;
+    }
+
+    // 液体
+    if (item.name === "岩浆源") { if (!player.inventory["铁桶"]) { log("需[铁桶]。", "red"); return; } player.inventory["铁桶"]--; addItemToInventory("岩浆桶", 1); finishCollect(index, item); return; }
+    if (item.name === "水") { 
+        if (player.inventory["铁桶"]) { player.inventory["铁桶"]--; addItemToInventory("水", 1); } 
+        else if (player.inventory["玻璃瓶"]) { player.inventory["玻璃瓶"]--; addItemToInventory("水瓶", 1); } 
+        else { log("需容器。", "red"); return; }
         finishCollect(index, item); return;
     }
 
-    // 硬度检测
-    const HARD_RES = ["石头", "铁矿石", "煤炭", "金矿石", "钻石矿", "绿宝石矿", "黑曜石", "石英矿", "地狱岩", "黑石"];
-    if (HARD_RES.includes(item.name) && !checkTool("镐")) return;
-
-    // 花朵
-    if (FLOWER_TYPES.includes(item.name)) {
-        player.sanity = Math.min(player.maxSanity, player.sanity + 10);
-        log(`采摘了 ${item.name} (理智 +10)`, "purple");
-    }
+    // 其他通用
+    if (FLOWER_TYPES.includes(item.name)) { player.sanity = Math.min(player.maxSanity, player.sanity + 10); log(`采摘了 ${item.name} (理智 +10)`, "purple"); }
 
     doCollectWork(); 
     addItemToInventory(item.name, 1);
     finishCollect(index, item); 
     if (!FLOWER_TYPES.includes(item.name)) log(`采集了 1个 ${item.name}`);
 }
-
-
 
 // 辅助：移除物品逻辑
 function finishCollect(index, item) {
