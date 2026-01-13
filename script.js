@@ -357,40 +357,43 @@ function renderScene() {
 }
 
 
-// 8. 交互：资源采集 (修正：采集惊扰直接刷出原生怪物)
+// 8. 交互：资源采集 (最终修正：去除任何前缀，确保图片显示)
 // ------------------------------------------
 function collectResource(index) {
+    // 1. 安全检查
     if (!currentSceneItems || !currentSceneItems[index]) return;
     const item = currentSceneItems[index];
 
-    // --- 新增：采集时的风险 (10% 概率引来怪物) ---
+    // 2. 采集惊扰机制 (10% 概率)
+    // ------------------------------------------
     if (Math.random() < 0.1) {
-        // 1. 获取当前地形和怪物池
         const biomeKey = getBiome(player.x, player.y);
         const biome = BIOMES[biomeKey];
+        // 随机抽一个本地怪物
         const mobTemplate = biome.mobs[Math.floor(Math.random() * biome.mobs.length)];
         
         log(`💥 采集的动静引来了 ${mobTemplate.name}！`, "orange");
         
-        // 2. 生成怪物 (保持原名，确保有图片)
+        // --- 关键修正点 ---
         let mob = { 
             type: 'mob', 
-            name: mobTemplate.name, // 关键：名字不加前缀，直接用原名
-            level: player.level,    // 等级跟随玩家，保证有挑战性
+            name: mobTemplate.name, // <--- 绝对不加 "被惊扰的" 前缀！
+            level: player.level,
             hp: mobTemplate.hp, 
             maxHp: mobTemplate.hp,
             atk: mobTemplate.atk, 
             loot: mobTemplate.loot,
             baseExp: mobTemplate.atk + 5,
-            index: -1 // 特殊标记，不在场景网格里
+            index: -1 
         };
 
-        // 3. 强制进入战斗
+        // 强制开战
         setTimeout(() => { startCombat(mob, -1); }, 100);
-        return; // 阻止本次采集，直接打架
+        return; // 停止采集，直接战斗
     }
 
-    // --- 下面是原本的采集逻辑 (保持不变) ---
+    // 3. 正常的采集逻辑 (以下保持不变)
+    // ------------------------------------------
 
     // 树木 -> 原木
     if (item.name === "橡树") {
@@ -466,6 +469,7 @@ function collectResource(index) {
     finishCollect(index, item); 
     if (!FLOWER_TYPES.includes(item.name)) log(`采集了 1个 ${item.name}`);
 }
+
 
 
 // 辅助：移除物品逻辑
