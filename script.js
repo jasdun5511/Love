@@ -231,7 +231,7 @@ function getBiome(x, y) {
 }
 
 
-// 6. 场景生成 (只有亡灵突袭，无随时间增强)
+// 6. 场景生成 (含盾牌格挡需要的逻辑 & 限制矿物数量)
 // ------------------------------------------
 function generateScene(biomeKey) {
     currentSceneItems = [];
@@ -243,19 +243,17 @@ function generateScene(biomeKey) {
     for(let i=0; i<resCount; i++) {
         const name = biome.res[Math.floor(Math.random() * biome.res.length)];
         
-        // --- 修改：稀有矿物数量变为 1 ---
-        const RARE_ORES = ["铁矿", "金矿", "钻石矿", "古骸", "青石矿"];
-        let count;
+        // --- 修改点：稀有矿物数量变为 1 ---
+        let count = Math.floor(Math.random()*3)+1; // 默认 1-3个
+        const RARE_ORES = ["铁矿石", "金矿石", "钻石矿", "绿宝石矿", "远古残骸"];
         if (RARE_ORES.includes(name)) {
-            count = 1; // 稀有矿物固定为1个
-        } else {
-            count = Math.floor(Math.random() * 3) + 1; // 普通资源(如原木、草)保持不变
+            count = 1; // 稀有矿强制为 1
         }
         
         currentSceneItems.push({ type: 'res', name: name, count: count });
     }
 
-    // --- 怪物生成逻辑 ---
+    // --- 怪物生成逻辑 (只有亡灵突袭) ---
     let mobChance = isNight ? 0.8 : 0.3; 
     if (currentDimension === "NETHER") mobChance = 0.9;
     if (biomeKey === "VILLAGE") mobChance = 0.7; 
@@ -263,7 +261,7 @@ function generateScene(biomeKey) {
     if (Math.random() < mobChance) {
         const mobTemplate = biome.mobs[Math.floor(Math.random() * biome.mobs.length)];
         
-        // 动态等级：只保留距离加成 (走得越远怪越强)，删除了 weekBonus
+        // 动态等级：距离加成
         const dist = Math.abs(player.x - 10) + Math.abs(player.y - 10);
         const levelBonus = Math.floor(dist / 10); 
         let mobLevel = Math.max(1, 1 + levelBonus); 
@@ -280,7 +278,7 @@ function generateScene(biomeKey) {
             isAmbush: false 
         };
         
-        // --- 亡灵主动攻击判定 (50% 概率) ---
+        // 亡灵主动攻击判定 (50% 概率)
         const UNDEADS = ["僵尸", "骷髅", "尸壳", "流浪者", "溺尸", "僵尸猪人", "恶魂", "苦力怕", "烈焰人", "凋灵骷髅"];
         if (UNDEADS.includes(mob.name)) {
             if (Math.random() < 0.5) {
@@ -288,7 +286,7 @@ function generateScene(biomeKey) {
             }
         }
 
-        // 夜晚或地狱增强 (保留，这是环境buff)
+        // 夜晚或地狱增强
         if ((isNight || currentDimension === "NETHER") && mob.atk > 0) {
             mob.name = (currentDimension === "NETHER" ? "地狱的" : "狂暴的") + mob.name;
             mob.hp = Math.floor(mob.hp * 1.5);
@@ -299,6 +297,7 @@ function generateScene(biomeKey) {
         currentSceneItems.push(mob);
     }
 }
+
 
 
 
@@ -482,7 +481,7 @@ function checkTool(type) {
 }
 
 
-// 9. 交互：战斗系统
+// 9. 交互：战斗系统 (已集成盾牌格挡)
 // ------------------------------------------
 function startCombat(mob, index) {
     currentEnemy = mob;
@@ -527,13 +526,42 @@ function updateCombatUI() {
     }
 }
 
+// --- 新增：敌人回合逻辑 (包含盾牌判定) ---
+function enemyTurnLogic(actionType) {
+    if (!currentEnemy || currentEnemy.hp <= 0) return;
+
+    // 1. 盾牌判定 (如果有盾牌，25%概率无伤)
+    if (player.inventory["盾牌"] > 0) {
+        if (Math.random() < 0.25) {
+            combatLog(`🛡️ 你的盾牌抵挡了 ${currentEnemy.name} 的攻击！`, "gold");
+            updateCombatUI();
+            updateStatsUI();
+            return; // 直接结束敌人回合，不扣血
+        }
+    }
+
+    // 2. 正常伤害计算
+    const eDmg = Math.max(1, currentEnemy.atk - Math.floor(Math.random()));
+    player.hp -= eDmg;
+    
+    let prefix = actionType === 'use' ? "趁你使用物品时，" : (actionType === 'flee' ? "逃跑失败！" : "");
+    combatLog(`${prefix}受到 ${eDmg} 伤害`, "red");
+
+    // 受击震动效果
+    document.body.classList.remove('shake'); 
+    void document.body.offsetWidth; 
+    document.body.classList.add('shake');
+    
+    if (player.hp <= 0) die();
+    updateStatsUI();
+    updateCombatUI();
+}
+
 function combatUseItem(name) {
     if (!currentEnemy || !player.inventory[name]) return;
     useItem(name); 
-    const eDmg = Math.max(1, currentEnemy.atk - Math.floor(Math.random()));
-    player.hp -= eDmg;
-    combatLog(`趁你使用物品时，敌人造成 ${eDmg} 伤害`, "red");
-    updateCombatUI();
+    // 使用物品后，敌人会攻击 (调用新逻辑)
+    enemyTurnLogic('use');
 }
 
 function combatLog(msg, color="#333") {
@@ -549,7 +577,11 @@ function combatAttack() {
     const pDmg = player.atk + Math.floor(Math.random() * 3);
     currentEnemy.hp -= pDmg;
     combatLog(`你造成 ${pDmg} 伤害`, "green");
-    document.querySelector('.enemy-box').classList.remove('shake'); void document.querySelector('.enemy-box').offsetWidth; document.querySelector('.enemy-box').classList.add('shake');
+    
+    // 敌人震动
+    document.querySelector('.enemy-box').classList.remove('shake'); 
+    void document.querySelector('.enemy-box').offsetWidth; 
+    document.querySelector('.enemy-box').classList.add('shake');
 
     if (currentEnemy.hp <= 0) {
         const loot = currentEnemy.loot;
@@ -562,24 +594,23 @@ function combatAttack() {
         setTimeout(() => { switchView('scene'); renderScene(); }, 800);
         return; 
     }
-    const eDmg = Math.max(1, currentEnemy.atk - Math.floor(Math.random()));
-    player.hp -= eDmg;
-    combatLog(`受到 ${eDmg} 伤害`, "red");
-    document.body.classList.remove('shake'); void document.body.offsetWidth; document.body.classList.add('shake');
-    if (player.hp <= 0) die();
-    updateStatsUI();
-    updateCombatUI();
+    
+    // 玩家攻击后，敌人反击 (调用新逻辑)
+    enemyTurnLogic('atk');
 }
 
 function combatFlee() {
-    if (Math.random() > 0.5) { log("逃跑成功！", "orange"); currentEnemy = null; switchView('scene'); }
+    if (Math.random() > 0.5) { 
+        log("逃跑成功！", "orange"); 
+        currentEnemy = null; 
+        switchView('scene'); 
+    }
     else {
-        combatLog("逃跑失败！", "red");
-        const eDmg = Math.max(1, currentEnemy.atk - Math.floor(Math.random()));
-        player.hp -= eDmg;
-        updateCombatUI(); updateStatsUI();
+        // 逃跑失败，敌人攻击 (调用新逻辑)
+        enemyTurnLogic('flee');
     }
 }
+
 
 
 // 10. 交互：物品与背包系统 (数据处理与分类)
