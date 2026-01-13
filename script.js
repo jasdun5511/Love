@@ -589,7 +589,24 @@ function enemyTurnLogic(actionType) {
 
     // 2. 正常伤害计算
     const eDmg = Math.max(1, currentEnemy.atk - Math.floor(Math.random()));
+// 在 script.js 的 enemyTurnLogic 函数里...
+
+    // ... (前面对伤害的计算保持不变)
     player.hp -= eDmg;
+    combatLog(`${prefix}受到 ${eDmg} 伤害`, "red");
+
+    // --- 新增：毒蜘蛛中毒逻辑 ---
+    if (currentEnemy.name.includes("毒蜘蛛")) {
+        if (Math.random() < 0.4) { // 40% 概率中毒
+            if (!player.isPoisoned) {
+                player.isPoisoned = true;
+                combatLog("🤢 你中毒了！(持续扣血)", "purple");
+            }
+        }
+    }
+    
+    // ... (后面的代码保持不变)
+
     
     let prefix = actionType === 'use' ? "趁你使用物品时，" : (actionType === 'flee' ? "逃跑失败！" : "");
     combatLog(`${prefix}受到 ${eDmg} 伤害`, "red");
