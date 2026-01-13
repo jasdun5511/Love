@@ -912,6 +912,15 @@ function useItem(name) {
         // 吃完返还一个碗(在这个简化版里我们返还个木棍意思一下，或者不返还)
         // 这里暂时不返还物品，直接消耗
     }
+
+    // --- 新增：经验瓶 ---
+    else if (name === "经验瓶") {
+        let gain = Math.floor(Math.random() * 20) + 10;
+        addExp(gain);
+        log(`打碎了经验瓶，获得 ${gain} 点经验！`, "purple");
+    }
+    // ... (后面的逻辑)
+
     
     else if (name === "简易绷带") {
         if (player.hp >= player.maxHp) {
