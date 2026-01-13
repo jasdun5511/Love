@@ -821,7 +821,13 @@ window.equipItem = function(name) {
     if (type === "weapon") {
         if (player.equipWeapon) addItemToInventory(player.equipWeapon, 1);
         player.equipWeapon = name;
-        let bonus = r && r.val ? r.val : 3;
+        
+        // --- 修复：计算攻击力 ---
+        let bonus = r && r.val ? r.val : 3; // 默认+3
+        
+        // 针对没有配方的稀有掉落物，手动指定攻击力
+        if (name === "三叉戟") bonus = 9; 
+        
         player.atk = 5 + bonus; // 基础5 + 武器
     } else {
         if (player.equipArmor) addItemToInventory(player.equipArmor, 1);
@@ -837,8 +843,9 @@ window.equipItem = function(name) {
     
     renderEquipTab();
     updateStatsUI();
-    log(`装备了 ${name}！`);
+    log(`装备了 ${name}！(攻击力: ${player.atk})`);
 }
+
 
 // 交互：使用物品 (已添加谜之炖菜)
 function useItem(name) {
