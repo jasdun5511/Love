@@ -221,9 +221,8 @@ const RECIPES = [
     { name: "铁盔甲", req: { "铁锭": 5 }, type: "equip", effect: "hp_max", val: 150, desc: "HP上限 -> 150", station: "workbench" },
     { name: "钻石盔甲", req: { "钻石": 5 }, type: "equip", effect: "hp_max", val: 200, desc: "HP上限 -> 200", station: "workbench" },
     { name: "下界合金甲", req: { "钻石盔甲": 1, "下界合金锭": 1 }, type: "equip", effect: "hp_max", val: 250, desc: "HP上限 -> 250", station: "workbench" },
-    // === 新增：盾牌 ===
-    { name: "盾牌", req: { "原木": 6, "铁锭": 6 }, type: "item", desc: "25%几率抵挡伤害" },
-
+    // 在 items.js 的 RECIPES 里加这个：
+    { name: "盾牌", req: { "原木": 6, "铁锭": 6 }, type: "item", desc: "25%几率抵挡伤害", station: "workbench" },
 
     // === 食物 ===
     { name: "面包", req: { "小麦种子": 3 }, type: "use", effect: "food", val: 25, desc: "恢复 25 饥饿" },
