@@ -155,12 +155,24 @@ function addPoint(type) {
 }
 
 
-// 4. 核心循环 (时间与状态流逝)
+// 4. 核心循环 (新增：中毒扣血逻辑)
 // ------------------------------------------
 function passTime(hours) {
     gameTime.hour += hours;
     player.hunger = Math.max(0, player.hunger - (2 * hours));
     player.water = Math.max(0, player.water - (3 * hours));
+
+    // --- 中毒逻辑 ---
+    if (player.isPoisoned) {
+        let poisonDmg = 5 * hours;
+        player.hp -= poisonDmg;
+        log(`☠️ 毒素正在侵蚀你的身体... (HP -${poisonDmg})`, "purple");
+        // 30% 几率自愈
+        if (Math.random() < 0.3) {
+            player.isPoisoned = false;
+            log("😅 你感觉毒素消退了。", "green");
+        }
+    }
 
     const isNight = gameTime.hour >= 20 || gameTime.hour < 6;
     if (isNight) {
@@ -181,10 +193,13 @@ function passTime(hours) {
         gameTime.day += 1;
         log(`=== 第 ${gameTime.day} 天 ===`);
     }
+    
+    if (player.hp <= 0) die(); // 检查是否毒死
     document.getElementById('clock-time').innerText = `${String(gameTime.hour).padStart(2, '0')}:00`;
     updateDayNightCycle();
     updateStatsUI();
 }
+
 
 function updateDayNightCycle() {
     document.body.classList.toggle('night-mode', gameTime.hour >= 20 || gameTime.hour < 6);
@@ -208,21 +223,22 @@ function move(dx, dy) {
     refreshLocation();
 }
 
+// 5. 地形算法 (新增：矿井生成)
+// ------------------------------------------
 function getBiome(x, y) {
     if (currentDimension === "OVERWORLD") {
-        // 伪随机算法
         const dot = x * 12.9898 + y * 78.233;
         const val = Math.abs(Math.sin(dot) * 43758.5453) % 1;
 
-        // 权重分布：村庄只有 3% 概率
         if (val < 0.20) return "OCEAN";
         if (val < 0.40) return "PLAINS";
         if (val < 0.55) return "FOREST";
         if (val < 0.65) return "DESERT";
         if (val < 0.75) return "MOUNTAIN";
         if (val < 0.85) return "SNOWY";
-        if (val < 0.92) return "SWAMP";
-        if (val < 0.97) return "MESA";
+        if (val < 0.90) return "SWAMP"; // 压缩沼泽
+        if (val < 0.95) return "MESA";  // 压缩恶地
+        if (val < 0.98) return "MINE";  // <--- 3% 几率生成矿井
         return "VILLAGE"; 
 
     } else {
@@ -235,7 +251,8 @@ function getBiome(x, y) {
 }
 
 
-// 6. 场景生成 (含盾牌格挡需要的逻辑 & 限制矿物数量)
+
+// 6. 场景生成 (新增：末影人中立逻辑)
 // ------------------------------------------
 function generateScene(biomeKey) {
     currentSceneItems = [];
@@ -247,28 +264,28 @@ function generateScene(biomeKey) {
     for(let i=0; i<resCount; i++) {
         const name = biome.res[Math.floor(Math.random() * biome.res.length)];
         
-        // --- 修改点：稀有矿物数量变为 1 ---
-        let count = Math.floor(Math.random()*3)+1; // 默认 1-3个
-        const RARE_ORES = ["铁矿石", "金矿石", "钻石矿", "绿宝石矿", "远古残骸"];
-        if (RARE_ORES.includes(name)) {
-            count = 1; // 稀有矿强制为 1
-        }
+        // 稀有矿物和宝箱数量限制
+        let count = Math.floor(Math.random()*3)+1;
+        const RARE = ["铁矿石", "金矿石", "钻石矿", "绿宝石矿", "远古残骸", "宝箱"];
+        if (RARE.includes(name)) count = 1;
         
         currentSceneItems.push({ type: 'res', name: name, count: count });
     }
 
-    // --- 怪物生成逻辑 (只有亡灵突袭) ---
+    // 怪物生成
     let mobChance = isNight ? 0.8 : 0.3; 
     if (currentDimension === "NETHER") mobChance = 0.9;
     if (biomeKey === "VILLAGE") mobChance = 0.7; 
+    if (biomeKey === "MINE") mobChance = 0.9; // 矿井怪物极多
 
     if (Math.random() < mobChance) {
         const mobTemplate = biome.mobs[Math.floor(Math.random() * biome.mobs.length)];
         
-        // 动态等级：距离加成
         const dist = Math.abs(player.x - 10) + Math.abs(player.y - 10);
         const levelBonus = Math.floor(dist / 10); 
-        let mobLevel = Math.max(1, 1 + levelBonus); 
+        // 矿井怪物等级更高 (+3)
+        let extraLv = biomeKey === "MINE" ? 3 : 0;
+        let mobLevel = Math.max(1, 1 + levelBonus + extraLv); 
         
         let mob = { 
             type: 'mob', 
@@ -282,15 +299,12 @@ function generateScene(biomeKey) {
             isAmbush: false 
         };
         
-        // 亡灵主动攻击判定 (50% 概率)
-        const UNDEADS = ["僵尸", "骷髅", "尸壳", "流浪者", "溺尸", "僵尸猪人", "恶魂", "苦力怕", "烈焰人", "凋灵骷髅"];
-        if (UNDEADS.includes(mob.name)) {
-            if (Math.random() < 0.5) {
-                mob.isAmbush = true; 
-            }
+        // 亡灵主动攻击 (排除末影人)
+        const UNDEADS = ["僵尸", "骷髅", "尸壳", "流浪者", "溺尸", "僵尸猪人", "恶魂", "苦力怕", "烈焰人", "凋灵骷髅", "毒蜘蛛"];
+        if (UNDEADS.includes(mob.name) && mob.name !== "末影人") {
+            if (Math.random() < 0.5) mob.isAmbush = true; 
         }
 
-        // 夜晚或地狱增强
         if ((isNight || currentDimension === "NETHER") && mob.atk > 0) {
             mob.name = (currentDimension === "NETHER" ? "地狱的" : "狂暴的") + mob.name;
             mob.hp = Math.floor(mob.hp * 1.5);
