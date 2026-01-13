@@ -319,7 +319,7 @@ function generateScene(biomeKey) {
 
 
 
-// 7. 场景渲染 (网格生成)
+// 7. 场景渲染 (已优化：建筑显示图标)
 // ------------------------------------------
 function renderScene() {
     const grid = document.getElementById('scene-grid');
@@ -332,19 +332,23 @@ function renderScene() {
     buildings.forEach((b, idx) => {
         const btn = document.createElement('div');
         btn.className = `grid-btn build`;
+        
         if (b.name === "下界传送门") {
-            btn.innerText = "🔮 下界传送门";
+            // 传送门保持特效
+            btn.innerHTML = `<img src="${ITEM_ICONS['下界传送门']}" class="item-icon"> 下界传送门`;
             btn.style.borderColor = "#8e44ad"; 
             btn.style.color = "#8e44ad";
             btn.onclick = () => usePortal(); 
         } else {
-            btn.innerText = `📦 ${b.name}`;
+            // --- 修改点：尝试获取图标，没有则显示盒子emoji ---
+            let icon = ITEM_ICONS[b.name] ? `<img src="${ITEM_ICONS[b.name]}" class="item-icon">` : "📦";
+            btn.innerHTML = `${icon} ${b.name}`;
             btn.onclick = () => openBuilding(b, idx);
         }
         grid.appendChild(btn);
     });
 
-    // 渲染资源和怪物
+    // 渲染资源和怪物 (保持不变)
     currentSceneItems.forEach((item, index) => {
         const btn = document.createElement('div');
         btn.className = `grid-btn ${item.type}`;
@@ -362,10 +366,7 @@ function renderScene() {
             btn.onclick = () => collectResource(index, btn);
         } else {
             let mobIconHtml = ITEM_ICONS[item.name] ? `<img src="${ITEM_ICONS[item.name]}" class="mob-icon">` : "";
-            if (!mobIconHtml) {
-                let baseName = item.name.replace("狂暴的", "").replace("地狱的", "");
-                if (ITEM_ICONS[baseName]) mobIconHtml = `<img src="${ITEM_ICONS[baseName]}" class="mob-icon">`;
-            }
+            // 确保不带前缀，直接显示图片
             btn.innerHTML = `${mobIconHtml}${item.name} <span class="lv-tag">Lv.${item.level}</span>`;
             btn.classList.add('mob');
             btn.onclick = () => startCombat(item, index);
@@ -373,6 +374,7 @@ function renderScene() {
         grid.appendChild(btn);
     });
 }
+
 
 
 // 8. 交互：资源采集 (集成：宝箱、镐子限制、惊扰修正)
@@ -1119,13 +1121,13 @@ function executeTrade(trade) {
 }
 
 
-// 13. 交互：建筑与储物箱
+// 13. 交互：建筑 (已修改：点击直接进入制作)
 // ------------------------------------------
 function placeBuilding(name) {
     const buildings = getCurrBuildings(); 
     const key = `${player.x},${player.y}`;
     if (!buildings[key]) buildings[key] = [];
-    buildings[key].push({ name: name, content: name==="工作台"?{}:null });
+    buildings[key].push({ name: name, content: {} }); // content预留给箱子
     log(`放置了 ${name}`, "blue");
     player.inventory[name]--;
     if (player.inventory[name] <= 0) delete player.inventory[name];
@@ -1133,13 +1135,32 @@ function placeBuilding(name) {
 }
 
 let activeBuilding = null;
+
 function openBuilding(b, idx) {
     activeBuilding = b;
-    if (b.name === "工作台") { switchView('chest'); updateChestUI(); }
-    else log("这个建筑暂时没有功能。");
+    
+    // --- 修改点：工作台和熔炉直接跳转制作页 ---
+    if (b.name === "工作台") {
+        switchView('craft');
+        // 自动切换到“全部”或“武器”标签 (可选)
+        log("使用了工作台，你可以制作高级物品了。", "blue");
+    }
+    else if (b.name === "熔炉") {
+        switchView('craft');
+        // 这里虽然跳转的是同一个craft界面，但因为你站在熔炉旁边，
+        // updateCraftUI会自动检测到 hasStation('furnace')，从而解锁烧炼配方
+        log("打开了熔炉，可以进行烧炼和烹饪了。", "orange");
+    }
+    // 如果以后加了"箱子"，可以在这里写 else if (b.name === "箱子") switchView('chest');
+    else {
+        log("这个建筑暂时没有交互功能。");
+    }
 }
+
+// 关闭建筑界面的函数 (保持不变，虽然现在很少用了)
 window.closeBuilding = () => { activeBuilding = null; switchView('scene'); }
 
+// 箱子UI逻辑暂时保留，以备后续添加真正的储物箱
 function updateChestUI() {
     const pList = document.getElementById('chest-player-inv');
     const cList = document.getElementById('chest-storage');
@@ -1170,6 +1191,7 @@ window.takeFromChest = function(n) {
         updateChestUI(); updateInventoryUI();
     }
 }
+
 
 
 // 14. 交互：传送门
