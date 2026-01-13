@@ -357,36 +357,37 @@ function renderScene() {
 }
 
 
-// 8. 交互：资源采集 (新增：采集惊扰机制)
+// 8. 交互：资源采集 (修正：采集惊扰直接刷出原生怪物)
 // ------------------------------------------
 function collectResource(index) {
     if (!currentSceneItems || !currentSceneItems[index]) return;
     const item = currentSceneItems[index];
 
     // --- 新增：采集时的风险 (10% 概率引来怪物) ---
-    // 只有在非安全区(比如不是自己家，或者周围有怪)才触发，这里简化为任何采集都有风险
     if (Math.random() < 0.1) {
-        log("💥 采集的声音惊扰了附近的生物！", "orange");
-        
-        // 临时生成一只怪
+        // 1. 获取当前地形和怪物池
         const biomeKey = getBiome(player.x, player.y);
         const biome = BIOMES[biomeKey];
         const mobTemplate = biome.mobs[Math.floor(Math.random() * biome.mobs.length)];
         
-        // 简单的怪物属性生成
+        log(`💥 采集的动静引来了 ${mobTemplate.name}！`, "orange");
+        
+        // 2. 生成怪物 (保持原名，确保有图片)
         let mob = { 
             type: 'mob', 
-            name: "被惊扰的" + mobTemplate.name,
-            level: player.level, // 跟随玩家等级
-            hp: mobTemplate.hp, maxHp: mobTemplate.hp,
-            atk: mobTemplate.atk, loot: mobTemplate.loot,
+            name: mobTemplate.name, // 关键：名字不加前缀，直接用原名
+            level: player.level,    // 等级跟随玩家，保证有挑战性
+            hp: mobTemplate.hp, 
+            maxHp: mobTemplate.hp,
+            atk: mobTemplate.atk, 
+            loot: mobTemplate.loot,
             baseExp: mobTemplate.atk + 5,
-            index: -1 // 特殊标记，不在场景数组里
+            index: -1 // 特殊标记，不在场景网格里
         };
 
-        // 强制进入战斗
+        // 3. 强制进入战斗
         setTimeout(() => { startCombat(mob, -1); }, 100);
-        return; // 阻止本次采集
+        return; // 阻止本次采集，直接打架
     }
 
     // --- 下面是原本的采集逻辑 (保持不变) ---
