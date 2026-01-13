@@ -530,22 +530,22 @@ function checkTool(type) {
 }
 
 
-// 9. 交互：战斗系统 (修复：伤害丢失 + 偷袭实装)
+// 9. 交互：战斗系统 (修复：连点BUG、无限刷物品、增加回合锁)
 // ------------------------------------------
+let isCombatBusy = false; // --- 新增：战斗状态锁 ---
+
 function startCombat(mob, index) {
     currentEnemy = mob;
     currentEnemy.index = index;
+    isCombatBusy = false; // 进入战斗时重置锁
     switchView('combat');
     
-    // 获取图片
     let imgUrl = ITEM_ICONS[mob.name] || (ITEM_ICONS[mob.name.replace(/狂暴的|地狱的/, "")] || "");
     let imgHtml = imgUrl ? `<img src="${imgUrl}" class="combat-mob-img">` : "";
     
-    // 显示等级和名字
     document.getElementById('enemy-name').innerHTML = `${imgHtml}${mob.name} <span class="lv-tag">Lv.${mob.level}</span>`;
     document.getElementById('combat-log-area').innerHTML = `<p>遭遇了 Lv.${mob.level} ${mob.name}！</p>`;
     
-    // 初始化快捷回血栏
     if (!document.getElementById('combat-consumables')) {
         const d = document.createElement('div');
         d.id = 'combat-consumables'; d.className = 'quick-heal-bar';
@@ -553,10 +553,10 @@ function startCombat(mob, index) {
     }
     updateCombatUI();
 
-    // --- 修复点：如果是偷袭，怪物先手攻击 ---
+    // 偷袭逻辑
     if (mob.isAmbush) {
         combatLog(`⚡ ${mob.name} 发起了偷袭！`, "red");
-        // 延迟 500ms 让玩家看清界面，然后怪物攻击
+        isCombatBusy = true; // 偷袭时锁住操作
         setTimeout(() => {
             enemyTurnLogic('ambush'); 
         }, 500);
@@ -569,7 +569,6 @@ function updateCombatUI() {
     document.getElementById('enemy-hp-bar').style.width = `${hpPct}%`;
     document.getElementById('enemy-stats').innerText = `HP: ${currentEnemy.hp}/${currentEnemy.maxHp}`;
     
-    // 刷新回血栏
     const c = document.getElementById('combat-consumables');
     if (c) {
         c.innerHTML = '';
@@ -580,35 +579,33 @@ function updateCombatUI() {
                 btn.className = 'heal-btn';
                 let icon = ITEM_ICONS[name] ? `<img src="${ITEM_ICONS[name]}">` : "";
                 btn.innerHTML = `${icon} ${name} x${count}`;
-                btn.onclick = () => combatUseItem(name);
+                // 吃药也要检查锁
+                btn.onclick = () => { if(!isCombatBusy) combatUseItem(name); };
                 c.appendChild(btn);
             }
         }
     }
 }
 
-// --- 核心：敌人攻击逻辑 (已修复扣血) ---
+// --- 核心：敌人回合 (回合结束才解锁) ---
 function enemyTurnLogic(actionType) {
-    if (!currentEnemy || currentEnemy.hp <= 0) return;
+    if (!currentEnemy) { isCombatBusy = false; return; }
 
-    // 1. 盾牌判定 (25% 概率完全格挡)
+    // 1. 盾牌判定
     if (player.inventory["盾牌"] > 0) {
         if (Math.random() < 0.25) {
             combatLog(`🛡️ 你的盾牌抵挡了 ${currentEnemy.name} 的攻击！`, "gold");
             updateCombatUI();
             updateStatsUI();
-            return; // 挡住了，不扣血，直接结束回合
+            isCombatBusy = false; // 格挡成功，解锁让玩家操作
+            return; 
         }
     }
 
-    // 2. 计算伤害 (修正：确保这行代码执行)
-    // 伤害 = 攻击力 - (0~2的浮动)
+    // 2. 正常伤害
     const eDmg = Math.max(1, currentEnemy.atk - Math.floor(Math.random() * 2));
-    
-    // --- 关键修复：执行扣血 ---
     player.hp -= eDmg;
     
-    // 3. 记录日志
     let prefix = "";
     if (actionType === 'use') prefix = "趁你使用物品时，";
     else if (actionType === 'flee') prefix = "逃跑失败！";
@@ -616,33 +613,37 @@ function enemyTurnLogic(actionType) {
     
     combatLog(`${prefix}受到 ${eDmg} 伤害`, "red");
 
-    // 4. 受击特效 (屏幕震动)
+    // 3. 震动特效
     document.body.classList.remove('shake'); 
-    void document.body.offsetWidth; // 强制重绘
+    void document.body.offsetWidth; 
     document.body.classList.add('shake');
     
-    // 5. 毒蜘蛛中毒逻辑
+    // 4. 毒蜘蛛判定
     if (currentEnemy.name.includes("毒蜘蛛")) {
-        // 40% 概率中毒
         if (Math.random() < 0.4 && !player.isPoisoned) {
             player.isPoisoned = true;
             combatLog("🤢 糟糕，被咬伤中毒了！", "purple");
         }
     }
 
-    // 6. 死亡判定
+    // 5. 死亡判定
     if (player.hp <= 0) {
         setTimeout(die, 200);
+        return;
     }
 
     updateStatsUI();
     updateCombatUI();
+    
+    // --- 回合结束，解锁 ---
+    isCombatBusy = false; 
 }
 
 function combatUseItem(name) {
-    if (!currentEnemy || !player.inventory[name]) return;
+    if (isCombatBusy || !currentEnemy || !player.inventory[name]) return;
+    isCombatBusy = true; // 上锁
+
     useItem(name); 
-    // 使用物品后，敌人必定攻击
     setTimeout(() => enemyTurnLogic('use'), 300);
 }
 
@@ -655,20 +656,23 @@ function combatLog(msg, color="#333") {
 }
 
 function combatAttack() {
-    if (!currentEnemy) return;
+    // --- 关键修改：检查锁、检查怪物是否存在、检查怪物是否已死 ---
+    if (isCombatBusy || !currentEnemy || currentEnemy.hp <= 0) return;
     
-    // 玩家攻击
+    isCombatBusy = true; // 1. 立即上锁，防止连点
+
+    // 2. 玩家造成伤害
     const pDmg = player.atk + Math.floor(Math.random() * 3);
     currentEnemy.hp -= pDmg;
     combatLog(`你造成 ${pDmg} 伤害`, "green");
     
-    // 敌人震动特效
+    // 震动特效
     const box = document.querySelector('.enemy-box');
     box.classList.remove('shake'); 
     void box.offsetWidth; 
     box.classList.add('shake');
 
-    // 胜利判定
+    // 3. 胜利判定
     if (currentEnemy.hp <= 0) {
         const loot = currentEnemy.loot;
         const expGain = (currentEnemy.baseExp || 5) + currentEnemy.level * 2;
@@ -677,30 +681,39 @@ function combatAttack() {
         addItemToInventory(loot, 1);
         addExp(expGain); 
         
-        // 从场景中移除该怪物
+        // 移除怪物
         if (currentEnemy.index !== -1 && currentSceneItems[currentEnemy.index]) {
             currentSceneItems.splice(currentEnemy.index, 1);
         }
         
+        // --- 关键：立即清空 currentEnemy，防止后续点击生效 ---
+        currentEnemy = null; 
+        
+        // 延迟退出战斗 (不需要解锁 isCombatBusy，因为直接切视图了)
         setTimeout(() => { switchView('scene'); renderScene(); }, 800);
         return; 
     }
     
-    // 如果没死，敌人反击
+    // 4. 没死，进入敌人回合 (保持锁定状态)
     setTimeout(() => enemyTurnLogic('atk'), 400);
 }
 
 function combatFlee() {
+    if (isCombatBusy || !currentEnemy) return;
+    isCombatBusy = true; // 上锁
+
     if (Math.random() > 0.5) { 
         log("逃跑成功！", "orange"); 
         currentEnemy = null; 
         switchView('scene'); 
+        isCombatBusy = false; // 逃跑成功也要解锁，以防万一
     }
     else {
         // 逃跑失败，敌人攻击
         enemyTurnLogic('flee');
     }
 }
+
 
 
 
