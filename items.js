@@ -204,8 +204,10 @@ const BIOMES = {
 // ==========================================
 const RECIPES = [
     // === 建筑类 ===
-    { name: "工作台", req: { "原木": 4 }, type: "build", desc: "放置后解锁高级合成" }, 
-    { name: "熔炉", req: { "石头": 8 }, type: "build", desc: "放置后可烧炼/烹饪", station: "workbench" }, 
+// 请用这两行替换原来的工作台和熔炉配置：
+    { name: "工作台", req: { "原木": 4 }, type: "item", desc: "【被动】放在背包内即可解锁高级合成" }, 
+    { name: "熔炉", req: { "石头": 8 }, type: "item", desc: "【被动】放在背包内即可解锁烧炼", station: "workbench" }, 
+
     { name: "下界传送门", req: { "黑曜石": 10, "打火石": 1 }, type: "build", desc: "放置后点击进入地狱" },
 
     // === 药水与容器 ===
