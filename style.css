@@ -930,3 +930,28 @@ body.night-mode .grid-btn.mob {
     gap: 10px;
     justify-content: center;
 }
+
+/* --- 任务按钮状态样式 --- */
+
+/* 1. 默认/完成状态 (绿色描边，白底) */
+.btn-claim {
+    background-color: #fff;
+    border: 1px solid #4CAF50;
+    color: #4CAF50;
+    font-weight: bold;
+    padding: 8px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(76, 175, 80, 0.1);
+    transition: all 0.2s;
+}
+
+/* 2. 未完成状态 (强制灰色，不可点) */
+.btn-claim:disabled {
+    background-color: #f5f5f5 !important; /* 浅灰背景 */
+    color: #aaa !important;               /* 灰色文字 */
+    border: 1px solid #ddd !important;    /* 灰色边框 */
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
