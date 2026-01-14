@@ -1408,75 +1408,104 @@ function renderBigMap() {
 }
 
 
-// 16. 存档系统
+// 16. 存档系统 (全自动版)
 // ------------------------------------------
 const SAVE_KEY = "mc_text_survival_save_v1";
 
+// 状态显示（可选）
 function checkSaveStatus() {
     const statusEl = document.getElementById('save-status');
     if (!statusEl) return;
     if (localStorage.getItem(SAVE_KEY)) {
-        statusEl.innerText = "已检测到本地存档";
+        statusEl.innerText = "自动保存已开启";
         statusEl.style.color = "#27ae60";
-    } else {
-        statusEl.innerText = "暂无存档";
-        statusEl.style.color = "#e74c3c";
     }
 }
 
-function saveGame() {
-    if (player.hp <= 0) return alert("死人是不能存档的！");
+// 存档 (静默执行)
+window.saveGame = function() {
+    if (player.hp <= 0) return; // 死亡时不自动存档，防止死循环
+
     const saveData = {
         player: player,
         gameTime: gameTime,
         currentDimension: currentDimension,
-        exploredMapMain: exploredMapMain,
-        exploredMapNether: exploredMapNether,
-        buildingsMain: buildingsMain,
-        buildingsNether: buildingsNether,
-        playerPosMain: playerPosMain,
-        playerPosNether: playerPosNether
+        currentQuestId: currentQuestId, // ⚠️ 必须保存任务进度
+        
+        // --- 兼容旧版地图变量 ---
+        exploredMapMain: window.exploredMapMain || {},
+        exploredMapNether: window.exploredMapNether || {},
+        buildingsMain: window.buildingsMain || {},
+        buildingsNether: window.buildingsNether || {},
+        playerPosMain: window.playerPosMain || {x:10, y:10},
+        playerPosNether: window.playerPosNether || {x:10, y:10},
+        
+        // --- 兼容新版地图变量 ---
+        mapData: window.mapData || null
     };
+
     try {
         localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
-        log("游戏进度已保存。", "green");
-        alert("保存成功！");
         checkSaveStatus();
-    } catch (e) { alert("保存失败！"); console.error(e); }
+        // console.log("自动保存成功"); // 调试用
+    } catch (e) { 
+        console.error("保存失败:", e); 
+    }
 }
 
-function loadGame() {
+// 读档 (开局自动调用，无弹窗)
+window.loadGame = function() {
     const json = localStorage.getItem(SAVE_KEY);
-    if (!json) return alert("没有找到存档！");
-    if (!confirm("确定要读取旧存档吗？当前未保存的进度将丢失。")) return;
+    if (!json) return false; // 没有存档，返回 false
+
     try {
         const data = JSON.parse(json);
+        
+        // 恢复核心数据
         player = data.player;
         gameTime = data.gameTime;
         currentDimension = data.currentDimension;
-        exploredMapMain = data.exploredMapMain || {};
-        exploredMapNether = data.exploredMapNether || {};
-        buildingsMain = data.buildingsMain || {};
-        buildingsNether = data.buildingsNether || {};
-        playerPosMain = data.playerPosMain || {x:10, y:10};
-        playerPosNether = data.playerPosNether || {x:10, y:10};
+        currentQuestId = data.currentQuestId || 0; // 恢复任务
 
-        log("读取存档成功。", "blue");
-        document.getElementById('clock-time').innerText = `${String(gameTime.hour).padStart(2, '0')}:00`;
-        updateDayNightCycle();
-        refreshLocation(); 
-        updateStatsUI();
-        updateInventoryUI();
-        switchView('scene');
-    } catch (e) { alert("存档损坏！"); console.error(e); }
+        // 恢复地图数据 (优先尝试 mapData，如果没有则尝试旧变量)
+        if (data.mapData) {
+            mapData = data.mapData;
+        } 
+        
+        // 同时也恢复旧变量，防止报错
+        if (data.exploredMapMain) exploredMapMain = data.exploredMapMain;
+        if (data.exploredMapNether) exploredMapNether = data.exploredMapNether;
+        if (data.buildingsMain) buildingsMain = data.buildingsMain;
+        if (data.buildingsNether) buildingsNether = data.buildingsNether;
+        if (data.playerPosMain) playerPosMain = data.playerPosMain;
+        if (data.playerPosNether) playerPosNether = data.playerPosNether;
+
+        // 兼容性检查：背包是否存在
+        if (!player.inventory) player.inventory = {};
+
+        console.log("✅ 自动读档成功");
+        return true;
+    } catch (e) { 
+        console.error("存档损坏:", e); 
+        return false; 
+    }
 }
 
-function resetGame() {
-    if (confirm("⚠️ 警告：这将永久删除你的存档并重置游戏！确定吗？")) {
+// 重置 (这个还是需要确认一下，防止误删)
+window.resetGame = function() {
+    if (confirm("⚠️ 警告：要删档重来吗？")) {
         localStorage.removeItem(SAVE_KEY);
         location.reload();
     }
 }
+
+// --- ⚡️ 注入自动保存机制 ⚡️ ---
+// 劫持 passTime 函数，每次时间流逝自动存档
+const _originalPassTime = window.passTime;
+window.passTime = function(hours) {
+    if (_originalPassTime) _originalPassTime(hours); // 执行原逻辑
+    saveGame(); // 立即自动保存
+};
 
 
 // 17. 初始化与其他
