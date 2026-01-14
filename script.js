@@ -1750,26 +1750,36 @@ function checkAndClaimQuest() {
 // --- 初始化钩子 (含测试代码：开局送传送门) ---
 const originalInit = window.init; // 如果前面定义了 init，先保存引用
 
+// ==========================================
+// 系统初始化 (修复版)
+// ==========================================
 window.init = function() {
-    // 1. 执行原有的初始化逻辑 (加载存档、重置数据等)
-    // 如果没有 originalInit，说明你是第一次运行，这里可以忽略，
-    // 但为了保险，建议确保 script.js 开头有基础的 init 定义。
-    // 这里我们直接执行重置/加载逻辑：
-    if (typeof loadGame === 'function') loadGame(); 
-    if (!player.hp) resetGame(); // 如果读取失败，重置
+    console.log("正在初始化游戏...");
+
+    // 1. 尝试读取进度，如果没有则重置
+    if (typeof loadGame === 'function') {
+        loadGame();
+    }
+    
+    // 安全检查：如果数据没加载成功，强制重置
+    if (!window.player || !window.mapData) {
+        console.log("存档缺失或损坏，重置游戏...");
+        resetGame();
+    }
 
     // ==========================================
     // 🧪 测试代码：强制生成下界传送门
     // ==========================================
-    if (currentDimension === 'OVERWORLD') {
+    // 确保我们在主世界，且 mapData 结构正常
+    if (window.currentDimension === 'OVERWORLD' && window.mapData && window.mapData.OVERWORLD) {
         const key = `${player.x},${player.y}`;
         
-        // 确保数据结构存在
+        // 确保 buildings 数组存在
         if (!mapData.OVERWORLD.buildings[key]) {
             mapData.OVERWORLD.buildings[key] = [];
         }
 
-        // 检查是否已经有了，防止刷新页面重复添加
+        // 检查是否已经有了
         const hasPortal = mapData.OVERWORLD.buildings[key].some(b => b.name === "下界传送门");
         
         if (!hasPortal) {
@@ -1779,30 +1789,18 @@ window.init = function() {
     }
     // ==========================================
 
-    // 3. 刷新界面
-    renderScene();
-    updateStatsUI();
-    updateInventoryUI();
+    // 3. 刷新所有界面
+    if (typeof renderScene === 'function') renderScene();
+    if (typeof updateStatsUI === 'function') updateStatsUI();
+    if (typeof updateInventoryUI === 'function') updateInventoryUI();
 
-    // 4. 任务书弹窗 (延迟弹出)
+    // 4. 延迟弹出任务书 (防止刚进游戏太突兀)
     setTimeout(() => {
         if (typeof currentQuestId !== 'undefined' && currentQuestId === 0) {
-            openQuestModal();
+            if (typeof openQuestModal === 'function') openQuestModal();
         }
     }, 500);
-}
+};
 
-
-// 5. 战斗胜利检测 (需要在 combatAttack 里手动加，这里无法简单的覆盖)
-// 请手动去 updateCombatLogic 里，在 胜利判定 处加上：
-/*
-    const q = QUEST_DATA[currentQuestId];
-    if (q && q.type === 'kill' && q.target === currentEnemy.name) {
-         checkAndClaimQuest(); // 杀怪任务通常直接完成
-    }
-
-
-
-*/
-
+// --- 这一行非常重要，必须在文件最后调用！---
 init();
