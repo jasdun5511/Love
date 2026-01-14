@@ -808,3 +808,78 @@ body.night-mode .grid-btn.mob {
 .equip-slot span { display: block; color: #999; margin-bottom: 5px; font-size: 10px; }
 .equip-slot div { font-weight: bold; color: #333; }
 
+/* --- 任务书按钮 (左侧悬浮) --- */
+.quest-book-btn {
+    position: absolute;
+    left: 10px;
+    top: 40%; /* 垂直居中偏上 */
+    width: 40px;
+    height: 40px;
+    background: #5d4037; /* 深棕色皮质背景 */
+    border: 2px solid #ffd700; /* 金色边框 */
+    border-radius: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 50; /* 保证在最上层 */
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.5), inset 0 0 5px rgba(255, 215, 0, 0.3);
+    transition: transform 0.2s;
+}
+
+.quest-book-btn:active { transform: scale(0.9); }
+.quest-book-btn img { width: 28px; height: 28px; image-rendering: pixelated; }
+
+/* 有新任务时的红点提醒 */
+.quest-book-btn.notify::after {
+    content: "!";
+    position: absolute;
+    top: -5px; right: -5px;
+    background: #e74c3c;
+    color: white;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: bold;
+    display: flex; justify-content: center; align-items: center;
+    border: 1px solid white;
+}
+
+/* --- 任务弹窗样式 --- */
+.quest-panel {
+    background: #fdf5e6; /* 米色羊皮纸质感 */
+    padding: 20px;
+    border: 4px double #8b4513;
+    display: flex;
+    flex-direction: column;
+}
+
+.quest-header {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: #8b4513;
+    border-bottom: 2px dashed #d2b48c;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.quest-body { flex: 1; overflow-y: auto; }
+
+#quest-title { margin: 0 0 10px 0; color: #333; font-size: 16px; }
+.quest-text { font-size: 13px; line-height: 1.6; color: #555; margin-bottom: 20px; }
+
+.quest-rewards {
+    background: rgba(0,0,0,0.05);
+    padding: 10px;
+    border-radius: 5px;
+}
+.quest-rewards p { margin: 0 0 5px 0; font-weight: bold; font-size: 12px; color: #666; }
+
+.quest-footer {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
