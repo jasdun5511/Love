@@ -844,53 +844,90 @@ body.night-mode .grid-btn.mob {
     border: 1px solid white;
 }
 
-/* --- 任务弹窗样式 (已添加屏幕适配) --- */
+/* --- 任务弹窗样式 (全屏沉浸版) --- */
 .quest-panel {
-    /* 你喜欢的样式 */
+    /* 背景和边框保持你喜欢的风格 */
     background: #fdf5e6; 
     padding: 20px;
     border: 4px double #8b4513;
+    
+    /* --- 核心修改：撑满屏幕 --- */
+    width: 95%;           /* 宽度占据 95% */
+    height: 92vh;         /* 高度占据屏幕的 92% (留一点缝隙好看) */
+    
+    /* 移除之前的限制 */
+    max-width: 100%;      /* 取消最大宽度限制 */
+    max-height: 100%;     /* 取消最大高度限制 */
+    
+    /* 布局设置 */
+    margin: auto;         /* 居中 */
     display: flex;
     flex-direction: column;
-
-    /* --- 关键修复：强制限制大小，适配手机 --- */
-    width: 90%;           /* 宽度只占屏幕90% */
-    max-width: 320px;     /* 限制最大宽度，防止太宽 */
-    max-height: 80vh;     /* 高度最多占屏幕80%，防止溢出 */
-    margin: auto;         /* 自动居中 */
-    position: relative;   /* 确保定位正常 */
-    box-sizing: border-box; /* 防止padding撑大盒子 */
+    position: relative;   
+    box-sizing: border-box;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5); /* 加深阴影 */
+    border-radius: 6px;   /*稍微圆角*/
 }
 
 .quest-header {
     text-align: center;
-    font-size: 18px;
+    font-size: 20px;      /* 字体稍微大一点 */
     font-weight: bold;
     color: #8b4513;
     border-bottom: 2px dashed #d2b48c;
-    padding-bottom: 10px;
-    margin-bottom: 15px;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    flex-shrink: 0;       /* 标题不许被压缩 */
 }
 
-/* 内容区域：如果内容太长，内部滚动，而不是撑大整个屏幕 */
+/* 内容区域：自动撑开剩余空间 */
 .quest-body { 
-    flex: 1; 
-    overflow-y: auto; 
+    flex: 1;              /* 占据所有剩余高度 */
+    overflow-y: auto;     /* 内容过多时内部滚动 */
+    display: flex;
+    flex-direction: column;
 }
 
-#quest-title { margin: 0 0 10px 0; color: #333; font-size: 16px; }
-.quest-text { font-size: 13px; line-height: 1.6; color: #555; margin-bottom: 20px; }
+#quest-title { 
+    margin: 0 0 15px 0; 
+    color: #333; 
+    font-size: 18px;      /* 标题字号加大 */
+}
+
+.quest-text { 
+    font-size: 15px;      /* 正文字号加大，方便阅读 */
+    line-height: 1.8;     /* 行距加大 */
+    color: #555; 
+    margin-bottom: auto;  /* 把下方内容顶到底部 (可选) */
+}
 
 .quest-rewards {
     background: rgba(0,0,0,0.05);
-    padding: 10px;
-    border-radius: 5px;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+    flex-shrink: 0;       /* 奖励区不许被压缩 */
 }
-.quest-rewards p { margin: 0 0 5px 0; font-weight: bold; font-size: 12px; color: #666; }
 
+.quest-rewards p { 
+    margin: 0 0 8px 0; 
+    font-weight: bold; 
+    font-size: 14px; 
+    color: #666; 
+}
+
+/* 底部按钮区 */
 .quest-footer {
     margin-top: 20px;
     display: flex;
-    gap: 10px;
+    gap: 15px;
     justify-content: center;
+    flex-shrink: 0;       /* 按钮区不许被压缩 */
+    padding-bottom: 5px;
+}
+
+/* 按钮稍微大一点，方便点击 */
+.menu-btn {
+    padding: 12px 24px;   
+    font-size: 14px;
 }
