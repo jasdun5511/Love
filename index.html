@@ -39,6 +39,30 @@
             <span>存活: 扭曲邪物</span>
         </div>
 
+    <div class="quest-book-btn" onclick="openQuestModal()">
+        <img src="https://zh.minecraft.wiki/images/Enchanted_Book.gif?5e683" alt="任务">
+    </div>
+
+    <div id="quest-modal" class="modal hidden">
+        <div class="modal-content quest-panel">
+            <div class="quest-header">冒险指南</div>
+            <div class="quest-body">
+                <h3 id="quest-title">任务标题</h3>
+                <div id="quest-desc" class="quest-text">任务描述内容...</div>
+                
+                <div class="quest-rewards">
+                    <p>任务奖励:</p>
+                    <div id="quest-reward-list"></div>
+                </div>
+            </div>
+            <div class="quest-footer">
+                <button id="btn-claim-quest" class="menu-btn save" onclick="checkAndClaimQuest()">领取奖励 / 下一步</button>
+                <button class="menu-btn" onclick="closeQuestModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+
         <main class="content-area">
             
             <div id="scene-view">
