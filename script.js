@@ -1747,71 +1747,6 @@ function checkAndClaimQuest() {
     openQuestModal(); // 刷新显示下一个任务
 }
 
-// --- 钩子：在各个系统里埋点检测任务 ---
-
-// 1. 装备时检测
-const originalEquipItem = window.equipItem;
-window.equipItem = function(name) {
-    originalEquipItem(name); // 执行原逻辑
-    // 延迟检测，确保数据已更新
-    setTimeout(() => {
-        const q = QUEST_DATA[currentQuestId];
-        if (q && q.type === 'equip' && q.target === name) {
-            document.querySelector('.quest-book-btn').classList.add('notify');
-            log("任务目标达成！点击左侧书本领取奖励。", "gold");
-        }
-    }, 100);
-}
-
-// 2. 采集/制作时检测 (简单通过物品变动检测不太好做，改为手动打开任务书时检测)
-// 但为了提示玩家，我们可以在 addItemToInventory 里加个简单钩子
-const originalAddItem = window.addItemToInventory;
-window.addItemToInventory = function(name, count) {
-    originalAddItem(name, count); // 原逻辑
-    const q = QUEST_DATA[currentQuestId];
-    if (q && q.type === 'item' && q.target === name) {
-         let has = (player.inventory[name] || 0);
-         if (name === "原木") has = getInvCount("原木");
-         
-         if (has >= (q.count || 1)) {
-             document.querySelector('.quest-book-btn').classList.add('notify');
-             // 避免刷屏，不log
-         }
-    }
-}
-
-// 3. 传送时检测
-const originalUsePortal = window.usePortal;
-window.usePortal = function() {
-    originalUsePortal();
-    const q = QUEST_DATA[currentQuestId];
-    if (q && q.type === 'dimension' && currentDimension === q.target) {
-        document.querySelector('.quest-book-btn').classList.add('notify');
-        log("任务目标达成！点击左侧书本领取奖励。", "gold");
-    }
-}
-
-// 4. 初始化弹出
-const originalInit = window.init;
-window.init = function() {
-    originalInit(); // 执行原初始化
-    // 延迟一点弹出，让玩家先看到界面
-    setTimeout(() => {
-        if (currentQuestId === 0) {
-            openQuestModal();
-        }
-    }, 500);
-}
-
-// 5. 战斗胜利检测 (需要在 combatAttack 里手动加，这里无法简单的覆盖)
-// 请手动去 updateCombatLogic 里，在 胜利判定 处加上：
-/*
-    const q = QUEST_DATA[currentQuestId];
-    if (q && q.type === 'kill' && q.target === currentEnemy.name) {
-         checkAndClaimQuest(); // 杀怪任务通常直接完成
-    }
-
-
 // --- 初始化钩子 (含测试代码：开局送传送门) ---
 const originalInit = window.init; // 如果前面定义了 init，先保存引用
 
@@ -1857,7 +1792,16 @@ window.init = function() {
     }, 500);
 }
 
-*/
+
+// 5. 战斗胜利检测 (需要在 combatAttack 里手动加，这里无法简单的覆盖)
+// 请手动去 updateCombatLogic 里，在 胜利判定 处加上：
+/*
+    const q = QUEST_DATA[currentQuestId];
+    if (q && q.type === 'kill' && q.target === currentEnemy.name) {
+         checkAndClaimQuest(); // 杀怪任务通常直接完成
+    }
+
+
 
 
 
