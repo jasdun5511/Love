@@ -822,41 +822,44 @@ body.night-mode .grid-btn.mob {
     top: 0; left: 0; right: 0; bottom: 0;
 }
 
-/* --- 任务面板 (你指定的羊皮纸风格 + 屏幕适配) --- */
-.quest-panel {
-    /* --- 1. 你要求的视觉风格 (已保留) --- */
-    background: #fdf5e6; /* 米色羊皮纸质感 */
-    padding: 15px;       /* 稍微减小内边距以节省空间 */
-    border: 4px double #8b4513; /* 双线棕色边框 */
-    
-    /* --- 2. 关键修复：屏幕适配 (自动缩小) --- */
-    width: 90%;          /* 宽度只占屏幕的 90%，两边留空 */
-    max-width: 320px;    /* 限制最大宽度，防止在大屏太宽 */
-    max-height: 75vh;    /* 高度最多占屏幕高度的 75%，防止顶到底部 */
-    
+/* --- 任务弹窗样式 (已强制适配最小化) --- */
+#quest-modal {
+    background: rgba(0, 0, 0, 0.5); /* 黑色半透明背景 */
+    z-index: 200;
     display: flex;
-    flex-direction: column;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5); /* 加点阴影更立体 */
-    position: relative;  /* 相对定位 */
+    justify-content: center; /* 水平居中 */
+    align-items: center;     /* 垂直居中 */
 }
 
-/* 顶部标题 */
+.quest-panel {
+    background: #fdf5e6; /* 米色羊皮纸质感 (保持原样) */
+    padding: 15px;       /*稍微减小内边距，更紧凑 */
+    border: 4px double #8b4513; /* 双线边框 (保持原样) */
+    display: flex;
+    flex-direction: column;
+
+    /* --- 关键修改：强制缩小适配 --- */
+    width: 90%;           /* 宽度只占屏幕的 90% */
+    max-width: 320px;     /* 最大宽度锁死 320px (适配绝大多数手机) */
+    max-height: 80vh;     /* 高度最多占屏幕 80%，防止顶出去 */
+    position: relative;   /* 相对定位 */
+    margin: auto;         /* 自动居中 */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3); /* 加点阴影更立体 */
+}
+
 .quest-header {
     text-align: center;
-    font-size: 16px;     /* 稍微改小一点字号适配手机 */
+    font-size: 16px;      /* 字体稍微调小一点点适配 */
     font-weight: bold;
     color: #8b4513;
     border-bottom: 2px dashed #d2b48c;
     padding-bottom: 8px;
-    margin-bottom: 10px;
-    flex-shrink: 0;      /* 防止标题被压缩 */
+    margin-bottom: 12px;
 }
 
-/* 内容区域 (可滚动) */
-.quest-body {
-    flex: 1;             /* 占据剩余空间 */
-    overflow-y: auto;    /* 内容太长时显示滚动条，而不是撑大窗口 */
-    padding-right: 5px;  /* 给滚动条留点位置 */
+.quest-body { 
+    flex: 1; 
+    overflow-y: auto;     /* 内容多了自动出现滚动条，不撑大窗口 */
 }
 
 #quest-title { 
@@ -867,37 +870,34 @@ body.night-mode .grid-btn.mob {
 }
 
 .quest-text { 
-    font-size: 13px; 
+    font-size: 12px;      /* 字体改小，显示更多内容 */
     line-height: 1.5; 
     color: #555; 
     margin-bottom: 15px; 
 }
 
-/* 奖励框 */
 .quest-rewards {
     background: rgba(0,0,0,0.05);
     padding: 8px;
     border-radius: 4px;
-    margin-top: 10px;
-}
-.quest-rewards p { 
-    margin: 0 0 4px 0; 
-    font-weight: bold; 
-    font-size: 12px; 
-    color: #8b4513; 
 }
 
-/* 底部按钮区 */
+.quest-rewards p { 
+    margin: 0 0 5px 0; 
+    font-weight: bold; 
+    font-size: 11px; 
+    color: #666; 
+}
+
 .quest-footer {
     margin-top: 15px;
     display: flex;
     gap: 10px;
     justify-content: center;
-    flex-shrink: 0; /* 防止按钮被挤压 */
 }
 
-/* 按钮样式微调 (防止太宽) */
-.quest-footer .menu-btn {
-    padding: 8px 15px;
+/* 按钮也适配小一点 */
+.quest-footer button {
+    padding: 8px 16px;
     font-size: 12px;
 }
