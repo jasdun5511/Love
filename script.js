@@ -1470,4 +1470,276 @@ function init() {
     checkSaveStatus();
 }
 
+// ==========================================
+// 18. 任务系统 (QUEST SYSTEM)
+// ==========================================
+
+let currentQuestId = 0; // 当前进行到的任务ID
+
+// --- 剧情与任务配置表 ---
+const QUEST_DATA = [
+    {
+        id: 0,
+        title: "欢迎来到文字荒野",
+        desc: "醒来时，你发现自己身处一个陌生而荒凉的世界。四周充满着未知的危险，但你的直觉告诉你，你必须活下去。<br><br>检查你的背包，那里有一把防身的武器。",
+        type: "check", // 这种类型只需点击按钮即可完成
+        target: null,
+        rewards: [{name: "木剑", count: 1}, {name: "面包", count: 2}, {name: "水瓶", count: 1}],
+        btnText: "开始旅程"
+    },
+    {
+        id: 1,
+        title: "武装自己",
+        desc: "这个世界并不安全。打开背包（点击底部“背包”），在装备栏中<b>装备木剑</b>。<br>只有手中握着武器，你才有底气面对怪物的嘶吼。",
+        type: "equip",
+        target: "木剑",
+        rewards: [{name: "苹果", count: 3}, {name: "经验瓶", count: 1}],
+        btnText: "领取奖励"
+    },
+    {
+        id: 2,
+        title: "生存第一步",
+        desc: "你需要资源来制作工具。去砍一些树，收集<b>3个原木</b>。<br>（点击“探索”页面的橡树或云杉）",
+        type: "item",
+        target: "原木",
+        count: 3,
+        rewards: [{name: "木镐", count: 1}, {name: "工作台", count: 1}],
+        btnText: "领取奖励"
+    },
+    {
+        id: 3,
+        title: "工欲善其事",
+        desc: "有了木镐，你可以开采石头了。找个地方<b>放置工作台</b>，然后去采集石料。<br>利用工作台制作一把<b>石镐</b>。",
+        type: "item", // 检测背包里是否有石镐
+        target: "石镐",
+        count: 1,
+        rewards: [{name: "熟牛肉", count: 2}, {name: "煤炭", count: 5}],
+        btnText: "领取奖励"
+    },
+    {
+        id: 4,
+        title: "铁器时代",
+        desc: "木石工具太脆弱了。去寻找<b>铁矿石</b>，并制作一个<b>熔炉</b>来烧炼铁锭。<br>目标：获得<b>3个铁锭</b>。",
+        type: "item",
+        target: "铁锭",
+        count: 3,
+        rewards: [{name: "铁桶", count: 1}, {name: "盾牌", count: 1}], // 送个盾牌保命
+        btnText: "领取奖励"
+    },
+    {
+        id: 5,
+        title: "全副武装",
+        desc: "怪物在夜间变得更加凶猛。你需要一套护甲。<br>制作并装备<b>铁盔甲</b>。",
+        type: "equip",
+        target: "铁盔甲",
+        rewards: [{name: "金苹果", count: 1}, {name: "经验瓶", count: 2}],
+        btnText: "领取奖励"
+    },
+    {
+        id: 6,
+        title: "寻找珍宝",
+        desc: "传闻地底深处埋藏着蓝色的宝石。前往<b>矿井</b>或深层地下，寻找<b>钻石</b>！<br>拥有了钻石，你就拥有了挑战强者的资格。",
+        type: "item",
+        target: "钻石",
+        count: 1,
+        rewards: [{name: "钻石", count: 2}, {name: "书架", count: 1}], // 送2个凑够3个做镐
+        btnText: "领取奖励"
+    },
+    {
+        id: 7,
+        title: "黑曜石之门",
+        desc: "你需要前往下界寻找更强的力量。用水桶浇灭岩浆获得<b>黑曜石</b>。<br>收集10个黑曜石，并制作<b>打火石</b>。",
+        type: "item",
+        target: "黑曜石",
+        count: 10,
+        rewards: [{name: "打火石", count: 1}, {name: "抗火药水", count: 1}],
+        btnText: "领取奖励"
+    },
+    {
+        id: 8,
+        title: "深入地狱",
+        desc: "搭建并激活下界传送门（在建筑栏放置），然后<b>进入下界</b>。<br>警告：那里充满了岩浆和危险的猪人。",
+        type: "dimension",
+        target: "NETHER",
+        rewards: [{name: "金锭", count: 5}], // 猪人这就别打了，给点金子交易
+        btnText: "领取奖励"
+    },
+    {
+        id: 9,
+        title: "烈焰的试炼",
+        desc: "在下界的熔岩海寻找烈焰人，击败它们获得<b>烈焰棒</b>。<br>这是通往末地的钥匙。",
+        type: "item",
+        target: "烈焰棒",
+        count: 1,
+        rewards: [{name: "末影珍珠", count: 3}, {name: "力量药水", count: 1}],
+        btnText: "领取奖励"
+    },
+    {
+        id: 10,
+        title: "终末之眼",
+        desc: "合成<b>12个末影之眼</b>（需要烈焰粉和末影珍珠）。<br>万事俱备，只欠东风。",
+        type: "item",
+        target: "末影之眼", // 需确认 items.js 有这个，如果没有可以暂用“末影珍珠”代替逻辑
+        count: 12,
+        rewards: [{name: "金苹果", count: 5}, {name: "钻石剑", count: 1}], // 决战物资
+        btnText: "前往末地" // 特殊逻辑
+    },
+    {
+        id: 11,
+        title: "屠龙者",
+        desc: "击败<b>末影龙</b>！<br>结束这一切，成为这个世界的传说。",
+        type: "kill",
+        target: "末影龙",
+        rewards: [{name: "龙蛋", count: 1}],
+        btnText: "通关游戏"
+    }
+];
+
+// --- 任务逻辑函数 ---
+
+function openQuestModal() {
+    const modal = document.getElementById('quest-modal');
+    const quest = QUEST_DATA[currentQuestId];
+    
+    if (!quest) {
+        document.getElementById('quest-title').innerText = "通关！";
+        document.getElementById('quest-desc').innerHTML = "你已经完成了所有任务，成为了这个世界的传说！<br>现在，你可以自由地探索、建筑，享受退休生活了。";
+        document.getElementById('quest-reward-list').innerHTML = "无";
+        document.getElementById('btn-claim-quest').style.display = "none";
+    } else {
+        document.getElementById('quest-title').innerText = `任务 ${quest.id}: ${quest.title}`;
+        document.getElementById('quest-desc').innerHTML = quest.desc;
+        document.getElementById('btn-claim-quest').innerText = quest.btnText;
+        document.getElementById('btn-claim-quest').style.display = "block";
+        document.getElementById('btn-claim-quest').disabled = !checkQuestCondition(quest);
+
+        // 渲染奖励列表
+        const rewardDiv = document.getElementById('quest-reward-list');
+        rewardDiv.innerHTML = "";
+        quest.rewards.forEach(r => {
+            let icon = ITEM_ICONS[r.name] ? `<img src="${ITEM_ICONS[r.name]}" style="width:16px;vertical-align:middle">` : "";
+            rewardDiv.innerHTML += `<div>${icon} ${r.name} x${r.count}</div>`;
+        });
+        
+        // 初始任务特殊处理：总是激活按钮
+        if (quest.id === 0) document.getElementById('btn-claim-quest').disabled = false;
+    }
+    
+    modal.classList.remove('hidden');
+    // 移除小红点
+    document.querySelector('.quest-book-btn').classList.remove('notify');
+}
+
+function closeQuestModal() {
+    document.getElementById('quest-modal').classList.add('hidden');
+}
+
+function checkQuestCondition(quest) {
+    if (quest.type === 'check') return true;
+    if (quest.type === 'item') {
+        // 检测背包或装备栏
+        let count = (player.inventory[quest.target] || 0);
+        if (player.equipWeapon === quest.target) count = 1; // 装备着也算
+        // 特殊：原木检测
+        if (quest.target === "原木") count = getInvCount("原木");
+        return count >= (quest.count || 1);
+    }
+    if (quest.type === 'equip') {
+        return player.equipWeapon === quest.target || player.equipArmor === quest.target;
+    }
+    if (quest.type === 'dimension') {
+        return currentDimension === quest.target;
+    }
+    // 'kill' 类型在战斗胜利时触发
+    return false;
+}
+
+function checkAndClaimQuest() {
+    const quest = QUEST_DATA[currentQuestId];
+    if (!quest) return;
+
+    // 再次检查条件（防作弊）
+    if (quest.id !== 0 && !checkQuestCondition(quest)) {
+        log("任务条件未达成！请仔细阅读说明。", "red");
+        return;
+    }
+
+    // 发放奖励
+    quest.rewards.forEach(r => {
+        addItemToInventory(r.name, r.count);
+    });
+    log(`✨ 完成任务：${quest.title}！`, "gold");
+    
+    // 推进任务
+    currentQuestId++;
+    openQuestModal(); // 刷新显示下一个任务
+}
+
+// --- 钩子：在各个系统里埋点检测任务 ---
+
+// 1. 装备时检测
+const originalEquipItem = window.equipItem;
+window.equipItem = function(name) {
+    originalEquipItem(name); // 执行原逻辑
+    // 延迟检测，确保数据已更新
+    setTimeout(() => {
+        const q = QUEST_DATA[currentQuestId];
+        if (q && q.type === 'equip' && q.target === name) {
+            document.querySelector('.quest-book-btn').classList.add('notify');
+            log("任务目标达成！点击左侧书本领取奖励。", "gold");
+        }
+    }, 100);
+}
+
+// 2. 采集/制作时检测 (简单通过物品变动检测不太好做，改为手动打开任务书时检测)
+// 但为了提示玩家，我们可以在 addItemToInventory 里加个简单钩子
+const originalAddItem = window.addItemToInventory;
+window.addItemToInventory = function(name, count) {
+    originalAddItem(name, count); // 原逻辑
+    const q = QUEST_DATA[currentQuestId];
+    if (q && q.type === 'item' && q.target === name) {
+         let has = (player.inventory[name] || 0);
+         if (name === "原木") has = getInvCount("原木");
+         
+         if (has >= (q.count || 1)) {
+             document.querySelector('.quest-book-btn').classList.add('notify');
+             // 避免刷屏，不log
+         }
+    }
+}
+
+// 3. 传送时检测
+const originalUsePortal = window.usePortal;
+window.usePortal = function() {
+    originalUsePortal();
+    const q = QUEST_DATA[currentQuestId];
+    if (q && q.type === 'dimension' && currentDimension === q.target) {
+        document.querySelector('.quest-book-btn').classList.add('notify');
+        log("任务目标达成！点击左侧书本领取奖励。", "gold");
+    }
+}
+
+// 4. 初始化弹出
+const originalInit = window.init;
+window.init = function() {
+    originalInit(); // 执行原初始化
+    // 延迟一点弹出，让玩家先看到界面
+    setTimeout(() => {
+        if (currentQuestId === 0) {
+            openQuestModal();
+        }
+    }, 500);
+}
+
+// 5. 战斗胜利检测 (需要在 combatAttack 里手动加，这里无法简单的覆盖)
+// 请手动去 updateCombatLogic 里，在 胜利判定 处加上：
+/*
+    const q = QUEST_DATA[currentQuestId];
+    if (q && q.type === 'kill' && q.target === currentEnemy.name) {
+         checkAndClaimQuest(); // 杀怪任务通常直接完成
+    }
+*/
+
+
+
 init();
