@@ -377,14 +377,13 @@ function renderScene() {
 
 
 
-// 8. 交互：资源采集 (集成：宝箱、镐子限制、惊扰修正)
+// 8. 交互：资源采集 (修正：接水提示明确化)
 // ------------------------------------------
 function collectResource(index) {
     if (!currentSceneItems || !currentSceneItems[index]) return;
     const item = currentSceneItems[index];
 
-    // 1. 采集惊扰机制 (10% 概率，但宝箱不会变成怪)
-    // ------------------------------------------
+    // 1. 采集惊扰机制 (10% 概率，宝箱除外)
     if (Math.random() < 0.1 && item.name !== "宝箱") {
         const biomeKey = getBiome(player.x, player.y);
         const biome = BIOMES[biomeKey];
@@ -392,10 +391,9 @@ function collectResource(index) {
         
         log(`💥 采集的动静引来了 ${mobTemplate.name}！`, "orange");
         
-        // 生成怪物 (名字不加前缀，确保图片显示)
         let mob = { 
             type: 'mob', 
-            name: mobTemplate.name, // <--- 修正：原名
+            name: mobTemplate.name, 
             level: player.level, 
             hp: mobTemplate.hp, 
             maxHp: mobTemplate.hp, 
@@ -408,17 +406,14 @@ function collectResource(index) {
         return; 
     }
 
-    // 2. 宝箱逻辑 (必得食物，概率得杂项/稀有矿)
-    // ------------------------------------------
+    // 2. 宝箱逻辑
     if (item.name === "宝箱") {
         log("📦 打开了宝箱...", "gold");
-        // 必得食物
         const foods = ["面包", "熟牛肉", "苹果", "金苹果"];
         let food = foods[Math.floor(Math.random() * foods.length)];
         addItemToInventory(food, Math.floor(Math.random()*2)+1);
         log(`获得了 ${food}`);
 
-        // 概率资源
         if (Math.random() < 0.6) { addItemToInventory("煤炭", Math.floor(Math.random()*3)+1); log("获得了 煤炭"); }
         if (Math.random() < 0.4) { addItemToInventory("经验瓶", 1); log("获得了 ✨经验瓶✨", "purple"); }
         if (Math.random() < 0.2) { addItemToInventory("绿宝石", 1); log("获得了 💎绿宝石", "green"); }
@@ -429,7 +424,6 @@ function collectResource(index) {
     }
 
     // 3. 镐子挖掘等级限制
-    // ------------------------------------------
     const ORE_LEVEL = {
         "石头": 1, "煤炭": 1, 
         "铁矿石": 2, "青石矿": 2,
@@ -456,7 +450,6 @@ function collectResource(index) {
     }
 
     // 4. 普通资源采集逻辑
-    // ------------------------------------------
     if (item.name === "橡树") { doCollectWork(); addItemToInventory("橡木原木", 1); log("砍倒了橡树，获得 橡木原木。", "green"); finishCollect(index, item); return; }
     if (item.name === "云杉") { doCollectWork(); addItemToInventory("云杉原木", 1); log("砍倒了云杉，获得 云杉原木。", "green"); finishCollect(index, item); return; }
     if (item.name === "小麦") { doCollectWork(); addItemToInventory("小麦", 1); addItemToInventory("小麦种子", 2); log("收割了小麦。", "gold"); finishCollect(index, item); return; }
@@ -466,10 +459,10 @@ function collectResource(index) {
         finishCollect(index, item); return; 
     }
     
-    // 矿物采集 (通过等级检测后)
+    // 矿物采集
     if (ORE_LEVEL[item.name] || item.name === "绿宝石矿") {
         doCollectWork();
-        let drop = item.name.replace("矿石", "").replace("矿", ""); // 简化掉落名
+        let drop = item.name.replace("矿石", "").replace("矿", ""); 
         if(item.name==="石头") drop="石头";
         addItemToInventory(drop, 1);
         addExp(2);
@@ -478,12 +471,26 @@ function collectResource(index) {
         return;
     }
 
-    // 液体
-    if (item.name === "岩浆源") { if (!player.inventory["铁桶"]) { log("需[铁桶]。", "red"); return; } player.inventory["铁桶"]--; addItemToInventory("岩浆桶", 1); finishCollect(index, item); return; }
+    // 液体采集
+    if (item.name === "岩浆源") { 
+        if (!player.inventory["铁桶"]) { log("太烫了！需[铁桶]。", "red"); return; } 
+        player.inventory["铁桶"]--; addItemToInventory("岩浆桶", 1); finishCollect(index, item); return; 
+    }
+    
+    // --- 修改点：接水提示更明确 ---
     if (item.name === "水") { 
-        if (player.inventory["铁桶"]) { player.inventory["铁桶"]--; addItemToInventory("水", 1); } 
-        else if (player.inventory["玻璃瓶"]) { player.inventory["玻璃瓶"]--; addItemToInventory("水瓶", 1); } 
-        else { log("需容器。", "red"); return; }
+        if (player.inventory["铁桶"]) { 
+            player.inventory["铁桶"]--; addItemToInventory("水", 1); 
+            log("装了一桶水。", "blue");
+        } 
+        else if (player.inventory["玻璃瓶"]) { 
+            player.inventory["玻璃瓶"]--; addItemToInventory("水瓶", 1); 
+            log("装了一瓶水。", "blue");
+        } 
+        else { 
+            log("需要 [玻璃瓶] 或 [铁桶] 才能装水。", "red"); 
+            return; 
+        }
         finishCollect(index, item); return;
     }
 
@@ -495,6 +502,7 @@ function collectResource(index) {
     finishCollect(index, item); 
     if (!FLOWER_TYPES.includes(item.name)) log(`采集了 1个 ${item.name}`);
 }
+
 
 // 辅助：移除物品逻辑
 function finishCollect(index, item) {
