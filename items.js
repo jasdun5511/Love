@@ -105,7 +105,7 @@ const ITEM_ICONS = {
     // 食物与杂项
     "谜之炖菜": "https://zh.minecraft.wiki/images/Suspicious_Stew_JE1_BE1.png",
     "生牛肉": "https://zh.minecraft.wiki/images/Raw_Beef_JE4_BE3.png",
-    "熟牛肉": "https://zh.minecraft.wiki/images/Steak_JE4_BE3.png",
+    "熟牛肉": "https://zh.minecraft.wiki/images/Steak_JE3_BE3.png?0d524",
     "生猪排": "https://zh.minecraft.wiki/images/Raw_Porkchop_JE4_BE3.png",
     "烤猪排": "https://zh.minecraft.wiki/images/Cooked_Porkchop_JE4_BE3.png",
     "生羊肉": "https://zh.minecraft.wiki/images/Raw_Mutton_JE3_BE2.png",
@@ -149,7 +149,7 @@ const ITEM_ICONS = {
     // --- 新增：矿井与宝箱 ---
     "矿井": "https://zh.minecraft.wiki/images/Stone_JE5_BE3.png", // 地形图标
     "宝箱": "https://zh.minecraft.wiki/images/Chest_JE2_BE3.gif?4e19c",
-    "经验瓶": "https://zh.minecraft.wiki/images/Experience_Bottle_JE2_BE2.png",
+    "经验瓶": "https://zh.minecraft.wiki/images/Bottle_o%27_Enchanting.gif?21a90",
     
     // --- 新增：怪物 ---
     "毒蜘蛛": "https://zh.minecraft.wiki/images/Cave_Spider_JE2_BE2.png",
