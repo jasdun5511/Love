@@ -1611,40 +1611,77 @@ const QUEST_DATA = [
     }
 ];
 
-// --- 任务逻辑函数 ---
-
+// --- 任务弹窗逻辑 (简约版 + 状态检测) ---
 function openQuestModal() {
     const modal = document.getElementById('quest-modal');
     const quest = QUEST_DATA[currentQuestId];
     
-    if (!quest) {
-        document.getElementById('quest-title').innerText = "通关！";
-        document.getElementById('quest-desc').innerHTML = "你已经完成了所有任务，成为了这个世界的传说！<br>现在，你可以自由地探索、建筑，享受退休生活了。";
-        document.getElementById('quest-reward-list').innerHTML = "无";
-        document.getElementById('btn-claim-quest').style.display = "none";
-    } else {
-        document.getElementById('quest-title').innerText = `任务 ${quest.id}: ${quest.title}`;
-        document.getElementById('quest-desc').innerHTML = quest.desc;
-        document.getElementById('btn-claim-quest').innerText = quest.btnText;
-        document.getElementById('btn-claim-quest').style.display = "block";
-        document.getElementById('btn-claim-quest').disabled = !checkQuestCondition(quest);
+    // 获取DOM元素
+    const titleEl = document.getElementById('quest-title');
+    const descEl = document.getElementById('quest-desc');
+    const progressEl = document.getElementById('quest-progress'); // 显示进度
+    const rewardEl = document.getElementById('quest-reward-list');
+    const btnEl = document.getElementById('btn-claim-quest');
 
-        // 渲染奖励列表
-        const rewardDiv = document.getElementById('quest-reward-list');
-        rewardDiv.innerHTML = "";
+    if (!quest) {
+        // 通关状态
+        titleEl.innerText = "传奇终章";
+        descEl.innerHTML = "<b>你已完成所有冒险！</b><br>现在你可以自由探索这个世界了。";
+        progressEl.innerText = "";
+        rewardEl.innerHTML = "无";
+        btnEl.style.display = "none";
+    } else {
+        // 正常任务
+        titleEl.innerText = `${quest.id + 1}. ${quest.title}`;
+        descEl.innerHTML = quest.desc;
+        btnEl.style.display = "block";
+
+        // 1. 渲染奖励列表
+        rewardEl.innerHTML = "";
         quest.rewards.forEach(r => {
-            let icon = ITEM_ICONS[r.name] ? `<img src="${ITEM_ICONS[r.name]}" style="width:16px;vertical-align:middle">` : "";
-            rewardDiv.innerHTML += `<div>${icon} ${r.name} x${r.count}</div>`;
+            let icon = ITEM_ICONS[r.name] ? `<img src="${ITEM_ICONS[r.name]}" style="width:16px;vertical-align:middle">` : "🎁";
+            rewardEl.innerHTML += `<div style="font-size:12px; margin-bottom:2px;">${icon} ${r.name} x${r.count}</div>`;
         });
+
+        // 2. 检查任务状态 & 设置按钮样式
+        const isFinished = checkQuestCondition(quest);
         
-        // 初始任务特殊处理：总是激活按钮
-        if (quest.id === 0) document.getElementById('btn-claim-quest').disabled = false;
+        // 生成进度文字 (例如: 收集 原木 0/3)
+        let progressText = "";
+        if (quest.type === 'item') {
+            let current = player.inventory[quest.target] || 0;
+            if (quest.target === "原木") current = getInvCount("原木");
+            let req = quest.count || 1;
+            let color = current >= req ? "#2ecc71" : "#e74c3c"; // 绿/红
+            progressText = `进度: <span style="color:${color}">${current} / ${req}</span>`;
+        } else if (quest.type === 'equip') {
+            let done = (player.equipWeapon === quest.target || player.equipArmor === quest.target);
+            progressText = done ? `<span style="color:#2ecc71">✅ 已装备</span>` : `<span style="color:#e74c3c">❌ 未装备</span>`;
+        }
+        progressEl.innerHTML = progressText;
+
+        // 设置按钮状态
+        if (isFinished || quest.id === 0) { // 第一个任务默认激活
+            btnEl.innerText = quest.btnText || "领取奖励";
+            btnEl.disabled = false; // 启用
+            // 恢复绿色样式
+            btnEl.style.backgroundColor = ""; 
+            btnEl.style.color = "";
+            btnEl.style.borderColor = "";
+        } else {
+            btnEl.innerText = "未完成";
+            btnEl.disabled = true; // 禁用
+            // 强制灰色样式 (虽然CSS写了disabled样式，这里双重保险)
+            btnEl.style.backgroundColor = "#eee";
+            btnEl.style.color = "#aaa";
+            btnEl.style.borderColor = "#ddd";
+        }
     }
     
     modal.classList.remove('hidden');
-    // 移除小红点
     document.querySelector('.quest-book-btn').classList.remove('notify');
 }
+
 
 function closeQuestModal() {
     document.getElementById('quest-modal').classList.add('hidden');
