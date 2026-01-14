@@ -883,3 +883,83 @@ body.night-mode .grid-btn.mob {
     justify-content: center;
 }
 
+/* --- 任务弹窗样式 (修复适配版) --- */
+.quest-panel {
+    background: #fff; /* 纯白背景，像第二张截图那样干净 */
+    padding: 15px;
+    border-radius: 8px;
+    
+    /* 屏幕适配关键代码 */
+    width: 90%;          /* 占据屏幕宽度的90% */
+    max-width: 350px;    /* 但最大不超过350px */
+    max-height: 80vh;    /* 最大高度不超过屏幕的80% */
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    
+    /* 确保弹窗居中 */
+    position: relative; 
+    margin: auto; 
+}
+
+.quest-header {
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: #d35400; /* 冒险指南的橙色标题 */
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f9f9f9;
+}
+
+.quest-body {
+    flex: 1;
+    overflow-y: auto; /* 内容多了可以滚动 */
+    padding: 10px 0;
+}
+
+#quest-title { margin: 0 0 5px 0; font-size: 15px; color: #333; }
+.quest-text { font-size: 13px; line-height: 1.5; color: #666; margin-bottom: 15px; }
+
+.quest-rewards {
+    background: #fdfdfd;
+    border: 1px solid #eee;
+    padding: 10px;
+    border-radius: 5px;
+}
+.quest-rewards p { margin: 0 0 5px 0; font-size: 11px; color: #999; }
+
+.quest-footer {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+/* 按钮状态样式 */
+/* 未完成状态：灰色、不可点 */
+button:disabled {
+    background-color: #eee !important;
+    color: #aaa !important;
+    border-color: #ddd !important;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* 任务书按钮 (保持不变，左侧悬浮) */
+.quest-book-btn {
+    position: absolute; left: 10px; top: 40%;
+    width: 40px; height: 40px;
+    background: #5d4037; border: 2px solid #ffd700;
+    border-radius: 6px;
+    display: flex; justify-content: center; align-items: center;
+    cursor: pointer; z-index: 50;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+}
+.quest-book-btn.notify::after {
+    content: "!"; position: absolute; top: -5px; right: -5px;
+    background: #e74c3c; color: white; width: 16px; height: 16px;
+    border-radius: 50%; font-size: 10px; font-weight: bold;
+    display: flex; justify-content: center; align-items: center; border: 1px solid white;
+}
+
+
