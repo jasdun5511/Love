@@ -1810,6 +1810,53 @@ window.init = function() {
     if (q && q.type === 'kill' && q.target === currentEnemy.name) {
          checkAndClaimQuest(); // 杀怪任务通常直接完成
     }
+
+
+// --- 初始化钩子 (含测试代码：开局送传送门) ---
+const originalInit = window.init; // 如果前面定义了 init，先保存引用
+
+window.init = function() {
+    // 1. 执行原有的初始化逻辑 (加载存档、重置数据等)
+    // 如果没有 originalInit，说明你是第一次运行，这里可以忽略，
+    // 但为了保险，建议确保 script.js 开头有基础的 init 定义。
+    // 这里我们直接执行重置/加载逻辑：
+    if (typeof loadGame === 'function') loadGame(); 
+    if (!player.hp) resetGame(); // 如果读取失败，重置
+
+    // ==========================================
+    // 🧪 测试代码：强制生成下界传送门
+    // ==========================================
+    if (currentDimension === 'OVERWORLD') {
+        const key = `${player.x},${player.y}`;
+        
+        // 确保数据结构存在
+        if (!mapData.OVERWORLD.buildings[key]) {
+            mapData.OVERWORLD.buildings[key] = [];
+        }
+
+        // 检查是否已经有了，防止刷新页面重复添加
+        const hasPortal = mapData.OVERWORLD.buildings[key].some(b => b.name === "下界传送门");
+        
+        if (!hasPortal) {
+            mapData.OVERWORLD.buildings[key].push({ name: "下界传送门", content: {} });
+            log("🧪 测试模式：已在脚下生成 [下界传送门]！", "purple");
+        }
+    }
+    // ==========================================
+
+    // 3. 刷新界面
+    renderScene();
+    updateStatsUI();
+    updateInventoryUI();
+
+    // 4. 任务书弹窗 (延迟弹出)
+    setTimeout(() => {
+        if (typeof currentQuestId !== 'undefined' && currentQuestId === 0) {
+            openQuestModal();
+        }
+    }, 500);
+}
+
 */
 
 
