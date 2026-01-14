@@ -22,7 +22,7 @@ const ITEM_ICONS = {
     "小麦种子": "https://zh.minecraft.wiki/images/Wheat_Seeds_JE2_BE2.png",
     "蒲公英": "https://zh.minecraft.wiki/images/Dandelion_JE7_BE4.png?80f41",
     "兰花": "https://zh.minecraft.wiki/images/Blue_Orchid_JE2_BE2.png",
-    "蘑菇": "https://zh.minecraft.wiki/images/Cactus_JE4.png?36286",
+    "蘑菇": "https://zh.minecraft.wiki/images/Red_Mushroom_JE2_BE2.png?d427f",
     "仙人掌": "https://zh.minecraft.wiki/images/Cactus_JE4.png?36286",
     "枯灌木": "https://zh.minecraft.wiki/images/Dead_Bush_JE2_BE2.png",
     "藤蔓": "https://zh.minecraft.wiki/images/Vines_JE3_BE2.png",
@@ -223,7 +223,7 @@ const RECIPES = [
     // === 核心工具 ===
     { name: "打火石", req: { "铁锭": 1, "燧石": 1 }, type: "item", desc: "点火工具", station: "workbench" },
     { name: "铁桶", req: { "铁锭": 3 }, type: "item", desc: "装流体用", station: "workbench" },
-    { name: "黑曜石", req: { "岩浆桶": 1, "水": 1 }, type: "item", desc: "坚硬方块" },
+    
 
     // === 镐子 ===
     { name: "木镐", req: { "木棍": 2, "原木": 3 }, type: "equip", effect: "tool", val: 1, desc: "采矿工具 LV1", station: "workbench" },
