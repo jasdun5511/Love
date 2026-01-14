@@ -679,6 +679,22 @@ function combatAttack() {
         const loot = currentEnemy.loot;
         const expGain = (currentEnemy.baseExp || 5) + currentEnemy.level * 2;
         combatLog(`胜利！获得 ${loot}，EXP +${expGain}`, "gold");
+
+    // ... 在 combatLog("胜利！...") 后面添加：
+
+    // --- 任务检测 ---
+    if (typeof QUEST_DATA !== 'undefined') {
+        const q = QUEST_DATA[currentQuestId];
+        // 如果是击杀末影龙的任务
+        if (q && q.type === 'kill' && currentEnemy.name === q.target) {
+            log("🏆 恭喜！你击败了末影龙！", "gold");
+            // 这里可以做一个更华丽的通关结算，暂时先直接完成任务
+            checkAndClaimQuest();
+        }
+    }
+    
+    // ... 继续原本的 addItemToInventory ...
+
         
         addItemToInventory(loot, 1);
         addExp(expGain); 
