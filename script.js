@@ -1522,11 +1522,12 @@ const QUEST_DATA = [
         rewards: [{name: "木镐", count: 1}, {name: "工作台", count: 1}],
         btnText: "领取奖励"
     },
+     // ... 前面的任务 ...
     {
         id: 3,
         title: "工欲善其事",
-        desc: "有了木镐，你可以开采石头了。找个地方<b>放置工作台</b>，然后去采集石料。<br>利用工作台制作一把<b>石镐</b>。",
-        type: "item", // 检测背包里是否有石镐
+        desc: "有了木镐，你可以开采石头了。制作一个<b>工作台</b>。<br><b>注意：</b>工作台不需要放置，<span style='color:#d35400'>只要放在背包里</span>，就能随时解锁石制工具的制作。",
+        type: "item", 
         target: "石镐",
         count: 1,
         rewards: [{name: "熟牛肉", count: 2}, {name: "煤炭", count: 5}],
@@ -1535,13 +1536,15 @@ const QUEST_DATA = [
     {
         id: 4,
         title: "铁器时代",
-        desc: "木石工具太脆弱了。去寻找<b>铁矿石</b>，并制作一个<b>熔炉</b>来烧炼铁锭。<br>目标：获得<b>3个铁锭</b>。",
+        desc: "木石工具太脆弱了。去寻找<b>铁矿石</b>，并制作一个<b>熔炉</b>。<br><b>注意：</b>熔炉同样<span style='color:#d35400'>放在背包里</span>即可解锁烧炼功能。",
         type: "item",
         target: "铁锭",
         count: 3,
-        rewards: [{name: "铁桶", count: 1}, {name: "盾牌", count: 1}], // 送个盾牌保命
+        rewards: [{name: "铁桶", count: 1}, {name: "盾牌", count: 1}],
         btnText: "领取奖励"
     },
+    // ... 后面的任务 ...
+
     {
         id: 5,
         title: "全副武装",
