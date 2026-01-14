@@ -1032,24 +1032,41 @@ function updateInventoryUI() {
 }
 
 
-// 11. 交互：制作系统
+// 11. 交互：制作系统 (已修正：背包持有工作台/熔炉即可解锁)
 // ------------------------------------------
-window.setCraftFilter = (f, b) => { currentCraftFilter = f; document.querySelectorAll('#craft-view .tab-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); updateCraftUI(); }
+window.setCraftFilter = (f, b) => { 
+    currentCraftFilter = f; 
+    document.querySelectorAll('#craft-view .tab-btn').forEach(x=>x.classList.remove('active')); 
+    b.classList.add('active'); 
+    updateCraftUI(); 
+}
 
 function updateCraftUI() {
     const list = document.getElementById('craft-list');
+    if (!list) return;
     list.innerHTML = '';
-    const nearWorkbench = hasStation('workbench');
-    const nearFurnace = hasStation('furnace');
+
+    // --- 核心逻辑修改：从背包检测是否有工作台和熔炉 ---
+    const hasWorkbench = (player.inventory["工作台"] || 0) > 0;
+    const hasFurnace = (player.inventory["熔炉"] || 0) > 0;
 
     RECIPES.forEach(recipe => {
         let show = false;
         if (currentCraftFilter === 'all') show = true;
         else if (currentCraftFilter === 'equip' && recipe.type === 'equip') show = true;
-        else if (currentCraftFilter === 'food' && recipe.type === 'use') show = true;
+        else if (currentCraftFilter === 'food' && (recipe.effect === 'food' || recipe.effect === 'drink' || recipe.effect === 'heal' || recipe.effect === 'super_food' || recipe.name === "谜之炖菜")) show = true;
         else if (currentCraftFilter === 'build' && (recipe.type === 'build' || recipe.type === 'item')) show = true;
 
         if (show) {
+            // 检测是否满足站点需求 (工作台/熔炉)
+            let stationMissing = false;
+            let missingMsg = "";
+            if (recipe.station === 'workbench' && !hasWorkbench) { stationMissing = true; missingMsg = "需持有:工作台"; }
+            if (recipe.station === 'furnace' && !hasFurnace) { stationMissing = true; missingMsg = "需持有:熔炉"; }
+
+            // 如果缺少站点，不显示该配方 (或者你可以根据喜好改为 opacity:0.6)
+            if (stationMissing) return; 
+
             const row = document.createElement('div');
             row.className = 'list-item';
             let icon = ITEM_ICONS[recipe.name] ? `<img src="${ITEM_ICONS[recipe.name]}" class="item-icon">` : "";
@@ -1065,20 +1082,14 @@ function updateCraftUI() {
                 reqStr.push(`<span style="color:${has >= qty ? '#2ecc71' : '#e74c3c'}">${displayName} ${has}/${qty}</span>`);
                 if (has < qty) canCraft = false;
             }
-
-            let missingMsg = "";
-            let stationMissing = false;
-            if (recipe.station === 'workbench' && !nearWorkbench) { stationMissing = true; missingMsg = "需:工作台"; canCraft = false; }
-            if (recipe.station === 'furnace' && !nearFurnace) { stationMissing = true; missingMsg = "需:熔炉"; canCraft = false; }
             
             row.innerHTML = `
-                <div style="flex:1; display:flex; align-items:center; gap:10px; opacity:${stationMissing ? 0.6 : 1}">
+                <div style="flex:1; display:flex; align-items:center; gap:10px;">
                     ${icon}
                     <div>
                         <div style="font-weight:bold;font-size:12px;">${recipe.name}</div>
                         <div style="font-size:10px;color:#999;">${recipe.desc || ""}</div>
                         <div style="font-size:10px;background:#f9f9f9;">${reqStr.join(' ')}</div>
-                        ${stationMissing ? `<div style="font-size:10px;color:red;">⚠️ ${missingMsg}</div>` : ""}
                     </div>
                 </div>`;
             
@@ -1094,8 +1105,12 @@ function updateCraftUI() {
 }
 
 function craftItem(recipe) {
-    if (recipe.station === 'workbench' && !hasStation('workbench')) return log("这里没有工作台！", "red");
-    if (recipe.station === 'furnace' && !hasStation('furnace')) return log("这里没有熔炉！", "red");
+    // 同样在执行制作时进行背包检测
+    const hasWorkbench = (player.inventory["工作台"] || 0) > 0;
+    const hasFurnace = (player.inventory["熔炉"] || 0) > 0;
+
+    if (recipe.station === 'workbench' && !hasWorkbench) return log("你需要背包里有工作台！", "red");
+    if (recipe.station === 'furnace' && !hasFurnace) return log("你需要背包里有熔炉！", "red");
 
     for (let [mat, qty] of Object.entries(recipe.req)) { 
         if(getInvCount(mat) < qty) return; 
