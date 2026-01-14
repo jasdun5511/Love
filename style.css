@@ -808,96 +808,89 @@ body.night-mode .grid-btn.mob {
 .equip-slot span { display: block; color: #999; margin-bottom: 5px; font-size: 10px; }
 .equip-slot div { font-weight: bold; color: #333; }
 
-/* --- 任务弹窗容器 (确保居中) --- */
-#quest-modal {
-    background: rgba(0, 0, 0, 0.6); /* 深色遮罩 */
-    z-index: 200;
-    
-    /* 关键：使用 Flex 布局强制居中 */
-    display: flex; 
+/* --- 任务书按钮 (左侧悬浮) - 保持原样 --- */
+.quest-book-btn {
+    position: absolute;
+    left: 10px;
+    top: 40%; 
+    width: 40px;
+    height: 40px;
+    background: #5d4037; 
+    border: 2px solid #ffd700; 
+    border-radius: 6px;
+    display: flex;
     justify-content: center;
     align-items: center;
-    
-    position: fixed; /* 铺满全屏 */
-    top: 0; left: 0; right: 0; bottom: 0;
+    cursor: pointer;
+    z-index: 50; 
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.5), inset 0 0 5px rgba(255, 215, 0, 0.3);
+    transition: transform 0.2s;
 }
 
-/* --- 任务弹窗样式 (已强制适配最小化) --- */
-#quest-modal {
-    background: rgba(0, 0, 0, 0.5); /* 黑色半透明背景 */
-    z-index: 200;
-    display: flex;
-    justify-content: center; /* 水平居中 */
-    align-items: center;     /* 垂直居中 */
+.quest-book-btn:active { transform: scale(0.9); }
+.quest-book-btn img { width: 28px; height: 28px; image-rendering: pixelated; }
+
+.quest-book-btn.notify::after {
+    content: "!";
+    position: absolute;
+    top: -5px; right: -5px;
+    background: #e74c3c;
+    color: white;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: bold;
+    display: flex; justify-content: center; align-items: center;
+    border: 1px solid white;
 }
 
+/* --- 任务弹窗样式 (已添加屏幕适配) --- */
 .quest-panel {
-    background: #fdf5e6; /* 米色羊皮纸质感 (保持原样) */
-    padding: 15px;       /*稍微减小内边距，更紧凑 */
-    border: 4px double #8b4513; /* 双线边框 (保持原样) */
+    /* 你喜欢的样式 */
+    background: #fdf5e6; 
+    padding: 20px;
+    border: 4px double #8b4513;
     display: flex;
     flex-direction: column;
 
-    /* --- 关键修改：强制缩小适配 --- */
-    width: 90%;           /* 宽度只占屏幕的 90% */
-    max-width: 320px;     /* 最大宽度锁死 320px (适配绝大多数手机) */
-    max-height: 80vh;     /* 高度最多占屏幕 80%，防止顶出去 */
-    position: relative;   /* 相对定位 */
+    /* --- 关键修复：强制限制大小，适配手机 --- */
+    width: 90%;           /* 宽度只占屏幕90% */
+    max-width: 320px;     /* 限制最大宽度，防止太宽 */
+    max-height: 80vh;     /* 高度最多占屏幕80%，防止溢出 */
     margin: auto;         /* 自动居中 */
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3); /* 加点阴影更立体 */
+    position: relative;   /* 确保定位正常 */
+    box-sizing: border-box; /* 防止padding撑大盒子 */
 }
 
 .quest-header {
     text-align: center;
-    font-size: 16px;      /* 字体稍微调小一点点适配 */
+    font-size: 18px;
     font-weight: bold;
     color: #8b4513;
     border-bottom: 2px dashed #d2b48c;
-    padding-bottom: 8px;
-    margin-bottom: 12px;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
 }
 
+/* 内容区域：如果内容太长，内部滚动，而不是撑大整个屏幕 */
 .quest-body { 
     flex: 1; 
-    overflow-y: auto;     /* 内容多了自动出现滚动条，不撑大窗口 */
+    overflow-y: auto; 
 }
 
-#quest-title { 
-    margin: 0 0 8px 0; 
-    color: #333; 
-    font-size: 15px; 
-    font-weight: bold;
-}
-
-.quest-text { 
-    font-size: 12px;      /* 字体改小，显示更多内容 */
-    line-height: 1.5; 
-    color: #555; 
-    margin-bottom: 15px; 
-}
+#quest-title { margin: 0 0 10px 0; color: #333; font-size: 16px; }
+.quest-text { font-size: 13px; line-height: 1.6; color: #555; margin-bottom: 20px; }
 
 .quest-rewards {
     background: rgba(0,0,0,0.05);
-    padding: 8px;
-    border-radius: 4px;
+    padding: 10px;
+    border-radius: 5px;
 }
-
-.quest-rewards p { 
-    margin: 0 0 5px 0; 
-    font-weight: bold; 
-    font-size: 11px; 
-    color: #666; 
-}
+.quest-rewards p { margin: 0 0 5px 0; font-weight: bold; font-size: 12px; color: #666; }
 
 .quest-footer {
-    margin-top: 15px;
+    margin-top: 20px;
     display: flex;
     gap: 10px;
     justify-content: center;
-}
-
-/* 按钮也适配小一点 */
-.quest-footer button {
-    padding: 8px 16px;
-    font-size: 12px;
 }
