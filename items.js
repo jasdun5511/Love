@@ -45,6 +45,11 @@ const ITEM_ICONS = {
     "水": "https://zh.minecraft.wiki/images/Water_BE_%28animated%29.png?6cf9b",
 
     // 矿物
+    
+    "青金石矿": "https://zh.minecraft.wiki/images/Lapis_Lazuli_Ore_JE2_BE2.png",
+    "青石矿": "https://zh.minecraft.wiki/images/Lapis_Lazuli_Ore_JE2_BE2.png", // 兼容旧名称
+    "青金石": "https://zh.minecraft.wiki/images/Lapis_Lazuli_JE2_BE2.png",
+
     "煤炭": "https://zh.minecraft.wiki/images/Coal_JE3_BE2.png?b473d",
     "铁矿石": "https://zh.minecraft.wiki/images/Iron_Ore_JE6_BE4.png",
     "铁锭": "https://zh.minecraft.wiki/images/Iron_Ingot_JE3_BE2.png",
