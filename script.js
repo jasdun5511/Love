@@ -580,7 +580,21 @@ function updateCombatUI() {
         c.innerHTML = '';
         for (let [name, count] of Object.entries(player.inventory)) {
             let r = RECIPES.find(x => x.name === name);
-            if (r && r.type === 'use' && (r.effect === 'heal' || r.effect === 'food' || r.effect === 'super_food')) {
+            
+            // --- 关键修改：确保 magic_candy 和所有 food 都能在战斗显示 ---
+            // 只要是 'use' 类型，并且有效果，或者名字里包含"瓶"、"苹果"等关键词
+            let isUsable = false;
+            
+            if (r && r.type === 'use') {
+                if (r.effect === 'heal' || r.effect === 'food' || r.effect === 'drink' || r.effect === 'super_food' || r.effect === 'magic_candy') {
+                    isUsable = true;
+                }
+            } else if (!r && (name.includes("苹果") || name.includes("面包") || name.includes("肉"))) {
+                // 允许没有配方的生食
+                isUsable = true;
+            }
+
+            if (isUsable) {
                 const btn = document.createElement('div');
                 btn.className = 'heal-btn';
                 let icon = ITEM_ICONS[name] ? `<img src="${ITEM_ICONS[name]}">` : "";
@@ -947,7 +961,7 @@ window.equipItem = function(name) {
 }
 
 
-// 交互：使用物品 (已添加谜之炖菜)
+// 交互：使用物品 (已增强：魔法糖冰棍 + 全食物回血)
 function useItem(name) {
     if (!player.inventory[name]) return;
     let recipe = RECIPES.find(r => r.name === name);
@@ -955,70 +969,92 @@ function useItem(name) {
     // 1. 建筑类
     if (recipe && recipe.type === 'build') { placeBuilding(name); return; }
 
+    // --- 新增：魔法糖冰棍 (星露谷神级Buff) ---
+    if (name === "魔法糖冰棍") {
+        player.hp = player.maxHp;           // 血量回满
+        player.hunger = player.maxHunger;   // 饱食回满
+        player.water = player.maxWater;     // 水分回满
+        player.sanity = player.maxSanity;   // 理智回满
+        player.atk += 5;                    // 永久增加5点攻击力 (直到死亡)
+        player.isPoisoned = false;          // 解毒
+        
+        log("✨ 你吃下了魔法糖冰棍！感觉浑身充满了彩虹般的力量！(全状态恢复 + 攻击力永久+5)", "purple");
+        
+        // 特效：屏幕闪烁一下彩色 (模拟)
+        document.body.style.filter = "hue-rotate(90deg)";
+        setTimeout(() => document.body.style.filter = "none", 500);
+    }
+
     // 2. 特殊物品：金苹果
-    if (name === "金苹果") { 
+    else if (name === "金苹果") { 
         player.hp = player.maxHp; 
         log("金苹果的力量涌上来！(HP回满)", "gold"); 
     }
-    // 3. 新增：谜之炖菜与绷带
+    // 3. 谜之炖菜
     else if (name === "谜之炖菜") {
         player.hunger = Math.min(player.maxHunger, player.hunger + 10);
         player.water = Math.min(player.maxWater, player.water + 10);
-        log("喝下了谜之炖菜，味道有点...微妙。(饥饿/水分 +10)", "gold");
-        // 吃完返还一个碗(在这个简化版里我们返还个木棍意思一下，或者不返还)
-        // 这里暂时不返还物品，直接消耗
+        player.hp = Math.min(player.maxHp, player.hp + 10); // 也能回血
+        log("喝下了谜之炖菜，味道有点...微妙。(状态 +10)", "gold");
     }
-
-    // --- 新增：经验瓶 ---
+    // 4. 经验瓶
     else if (name === "经验瓶") {
         let gain = Math.floor(Math.random() * 20) + 10;
         addExp(gain);
         log(`打碎了经验瓶，获得 ${gain} 点经验！`, "purple");
     }
-    // ... (后面的逻辑)
-
-    
+    // 5. 绷带
     else if (name === "简易绷带") {
         if (player.hp >= player.maxHp) {
             log("你并没有受伤，不需要包扎。", "red");
-            return; // 满血不消耗
+            return; 
         }
         player.hp = Math.min(player.maxHp, player.hp + 15);
-        log("使用了简易绷带，伤口不再流血了。(HP +15)", "green");
-        // 消耗物品在函数最后统一处理
+        log("使用了简易绷带。(HP +15)", "green");
     }
 
-    // 4. 普通配方物品
+    // --- 修改点：普通食物/饮料通用逻辑 (增加回血) ---
     else if (recipe) {
-        if (recipe.effect === 'food') {
-            player.hunger = Math.min(player.maxHunger, player.hunger + recipe.val);
-            log(`吃了 ${name} (饥饿 +${recipe.val})`);
+        if (recipe.effect === 'food' || recipe.effect === 'super_food' || recipe.effect === 'magic_candy') {
+            // 基础饱食度恢复
+            let hungerVal = recipe.val || 10; 
+            player.hunger = Math.min(player.maxHunger, player.hunger + hungerVal);
+            
+            // --- 关键修改：所有食物额外恢复 10% 生命值 ---
+            let healAmount = Math.floor(player.maxHp * 0.1) + 5; 
+            player.hp = Math.min(player.maxHp, player.hp + healAmount);
+            
+            log(`吃了 ${name} (饱食 +${hungerVal}, HP +${healAmount})`, "green");
         } 
         else if (recipe.effect === 'drink') {
-            player.water = Math.min(player.maxWater, player.water + recipe.val);
-            log(`喝了 ${name} (水分 +${recipe.val})`, "blue");
-        }
-        else if (recipe.effect === 'super_food') {
-            player.hp = Math.min(player.maxHp, player.hp + 20);
-            player.water = Math.min(player.maxWater, player.water + recipe.val);
-            log(`喝了 ${name}，感觉好多了！`, "gold");
+            let waterVal = recipe.val || 10;
+            player.water = Math.min(player.maxWater, player.water + waterVal);
+            // 饮料也回一点点血
+            player.hp = Math.min(player.maxHp, player.hp + 2);
+            log(`喝了 ${name} (水分 +${waterVal}, HP +2)`, "blue");
         }
     }
-    // 5. 生吃食物 (兜底逻辑)
+    // 兜底生食
     else if (getItemType(name) === 'food') {
         player.hunger = Math.min(player.maxHunger, player.hunger + 5);
-        log(`勉强吃了 ${name} (生食 +5)`);
+        player.hp = Math.min(player.maxHp, player.hp + 2);
+        log(`勉强吃了 ${name} (生食 +5, HP +2)`);
     }
 
     // 消耗物品
     player.inventory[name]--;
     if (player.inventory[name] <= 0) delete player.inventory[name];
     
-    // 喝完水返还瓶子
+    // 返还容器
     if (name === "水瓶" || name === "蜂蜜瓶") addItemToInventory("玻璃瓶", 1);
 
     updateStatsUI();
     updateInventoryUI();
+    
+    // 如果在战斗中，刷新战斗UI的血条
+    if (!document.getElementById('combat-view').classList.contains('hidden')) {
+        updateCombatUI();
+    }
 }
 
 
