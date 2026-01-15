@@ -1408,11 +1408,12 @@ function renderBigMap() {
 }
 
 
-// 16. 存档系统 (全自动版)
-// ------------------------------------------
+// ==========================================
+// 16. 存档系统 (全自动静默版)
+// ==========================================
 const SAVE_KEY = "mc_text_survival_save_v1";
 
-// 状态显示（可选）
+// 检查存档状态（UI显示）
 function checkSaveStatus() {
     const statusEl = document.getElementById('save-status');
     if (!statusEl) return;
@@ -1422,41 +1423,36 @@ function checkSaveStatus() {
     }
 }
 
-// 存档 (静默执行)
+// 保存游戏 (静默)
 window.saveGame = function() {
-    if (player.hp <= 0) return; // 死亡时不自动存档，防止死循环
+    if (player.hp <= 0) return; // 死人不存档
 
     const saveData = {
         player: player,
         gameTime: gameTime,
         currentDimension: currentDimension,
-        currentQuestId: currentQuestId, // ⚠️ 必须保存任务进度
+        currentQuestId: currentQuestId, // 保存任务进度
         
-        // --- 兼容旧版地图变量 ---
+        // 兼容新旧地图变量
+        mapData: window.mapData || null,
         exploredMapMain: window.exploredMapMain || {},
         exploredMapNether: window.exploredMapNether || {},
         buildingsMain: window.buildingsMain || {},
         buildingsNether: window.buildingsNether || {},
         playerPosMain: window.playerPosMain || {x:10, y:10},
-        playerPosNether: window.playerPosNether || {x:10, y:10},
-        
-        // --- 兼容新版地图变量 ---
-        mapData: window.mapData || null
+        playerPosNether: window.playerPosNether || {x:10, y:10}
     };
 
     try {
         localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
         checkSaveStatus();
-        // console.log("自动保存成功"); // 调试用
-    } catch (e) { 
-        console.error("保存失败:", e); 
-    }
+    } catch (e) { console.error("保存失败:", e); }
 }
 
-// 读档 (开局自动调用，无弹窗)
+// 读取游戏 (返回 true/false)
 window.loadGame = function() {
     const json = localStorage.getItem(SAVE_KEY);
-    if (!json) return false; // 没有存档，返回 false
+    if (!json) return false; // 没存档
 
     try {
         const data = JSON.parse(json);
@@ -1465,14 +1461,10 @@ window.loadGame = function() {
         player = data.player;
         gameTime = data.gameTime;
         currentDimension = data.currentDimension;
-        currentQuestId = data.currentQuestId || 0; // 恢复任务
+        currentQuestId = data.currentQuestId || 0;
 
-        // 恢复地图数据 (优先尝试 mapData，如果没有则尝试旧变量)
-        if (data.mapData) {
-            mapData = data.mapData;
-        } 
-        
-        // 同时也恢复旧变量，防止报错
+        // 恢复地图数据
+        if (data.mapData) mapData = data.mapData;
         if (data.exploredMapMain) exploredMapMain = data.exploredMapMain;
         if (data.exploredMapNether) exploredMapNether = data.exploredMapNether;
         if (data.buildingsMain) buildingsMain = data.buildingsMain;
@@ -1480,7 +1472,7 @@ window.loadGame = function() {
         if (data.playerPosMain) playerPosMain = data.playerPosMain;
         if (data.playerPosNether) playerPosNether = data.playerPosNether;
 
-        // 兼容性检查：背包是否存在
+        // 确保背包对象存在
         if (!player.inventory) player.inventory = {};
 
         console.log("✅ 自动读档成功");
@@ -1491,50 +1483,34 @@ window.loadGame = function() {
     }
 }
 
-// 重置 (这个还是需要确认一下，防止误删)
+// 重置游戏
 window.resetGame = function() {
-    if (confirm("⚠️ 警告：要删档重来吗？")) {
+    if (confirm("⚠️ 警告：这将永久删除存档并重新开始！确定吗？")) {
         localStorage.removeItem(SAVE_KEY);
         location.reload();
     }
 }
 
-// --- ⚡️ 注入自动保存机制 ⚡️ ---
-// 劫持 passTime 函数，每次时间流逝自动存档
+// --- ⚡️ 核心：自动保存钩子 ⚡️ ---
+// 这里的逻辑是：只要时间流逝（移动/采集），就立刻自动保存
 const _originalPassTime = window.passTime;
 window.passTime = function(hours) {
     if (_originalPassTime) _originalPassTime(hours); // 执行原逻辑
-    saveGame(); // 立即自动保存
+    saveGame(); // 立即保存
 };
 
-
+// ==========================================
 // 17. 初始化与其他
-// ------------------------------------------
+// ==========================================
 function search() { passTime(2); refreshLocation(); log("搜索完成。"); }
-function die() { alert("你死亡了！刷新页面重来。"); location.reload(); }
+function die() { alert("你死亡了！刷新页面重来。"); localStorage.removeItem(SAVE_KEY); location.reload(); }
 window.setHome = () => { player.home = {dim: currentDimension, x: player.x, y: player.y}; log("已安家。", "gold"); refreshLocation(); }
 
-function init() {
-    const navMapping = { 0: "导航_背包", 1: "导航_制作", 2: "导航_探索", 3: "导航_地图", 4: "导航_系统" };
-    document.querySelectorAll('.bottom-nav .nav-icon').forEach((img, i) => {
-        if(ITEM_ICONS[navMapping[i]]) img.src = ITEM_ICONS[navMapping[i]];
-    });
-
-    addItemToInventory("木剑", 1);
-    addItemToInventory("面包", 2);
-
-    refreshLocation();
-    updateStatsUI();
-    updateDayNightCycle();
-    log("RPG系统启动！点击背包查看属性。");
-    checkSaveStatus();
-}
 
 // ==========================================
 // 18. 任务系统 (QUEST SYSTEM)
 // ==========================================
-
-let currentQuestId = 0; // 当前进行到的任务ID
+// 注意：currentQuestId 已经在前面定义过，这里不再重复定义
 
 // --- 剧情与任务配置表 ---
 const QUEST_DATA = [
@@ -1542,7 +1518,7 @@ const QUEST_DATA = [
         id: 0,
         title: "欢迎来到文字荒野",
         desc: "醒来时，你发现自己身处一个陌生而荒凉的世界。四周充满着未知的危险，但你的直觉告诉你，你必须活下去。<br><br>检查你的背包，那里有一把防身的武器。",
-        type: "check", // 这种类型只需点击按钮即可完成
+        type: "check", 
         target: null,
         rewards: [{name: "木剑", count: 1}, {name: "面包", count: 2}, {name: "水瓶", count: 1}],
         btnText: "开始旅程"
@@ -1566,7 +1542,6 @@ const QUEST_DATA = [
         rewards: [{name: "木镐", count: 1}, {name: "工作台", count: 1}],
         btnText: "领取奖励"
     },
-     // ... 前面的任务 ...
     {
         id: 3,
         title: "工欲善其事",
@@ -1587,8 +1562,6 @@ const QUEST_DATA = [
         rewards: [{name: "铁桶", count: 1}, {name: "盾牌", count: 1}],
         btnText: "领取奖励"
     },
-    // ... 后面的任务 ...
-
     {
         id: 5,
         title: "全副武装",
@@ -1605,7 +1578,7 @@ const QUEST_DATA = [
         type: "item",
         target: "钻石",
         count: 1,
-        rewards: [{name: "钻石", count: 2}, {name: "书架", count: 1}], // 送2个凑够3个做镐
+        rewards: [{name: "钻石", count: 2}, {name: "书架", count: 1}], 
         btnText: "领取奖励"
     },
     {
@@ -1624,7 +1597,7 @@ const QUEST_DATA = [
         desc: "搭建并激活下界传送门（在建筑栏放置），然后<b>进入下界</b>。<br>警告：那里充满了岩浆和危险的猪人。",
         type: "dimension",
         target: "NETHER",
-        rewards: [{name: "金锭", count: 5}], // 猪人这就别打了，给点金子交易
+        rewards: [{name: "金锭", count: 5}], 
         btnText: "领取奖励"
     },
     {
@@ -1642,10 +1615,10 @@ const QUEST_DATA = [
         title: "终末之眼",
         desc: "合成<b>12个末影之眼</b>（需要烈焰粉和末影珍珠）。<br>万事俱备，只欠东风。",
         type: "item",
-        target: "末影之眼", // 需确认 items.js 有这个，如果没有可以暂用“末影珍珠”代替逻辑
+        target: "末影之眼", 
         count: 12,
-        rewards: [{name: "金苹果", count: 5}, {name: "钻石剑", count: 1}], // 决战物资
-        btnText: "前往末地" // 特殊逻辑
+        rewards: [{name: "金苹果", count: 5}, {name: "钻石剑", count: 1}], 
+        btnText: "前往末地"
     },
     {
         id: 11,
@@ -1658,12 +1631,10 @@ const QUEST_DATA = [
     }
 ];
 
-// --- 任务逻辑函数 ---
+// --- 任务功能函数 ---
 
-// --- 更新：打开任务弹窗 (含按钮状态切换) ---
 function openQuestModal() {
     const modal = document.getElementById('quest-modal');
-    // 防止报错
     if (!modal) return;
 
     const quest = QUEST_DATA[currentQuestId];
@@ -1675,29 +1646,24 @@ function openQuestModal() {
     const btnEl = document.getElementById('btn-claim-quest');
 
     if (!quest) {
-        // 通关状态
         titleEl.innerText = "传奇终章";
         descEl.innerHTML = "<b>你已完成所有冒险！</b><br>现在你可以自由探索这个世界了。";
         progressEl.innerText = "";
         rewardEl.innerHTML = "无";
         btnEl.style.display = "none";
     } else {
-        // 正常任务
         titleEl.innerText = `任务 ${quest.id + 1}: ${quest.title}`;
         descEl.innerHTML = quest.desc;
         btnEl.style.display = "block";
 
-        // 渲染奖励
         rewardEl.innerHTML = "";
         quest.rewards.forEach(r => {
             let icon = ITEM_ICONS[r.name] ? `<img src="${ITEM_ICONS[r.name]}" style="width:16px;vertical-align:middle">` : "";
             rewardEl.innerHTML += `<div style="font-size:12px; margin-bottom:2px;">${icon} ${r.name} x${r.count}</div>`;
         });
 
-        // --- 核心修改：检查状态并改变按钮 ---
         const isFinished = checkQuestCondition(quest);
         
-        // 1. 生成进度提示文字
         let progressText = "";
         if (quest.type === 'item') {
             let current = player.inventory[quest.target] || 0;
@@ -1713,20 +1679,16 @@ function openQuestModal() {
         }
         if(progressEl) progressEl.innerHTML = progressText;
 
-        // 2. 切换按钮样式和文字
         if (isFinished || quest.id === 0) {
-            // 已完成 (或第一个初始任务)
             btnEl.innerText = quest.btnText || "领取奖励";
-            btnEl.disabled = false; // 启用 -> 变绿
+            btnEl.disabled = false;
         } else {
-            // 未完成
             btnEl.innerText = "未完成";
-            btnEl.disabled = true;  // 禁用 -> 变灰
+            btnEl.disabled = true;
         }
     }
     
     modal.classList.remove('hidden');
-    // 移除书本上的红点
     const bookBtn = document.querySelector('.quest-book-btn');
     if(bookBtn) bookBtn.classList.remove('notify');
 }
@@ -1738,10 +1700,8 @@ function closeQuestModal() {
 function checkQuestCondition(quest) {
     if (quest.type === 'check') return true;
     if (quest.type === 'item') {
-        // 检测背包或装备栏
         let count = (player.inventory[quest.target] || 0);
-        if (player.equipWeapon === quest.target) count = 1; // 装备着也算
-        // 特殊：原木检测
+        if (player.equipWeapon === quest.target) count = 1; 
         if (quest.target === "原木") count = getInvCount("原木");
         return count >= (quest.count || 1);
     }
@@ -1751,7 +1711,6 @@ function checkQuestCondition(quest) {
     if (quest.type === 'dimension') {
         return currentDimension === quest.target;
     }
-    // 'kill' 类型在战斗胜利时触发
     return false;
 }
 
@@ -1759,88 +1718,96 @@ function checkAndClaimQuest() {
     const quest = QUEST_DATA[currentQuestId];
     if (!quest) return;
 
-    // 再次检查条件（防作弊）
     if (quest.id !== 0 && !checkQuestCondition(quest)) {
         log("任务条件未达成！请仔细阅读说明。", "red");
         return;
     }
 
-    // 发放奖励
     quest.rewards.forEach(r => {
         addItemToInventory(r.name, r.count);
     });
     log(`✨ 完成任务：${quest.title}！`, "gold");
     
-    // 推进任务
     currentQuestId++;
-    openQuestModal(); // 刷新显示下一个任务
+    openQuestModal(); 
 }
 
-// --- 钩子：在各个系统里埋点检测任务 ---
-
-// 1. 装备时检测
-const originalEquipItem = window.equipItem;
+// 任务系统钩子 (用于亮红点)
+const _originalEquipItem = window.equipItem;
 window.equipItem = function(name) {
-    originalEquipItem(name); // 执行原逻辑
-    // 延迟检测，确保数据已更新
+    if(_originalEquipItem) _originalEquipItem(name);
     setTimeout(() => {
         const q = QUEST_DATA[currentQuestId];
         if (q && q.type === 'equip' && q.target === name) {
-            document.querySelector('.quest-book-btn').classList.add('notify');
-            log("任务目标达成！点击左侧书本领取奖励。", "gold");
+            document.querySelector('.quest-book-btn')?.classList.add('notify');
         }
     }, 100);
 }
 
-// 2. 采集/制作时检测 (简单通过物品变动检测不太好做，改为手动打开任务书时检测)
-// 但为了提示玩家，我们可以在 addItemToInventory 里加个简单钩子
-const originalAddItem = window.addItemToInventory;
+const _originalAddItem = window.addItemToInventory;
 window.addItemToInventory = function(name, count) {
-    originalAddItem(name, count); // 原逻辑
+    if(_originalAddItem) _originalAddItem(name, count);
     const q = QUEST_DATA[currentQuestId];
     if (q && q.type === 'item' && q.target === name) {
          let has = (player.inventory[name] || 0);
          if (name === "原木") has = getInvCount("原木");
-         
          if (has >= (q.count || 1)) {
-             document.querySelector('.quest-book-btn').classList.add('notify');
-             // 避免刷屏，不log
+             document.querySelector('.quest-book-btn')?.classList.add('notify');
          }
     }
 }
 
-// 3. 传送时检测
-const originalUsePortal = window.usePortal;
+const _originalUsePortal = window.usePortal;
 window.usePortal = function() {
-    originalUsePortal();
+    if(_originalUsePortal) _originalUsePortal();
     const q = QUEST_DATA[currentQuestId];
     if (q && q.type === 'dimension' && currentDimension === q.target) {
-        document.querySelector('.quest-book-btn').classList.add('notify');
-        log("任务目标达成！点击左侧书本领取奖励。", "gold");
+        document.querySelector('.quest-book-btn')?.classList.add('notify');
     }
 }
 
-// 4. 初始化弹出
-const originalInit = window.init;
+
+// ==========================================
+// 最终初始化 (整合版：自动读档入口)
+// ==========================================
 window.init = function() {
-    originalInit(); // 执行原初始化
-    // 延迟一点弹出，让玩家先看到界面
+    console.log("正在初始化游戏...");
+
+    // 1. 尝试读档 (核心逻辑！)
+    const hasSave = loadGame();
+    
+    if (!hasSave) {
+        // --- 只有在没有存档时，才发新手装备 ---
+        console.log("无存档，初始化新游戏...");
+        
+        // 确保基础数据完整
+        if(typeof generateScene === 'function') generateScene(getBiome(0, 0));
+        
+        addItemToInventory("木剑", 1);
+        addItemToInventory("面包", 2);
+    } 
+    // --- 如果有存档，loadGame 已经把所有变量都覆盖好了，不需要再发装备 ---
+
+    // 2. 加载底部图标
+    const navMapping = { 0: "导航_背包", 1: "导航_制作", 2: "导航_探索", 3: "导航_地图", 4: "导航_系统" };
+    document.querySelectorAll('.bottom-nav .nav-icon').forEach((img, i) => {
+        if(ITEM_ICONS[navMapping[i]]) img.src = ITEM_ICONS[navMapping[i]];
+    });
+
+    // 3. 刷新所有界面
+    if (typeof refreshLocation === 'function') refreshLocation();
+    if (typeof updateStatsUI === 'function') updateStatsUI();
+    if (typeof updateInventoryUI === 'function') updateInventoryUI();
+    if (typeof updateDayNightCycle === 'function') updateDayNightCycle();
+    if (typeof checkSaveStatus === 'function') checkSaveStatus();
+
+    // 4. 任务书弹窗 (仅在新游戏且第一个任务时弹出)
     setTimeout(() => {
-        if (currentQuestId === 0) {
-            openQuestModal();
+        if (typeof currentQuestId !== 'undefined' && currentQuestId === 0 && !hasSave) {
+            if (typeof openQuestModal === 'function') openQuestModal();
         }
     }, 500);
-}
+};
 
-// 5. 战斗胜利检测 (需要在 combatAttack 里手动加，这里无法简单的覆盖)
-// 请手动去 updateCombatLogic 里，在 胜利判定 处加上：
-/*
-    const q = QUEST_DATA[currentQuestId];
-    if (q && q.type === 'kill' && q.target === currentEnemy.name) {
-         checkAndClaimQuest(); // 杀怪任务通常直接完成
-    }
-*/
-
-
-
+// --- 启动游戏 ---
 init();
