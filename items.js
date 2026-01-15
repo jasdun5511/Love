@@ -19,7 +19,7 @@ const ITEM_ICONS = {
     "云杉原木": "https://zh.minecraft.wiki/images/Spruce_Log_Axis_Y_JE5_BE3.png?b2671",
     "木棍": "https://zh.minecraft.wiki/images/Stick_JE1_BE1.png?2ab19",
     "杂草": "https://zh.minecraft.wiki/images/Short_Grass_JE7_BE6.png?f6247", 
-    "小麦种子": "https://zh.minecraft.wiki/images/Wheat_Seeds_JE2_BE2.png",
+    "小麦种子": "https://zh.minecraft.wiki/images/Invicon_Seeds.png?7ea0c",
     "蒲公英": "https://zh.minecraft.wiki/images/Dandelion_JE7_BE4.png?80f41",
     "兰花": "https://zh.minecraft.wiki/images/Blue_Orchid_JE2_BE2.png",
     "蘑菇": "https://zh.minecraft.wiki/images/Red_Mushroom_JE2_BE2.png?d427f",
@@ -104,7 +104,7 @@ const ITEM_ICONS = {
 
     // 食物与杂项
     "谜之炖菜": "https://zh.minecraft.wiki/images/Suspicious_Stew_JE1_BE1.png",
-    "生牛肉": "https://zh.minecraft.wiki/images/Raw_Beef_JE4_BE3.png",
+    "生牛肉": "https://zh.minecraft.wiki/images/Raw_Beef_JE3_BE3.png?55e2e",
     "熟牛肉": "https://zh.minecraft.wiki/images/Steak_JE3_BE3.png?0d524",
     "生猪排": "https://zh.minecraft.wiki/images/Raw_Porkchop_JE4_BE3.png",
     "烤猪排": "https://zh.minecraft.wiki/images/Cooked_Porkchop_JE4_BE3.png",
