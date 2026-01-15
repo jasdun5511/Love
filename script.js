@@ -990,6 +990,21 @@ function useItem(name) {
         player.hp = player.maxHp; 
         log("金苹果的力量涌上来！(HP回满)", "gold"); 
     }
+    // 2.5. 仙人掌果子 (像苹果一样直接写效果)
+    else if (name === "仙人掌果子") {
+        player.hunger = Math.min(player.maxHunger, player.hunger + 15);
+        player.water = Math.min(player.maxWater, player.water + 20); // 重点是补水
+        player.hp = Math.min(player.maxHp, player.hp + 5);
+        log("吃了仙人掌果子，水分充足！(水分+20, 饥饿+15)", "green");
+    }
+    // 2.6 苹果 (增加补水设定)
+    else if (name === "苹果") {
+        player.hunger = Math.min(player.maxHunger, player.hunger + 10);
+        player.water = Math.min(player.maxWater, player.water + 5); // 苹果补水
+        player.hp = Math.min(player.maxHp, player.hp + 5);
+        log("吃了苹果，脆甜多汁。(饥饿+10, 水分+5)", "green");
+    }
+
     // 3. 谜之炖菜
     else if (name === "谜之炖菜") {
         player.hunger = Math.min(player.maxHunger, player.hunger + 10);
