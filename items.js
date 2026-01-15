@@ -52,7 +52,7 @@ const ITEM_ICONS = {
     "金锭": "https://zh.minecraft.wiki/images/Gold_Ingot_JE4_BE2.png",
     "金粒": "https://zh.minecraft.wiki/images/Gold_Nugget_JE3_BE2.png",
     "钻石矿": "https://zh.minecraft.wiki/images/Diamond_Ore_JE5_BE5.png?73a76",
-    "钻石": "https://zh.minecraft.wiki/images/Diamond_JE3_BE3.png",
+    "钻石": "https://zh.minecraft.wiki/images/Diamond_JE2_BE2.png?36a4d",
     "绿宝石矿": "https://zh.minecraft.wiki/images/Emerald_Ore_JE4_BE3.png",
     "红石": "https://zh.minecraft.wiki/images/Redstone_Dust_JE2_BE2.png",
     "燧石": "https://zh.minecraft.wiki/images/Flint_JE3_BE3.png",
@@ -93,7 +93,7 @@ const ITEM_ICONS = {
     "铁桶": "https://zh.minecraft.wiki/images/Bucket_JE2_BE2.png",
     "岩浆桶": "https://zh.minecraft.wiki/images/Lava_Bucket_JE2_BE2.png",
     "铁盔甲": "https://zh.minecraft.wiki/images/Iron_Chestplate_JE2_BE2.png",
-    "钻石盔甲": "https://zh.minecraft.wiki/images/Diamond_Chestplate_JE3_BE3.png",
+    "钻石盔甲": "https://zh.minecraft.wiki/images/Diamond_Chestplate_JE3_BE2.png?3ec9c",
     "下界合金甲": "https://zh.minecraft.wiki/images/Netherite_Chestplate_JE2_BE2.png",
     "木镐": "https://zh.minecraft.wiki/images/Wooden_Pickaxe_JE3_BE3.png",
     "石镐": "https://zh.minecraft.wiki/images/Stone_Pickaxe_JE2_BE2.png",
@@ -220,8 +220,7 @@ const RECIPES = [
     // === 材料加工 ===
     { name: "木棍", req: { "原木": 2 }, type: "item", desc: "基础材料" }, 
     { name: "铁锭", req: { "铁矿石": 1, "煤炭": 1 }, type: "item", desc: "烧炼铁矿", station: "furnace" },
-    { name: "金锭", req: { "金矿石": 1, "煤炭": 1 }, type: "item", desc: "烧炼金矿", station: "furnace" },
-    { name: "钻石", req: { "钻石矿": 1 }, type: "item", desc: "敲碎矿石获得" },
+    { name: "金锭", req: { "金矿石": 1, "煤炭": 1 }, type: "item", desc: "烧炼金矿", station: "furnace" },    
     { name: "下界合金锭", req: { "远古残骸": 1, "金锭": 1 }, type: "item", desc: "顶级材料", station: "workbench" },
 
     // === 核心工具 ===
