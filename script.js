@@ -1596,9 +1596,8 @@ const QUEST_DATA = [
     },
     { id: 1, title: "武装自己", desc: "打开背包，装备<b>木剑</b>。", type: "equip", target: "木剑", rewards: [{name: "苹果", count: 3}, {name: "经验瓶", count: 1}] },
     { id: 2, title: "生存第一步", desc: "去砍树，收集<b>3个原木</b>。", type: "item", target: "原木", count: 3, rewards: [{name: "木镐", count: 1}, {name: "工作台", count: 1}] },
-    { id: 3, title: "工欲善其事", desc: "制作一个<b>工作台</b>。<br>注意：放在背包里即可。", type: "item", target: "石镐", count: 1, rewards: [{name: "熟牛肉", count: 2}, {name: "煤炭", count: 5}] },
     { id: 3, title: "工欲善其事", desc: "制作一个<b>工作台</b>。<br>注意：放在背包里即可。", type: "item", target: "工作台", count: 1, rewards: [{name: "熟牛肉", count: 2}, {name: "煤炭", count: 5}] },
-
+    { id: 4, title: "铁器时代", desc: "寻找铁矿石，制作<b>熔炉</b>。<br>注意：放在背包里即可。", type: "item", target: "铁锭", count: 3, rewards: [{name: "铁桶", count: 1}, {name: "盾牌", count: 1}] },
     { id: 5, title: "全副武装", desc: "制作并装备<b>铁盔甲</b>。", type: "equip", target: "铁盔甲", rewards: [{name: "金苹果", count: 1}, {name: "经验瓶", count: 2}] },
     { id: 6, title: "寻找珍宝", desc: "寻找<b>钻石</b>！", type: "item", target: "钻石", count: 1, rewards: [{name: "钻石", count: 2}, {name: "书架", count: 1}] },
     { id: 7, title: "黑曜石之门", desc: "用水桶浇灭岩浆获得<b>黑曜石</b> (需10个)，并制作<b>打火石</b>。", type: "item", target: "黑曜石", count: 10, rewards: [{name: "打火石", count: 1}, {name: "抗火药水", count: 1}] },
@@ -1780,3 +1779,4 @@ window.init = function() {
 
 // 启动
 init();
+
