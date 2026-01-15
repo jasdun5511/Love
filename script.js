@@ -11,6 +11,7 @@ let player = {
     water: 100, maxWater: 100,
     sanity: 100, maxSanity: 100,
     atk: 5,  
+    def: 0,
     // ... (前面的属性保持不变) 
     isPoisoned: false, // <--- 新增：中毒状态
     // ... (后面的属性保持不变)
@@ -642,9 +643,13 @@ function enemyTurnLogic(actionType) {
         }
     }
 
-    // 2. 正常伤害
-    const eDmg = Math.max(1, currentEnemy.atk - Math.floor(Math.random() * 2));
+    // 2. 正常伤害 (修改：计算防御力减免)
+    // 伤害公式：(攻击 - 防御)，最少受到 1 点强制伤害
+    let rawDmg = currentEnemy.atk - Math.floor(Math.random() * 2);
+    const eDmg = Math.max(1, rawDmg - player.def); // <--- 减去防御力
+    
     player.hp -= eDmg;
+
     
     let prefix = "";
     if (actionType === 'use') prefix = "趁你使用物品时，";
@@ -961,22 +966,27 @@ window.equipItem = function(name) {
         if (player.equipWeapon) addItemToInventory(player.equipWeapon, 1);
         player.equipWeapon = name;
         
-        // --- 攻击力计算 ---
-        let bonus = 3; // 默认加3
-        if (r && r.val) {
-            bonus = r.val;
-        } else {
-            // 没有配方的情况：
-            if (name === "三叉戟") bonus = 9; // <--- 在这里手动指定三叉戟攻击力
-        }
+        // 攻击力计算
+        let bonus = 3; 
+        if (r && r.val) bonus = r.val;
+        else if (name === "三叉戟") bonus = 9; 
         
         player.atk = 5 + bonus; 
     } else {
         if (player.equipArmor) addItemToInventory(player.equipArmor, 1);
         player.equipArmor = name;
-        let bonus = r && r.val ? r.val : 10;
-        player.maxHp += bonus; 
-        player.hp += bonus; 
+        
+        // --- 修复：盔甲改为增加防御力 (Defense) ---
+        let defBonus = 0;
+        if (r && r.effect === 'def') defBonus = r.val;
+        else {
+            // 兜底旧数据或无配方装备
+            if (name.includes("铁")) defBonus = 3;
+            else if (name.includes("钻石")) defBonus = 5;
+            else if (name.includes("下界")) defBonus = 8;
+            else defBonus = 1; 
+        }
+        player.def = defBonus; // 直接设置防御力
     }
     
     player.inventory[name]--;
@@ -984,7 +994,10 @@ window.equipItem = function(name) {
     
     renderEquipTab();
     updateStatsUI();
-    log(`装备了 ${name}！(攻击力: ${player.atk})`);
+    
+    // 显示更详细的信息
+    let statMsg = type === 'weapon' ? `攻击力: ${player.atk}` : `防御力: ${player.def}`;
+    log(`装备了 ${name}！(${statMsg})`);
 }
 
 
