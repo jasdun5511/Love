@@ -408,6 +408,17 @@ function collectResource(index) {
         finishCollect(index, item);
         return;
     }
+    // --- 新增：枯灌木 -> 木棍 ---
+    if (item.name === "枯灌木") {
+        doCollectWork();
+        // 随机获得 1 到 2 个木棍
+        const count = Math.floor(Math.random() * 2) + 1;
+        addItemToInventory("木棍", count);
+        log(`折断了枯灌木，获得 木棍 x${count}。`, "green");
+        finishCollect(index, item);
+        return;
+    }
+
 
     // --- 新增：岩浆源互动逻辑 ---
     if (item.name === "岩浆源") {
