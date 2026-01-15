@@ -1624,10 +1624,22 @@ window.passTime = function(hours) {
 };
 
 
-// ==========================================
 // 17. 初始化与其他
-// ==========================================
-function search() { passTime(2); refreshLocation(); log("搜索完成。"); }
+function search() { 
+    // --- 修复：战斗中禁止搜索 ---
+    if (currentEnemy) {
+        log("🚫 战斗中无法搜索！", "red");
+        if(document.getElementById('combat-view').classList.contains('hidden')) {
+            switchView('combat');
+        }
+        return;
+    }
+
+    passTime(2); 
+    refreshLocation(); 
+    log("搜索完成。"); 
+}
+ refreshLocation(); log("搜索完成。"); }
 function die() { alert("你死亡了！刷新页面重来。"); localStorage.removeItem(SAVE_KEY); location.reload(); }
 window.setHome = () => { player.home = {dim: currentDimension, x: player.x, y: player.y}; log("已安家。", "gold"); refreshLocation(); }
 
