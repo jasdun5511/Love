@@ -58,7 +58,7 @@ const ITEM_ICONS = {
     "燧石": "https://zh.minecraft.wiki/images/Flint_JE3_BE3.png",
     "远古残骸": "https://zh.minecraft.wiki/images/Ancient_Debris_JE2_BE2.png",
     "下界合金碎片": "https://zh.minecraft.wiki/images/Netherite_Scrap_JE2_BE2.png",
-    "下界合金锭": "https://zh.minecraft.wiki/images/Netherite_Ingot_JE1_BE1.png",
+    "下界合金锭": "https://zh.minecraft.wiki/images/Netherite_Ingot_JE1_BE2.png?df0f5",
 
     // 生物
     "牛": "https://zh.minecraft.wiki/images/Cow_JE7_BE3.png?682ef",
@@ -94,7 +94,7 @@ const ITEM_ICONS = {
     "岩浆桶": "https://zh.minecraft.wiki/images/Lava_Bucket_JE2_BE2.png",
     "铁盔甲": "https://zh.minecraft.wiki/images/Iron_Chestplate_JE2_BE2.png",
     "钻石盔甲": "https://zh.minecraft.wiki/images/Diamond_Chestplate_JE3_BE2.png?3ec9c",
-    "下界合金甲": "https://zh.minecraft.wiki/images/Netherite_Chestplate_JE2_BE2.png",
+    "下界合金甲": "https://zh.minecraft.wiki/images/Netherite_Chestplate_JE2_BE1.png?66079",
     "木镐": "https://zh.minecraft.wiki/images/Wooden_Pickaxe_JE3_BE3.png",
     "石镐": "https://zh.minecraft.wiki/images/Stone_Pickaxe_JE2_BE2.png",
     "铁镐": "https://zh.minecraft.wiki/images/Iron_Pickaxe_JE3_BE2.png",
