@@ -51,7 +51,7 @@ const ITEM_ICONS = {
     "金矿石": "https://zh.minecraft.wiki/images/Gold_Ore_JE7_BE4.png",
     "金锭": "https://zh.minecraft.wiki/images/Gold_Ingot_JE4_BE2.png",
     "金粒": "https://zh.minecraft.wiki/images/Gold_Nugget_JE3_BE2.png",
-    "钻石矿": "https://zh.minecraft.wiki/images/Diamond_Ore_JE6_BE4.png",
+    "钻石矿": "https://zh.minecraft.wiki/images/Diamond_Ore_JE5_BE5.png?73a76",
     "钻石": "https://zh.minecraft.wiki/images/Diamond_JE3_BE3.png",
     "绿宝石矿": "https://zh.minecraft.wiki/images/Emerald_Ore_JE4_BE3.png",
     "红石": "https://zh.minecraft.wiki/images/Redstone_Dust_JE2_BE2.png",
