@@ -869,17 +869,17 @@ function renderStatsTab() {
                 row.className = 'list-item';
                 let icon = ITEM_ICONS[name] ? `<img src="${ITEM_ICONS[name]}" class="item-icon">` : "";
                 
-                // --- 修复：给传送门和功能方块添加按钮 ---
+                // --- 修复部分开始：按钮逻辑 ---
                 let actionBtn = "";
-                
-                // 1. 食物/药水 -> 显示“使用”
                 if (type === 'food') {
                     actionBtn = `<button onclick="useItem('${name}')">使用</button>`;
                 }
-                // 2. 建筑类（传送门、工作台、熔炉） -> 显示“放置”
-                else if (name === "下界传送门" ) {
+                // 专门给 下界传送门 加按钮
+                else if (name === "下界传送门") {
                     actionBtn = `<button onclick="useItem('${name}')">放置</button>`;
                 }
+                // --- 修复部分结束 ---
+
 
 
                 row.innerHTML = `
