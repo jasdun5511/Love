@@ -859,31 +859,30 @@ function renderStatsTab() {
     }
 }
 
+// 渲染装备页
 function renderEquipTab() {
-    // 1. 渲染已装备的槽位 (优化：显示图片和属性加成)
     const renderSlot = (domId, itemName, type) => {
         const el = document.getElementById(domId);
         if (!el) return;
         
         if (itemName) {
-            // 获取图标
             let icon = ITEM_ICONS[itemName] ? `<img src="${ITEM_ICONS[itemName]}" style="width:32px;height:32px;margin-bottom:2px;">` : "";
-            // 获取属性加成
+            
+            // --- 属性显示逻辑 ---
             let r = RECIPES.find(x => x.name === itemName);
             let bonusText = "";
+            
             if (r) {
+                // 有配方的走配方数据
                 if (type === 'weapon') bonusText = `<span style="color:#e74c3c;font-size:10px;">攻击+${r.val}</span>`;
                 if (type === 'armor') bonusText = `<span style="color:#2ecc71;font-size:10px;">生命+${r.val}</span>`;
+            } else {
+                // --- 没有配方的(三叉戟)，手动写死显示 ---
+                if (itemName === "三叉戟") bonusText = `<span style="color:#e74c3c;font-size:10px;">攻击+9</span>`;
             }
             
-            el.innerHTML = `
-                <div style="display:flex;flex-direction:column;align-items:center;">
-                    ${icon}
-                    <div style="font-weight:bold;color:#333;">${itemName}</div>
-                    ${bonusText}
-                </div>`;
+            el.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;">${icon}<div style="font-weight:bold;color:#333;">${itemName}</div>${bonusText}</div>`;
         } else {
-            // 空槽位显示
             el.innerHTML = `<div style="color:#ccc;line-height:40px;">无</div>`;
         }
     };
@@ -891,7 +890,7 @@ function renderEquipTab() {
     renderSlot('slot-weapon', player.equipWeapon, 'weapon');
     renderSlot('slot-armor', player.equipArmor, 'armor');
 
-    // 2. 渲染下方装备列表
+    // 渲染背包列表
     const list = document.getElementById('inventory-list-equip');
     if (!list) return;
     list.innerHTML = '';
@@ -906,11 +905,17 @@ function renderEquipTab() {
                 row.className = 'list-item';
                 let icon = ITEM_ICONS[name] ? `<img src="${ITEM_ICONS[name]}" class="item-icon">` : "";
                 
-                // 查找属性方便显示在列表中
+                // 列表里的属性显示
                 let r = RECIPES.find(x => x.name === name);
                 let statInfo = "";
-                if(r && r.effect === 'atk') statInfo = `<span style="font-size:10px;color:#e74c3c;margin-left:5px;">(攻${r.val})</span>`;
-                if(r && r.effect === 'hp_max') statInfo = `<span style="font-size:10px;color:#2ecc71;margin-left:5px;">(血${r.val})</span>`;
+                
+                if (r) {
+                     if (r.effect === 'atk') statInfo = `<span style="font-size:10px;color:#e74c3c;margin-left:5px;">(攻+${r.val})</span>`;
+                     else if (r.effect === 'hp_max') statInfo = `<span style="font-size:10px;color:#2ecc71;margin-left:5px;">(血+${r.val})</span>`;
+                } else {
+                     // --- 手动写死三叉戟 ---
+                     if (name === "三叉戟") statInfo = `<span style="font-size:10px;color:#e74c3c;margin-left:5px;">(攻+9)</span>`;
+                }
 
                 row.innerHTML = `
                     <div style="flex:1;display:flex;align-items:center;gap:10px;">
@@ -931,22 +936,23 @@ window.equipItem = function(name) {
     let type = "weapon"; 
     if (name.includes("甲") || name.includes("头盔") || name.includes("靴")) type = "armor";
     
-    // 卸下旧的，换上新的
     if (type === "weapon") {
         if (player.equipWeapon) addItemToInventory(player.equipWeapon, 1);
         player.equipWeapon = name;
         
-        // --- 修复：计算攻击力 ---
-        let bonus = r && r.val ? r.val : 3; // 默认+3
+        // --- 攻击力计算 ---
+        let bonus = 3; // 默认加3
+        if (r && r.val) {
+            bonus = r.val;
+        } else {
+            // 没有配方的情况：
+            if (name === "三叉戟") bonus = 9; // <--- 在这里手动指定三叉戟攻击力
+        }
         
-        // 针对没有配方的稀有掉落物，手动指定攻击力
-        if (name === "三叉戟") bonus = 9; 
-        
-        player.atk = 5 + bonus; // 基础5 + 武器
+        player.atk = 5 + bonus; 
     } else {
         if (player.equipArmor) addItemToInventory(player.equipArmor, 1);
         player.equipArmor = name;
-        // 防具暂定为增加血量上限
         let bonus = r && r.val ? r.val : 10;
         player.maxHp += bonus; 
         player.hp += bonus; 
@@ -959,6 +965,7 @@ window.equipItem = function(name) {
     updateStatsUI();
     log(`装备了 ${name}！(攻击力: ${player.atk})`);
 }
+
 
 
 // 交互：使用物品 (已增强：魔法糖冰棍 + 全食物回血)
