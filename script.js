@@ -783,7 +783,7 @@ function getItemType(name) {
     }
     // 兜底关键词判断
     if (name.includes("剑") || name.includes("甲") || name.includes("镐") || name.includes("三叉戟") || name.includes("弩") || name.includes("斧")) return 'equip';
-        if (name.includes("肉") || name.includes("排") || name.includes("鱼") || name.includes("苹果") || name.includes("瓶") || name.includes("面包") || name.includes("马铃薯") || name.includes("仙人掌果子")) return 'food';
+        if (name.includes("肉") || name.includes("排") || name.includes("鱼") || name.includes("苹果") || name.includes("传送门") ||name.includes("瓶") || name.includes("面包") || name.includes("马铃薯") || name.includes("仙人掌果子")) return 'food';
 
     return 'material';
 }
