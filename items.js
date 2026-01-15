@@ -128,7 +128,7 @@ const ITEM_ICONS = {
     "烈焰棒": "https://zh.minecraft.wiki/images/Blaze_Rod_JE2_BE2.png",
     "岩浆膏": "https://zh.minecraft.wiki/images/Magma_Cream_JE3_BE2.png",
     "恶魂之泪": "https://zh.minecraft.wiki/images/Ghast_Tear_JE2_BE2.png",
-    "末影珍珠": "https://zh.minecraft.wiki/images/Ender_Pearl_JE3_BE2.png",
+    "末影珍珠": "https://zh.minecraft.wiki/images/Ender_Pearl_JE2_BE2.png?7d893",
     "火药": "https://zh.minecraft.wiki/images/Gunpowder_JE2_BE2.png",
     "骨头": "https://zh.minecraft.wiki/images/Bone_JE3_BE2.png?b4092",
     "线": "https://zh.minecraft.wiki/images/Invicon_String.png?e7cbf",
@@ -155,7 +155,7 @@ const ITEM_ICONS = {
     
     // --- 新增：怪物 ---
     "毒蜘蛛": "https://zh.minecraft.wiki/images/Cave_Spider_JE2_BE2.png",
-    "末影人": "https://zh.minecraft.wiki/images/Enderman_JE1_BE1.png",
+    "末影人": "https://zh.minecraft.wiki/images/Enderman_JE3_BE1.png?b5299",
 
 
 };
