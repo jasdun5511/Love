@@ -957,44 +957,64 @@ function renderEquipTab() {
 }
 
 
+// 交互：装备物品 (已修正：正确处理生命上限，穿新脱旧)
 window.equipItem = function(name) {
     let r = RECIPES.find(x => x.name === name);
     let type = "weapon"; 
     if (name.includes("甲") || name.includes("头盔") || name.includes("靴")) type = "armor";
     
     if (type === "weapon") {
+        // --- 武器逻辑 ---
         if (player.equipWeapon) addItemToInventory(player.equipWeapon, 1);
         player.equipWeapon = name;
         
-        // 攻击力计算
         let bonus = 3; 
         if (r && r.val) bonus = r.val;
         else if (name === "三叉戟") bonus = 9; 
         
         player.atk = 5 + bonus; 
     } else {
-        if (player.equipArmor) addItemToInventory(player.equipArmor, 1);
+        // --- 盔甲逻辑 (修复：增加生命上限) ---
+        
+        // 1. 先扣除旧盔甲的加成 (如果有)
+        if (player.equipArmor) {
+            let oldR = RECIPES.find(x => x.name === player.equipArmor);
+            // 如果旧装备有加成，扣掉
+            if (oldR && oldR.effect === 'hp_max') {
+                player.maxHp -= oldR.val;
+                // 如果扣完上限后，当前血量比上限还高，就压下来
+                if (player.hp > player.maxHp) player.hp = player.maxHp;
+            }
+            // 把旧盔甲放回背包
+            addItemToInventory(player.equipArmor, 1);
+        }
+
+        // 2. 穿上新盔甲
         player.equipArmor = name;
         
-        // --- 修复：盔甲改为增加防御力 (Defense) ---
-        let defBonus = 0;
-        if (r && r.effect === 'def') defBonus = r.val;
-        else {
-            // 兜底旧数据或无配方装备
-            if (name.includes("铁")) defBonus = 3;
-            else if (name.includes("钻石")) defBonus = 5;
-            else if (name.includes("下界")) defBonus = 8;
-            else defBonus = 1; 
+        // 3. 加上新盔甲的加成
+        let bonus = 0;
+        if (r && r.effect === 'hp_max') {
+            bonus = r.val;
+        } else {
+            // 兜底：如果没有配方或者是旧数据
+            if (name.includes("铁")) bonus = 50;
+            else if (name.includes("钻石")) bonus = 100;
+            else if (name.includes("下界")) bonus = 150;
         }
-        player.def = defBonus; // 直接设置防御力
+        
+        player.maxHp += bonus;
+        player.hp += bonus; // 穿上时顺便补一口血，体验更好
     }
     
+    // 移除背包里的物品
     player.inventory[name]--;
     if (player.inventory[name] <= 0) delete player.inventory[name];
     
     renderEquipTab();
     updateStatsUI();
     
+
     // 显示更详细的信息
     let statMsg = type === 'weapon' ? `攻击力: ${player.atk}` : `防御力: ${player.def}`;
     log(`装备了 ${name}！(${statMsg})`);
