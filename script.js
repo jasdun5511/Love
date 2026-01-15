@@ -476,17 +476,26 @@ function collectResource(index) {
         finishCollect(index, item); return; 
     }
     
-    // 矿物采集
+        // 矿物采集 (修复：铁/金矿石掉落原矿，钻石等掉落成品)
     if (ORE_LEVEL[item.name] || item.name === "绿宝石矿") {
         doCollectWork();
-        let drop = item.name.replace("矿石", "").replace("矿", ""); 
-        if(item.name==="石头") drop="石头";
+        
+        let drop = item.name; // 默认掉落原物品 (如：铁矿石 -> 铁矿石)
+
+        // 特殊矿物掉落成品
+        if (item.name === "钻石矿") drop = "钻石";
+        else if (item.name === "绿宝石矿") drop = "绿宝石";
+        else if (item.name === "煤炭") drop = "煤炭"; // 煤炭名字符合
+        else if (item.name === "红石") drop = "红石";
+        else if (item.name === "石头") drop = "石头"; 
+        
         addItemToInventory(drop, 1);
         addExp(2);
         log(`采集了 ${item.name}`, "gold");
         finishCollect(index, item);
         return;
     }
+
 
     // 装水逻辑
     if (item.name === "水") { 
