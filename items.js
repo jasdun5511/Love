@@ -103,7 +103,7 @@ const ITEM_ICONS = {
 
 
     // 食物与杂项
-
+    "仙人掌果子": "https://stardewvalleywiki.com/mediawiki/images/3/32/Cactus_Fruit.png",
     "魔法糖冰棍": "https://stardewvalleywiki.com/mediawiki/images/2/25/Magic_Rock_Candy.png",
     "谜之炖菜": "https://zh.minecraft.wiki/images/Suspicious_Stew_JE1_BE1.png",
     "生牛肉": "https://zh.minecraft.wiki/images/Raw_Beef_JE3_BE3.png?55e2e",
