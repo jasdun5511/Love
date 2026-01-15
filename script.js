@@ -1520,7 +1520,7 @@ const QUEST_DATA = [
         desc: "醒来时，你发现自己身处一个陌生而荒凉的世界。四周充满着未知的危险，但你的直觉告诉你，你必须活下去。<br><br>检查你的背包，那里有一把防身的武器。",
         type: "check", 
         target: null,
-        rewards: [{name: "木剑", count: 1}, {name: "面包", count: 2}, {name: "水瓶", count: 1}],
+        rewards: [{name: "木剑", count: 1}, {name: "面包", count: 2}, {name: "水瓶", count: 1},｛name:"下界传送门", count: 1｝],
         btnText: "开始旅程"
     },
     {
