@@ -1545,7 +1545,7 @@ window.saveGame = function() {
     }
 }
 
-// 读取
+// 读取存档 (已添加：自动修复NaN和旧数据)
 window.loadGame = function() {
     const json = localStorage.getItem(SAVE_KEY);
     if (!json) return false; 
@@ -1569,7 +1569,18 @@ window.loadGame = function() {
         // 修复背包为空的情况
         if (!player.inventory) player.inventory = {};
 
-        console.log("✅ 读档成功");
+        // --- 关键修复：兼容旧存档 & 修复NaN ---
+        // 1. 如果没有防御力，初始化为 0
+        if (typeof player.def === 'undefined') player.def = 0;
+        
+        // 2. 如果血量坏了(NaN)，直接回满
+        if (isNaN(player.hp) || player.hp === null) player.hp = player.maxHp;
+        if (isNaN(player.maxHp)) player.maxHp = 100;
+        if (isNaN(player.hunger)) player.hunger = 100;
+        if (isNaN(player.water)) player.water = 100;
+        if (isNaN(player.atk)) player.atk = 5;
+
+        console.log("✅ 读档成功 (已执行数据修复)");
         return true;
     } catch (e) { 
         console.error("存档损坏:", e); 
