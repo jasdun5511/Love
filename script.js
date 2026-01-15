@@ -830,11 +830,14 @@ function renderStatsTab() {
     const pct = (player.exp / player.maxExp) * 100;
     document.getElementById('stat-exp-bar').style.width = `${pct}%`;
 
-    // 属性面板数值
+    // 属性面板数值 (优化：饥饿和水分现在显示 当前/上限)
     document.getElementById('val-hp').innerText = player.hp;
     document.getElementById('val-max-hp').innerText = player.maxHp;
+    
+    // 修改点：实时显示饥饿和水分状态
     document.getElementById('val-max-hunger').innerText = `${player.hunger} / ${player.maxHunger}`;
     document.getElementById('val-max-water').innerText = `${player.water} / ${player.maxWater}`;
+    
     document.getElementById('val-atk').innerText = player.atk;
     document.getElementById('val-sanity').innerText = player.sanity;
 
@@ -866,16 +869,8 @@ function renderStatsTab() {
                 row.className = 'list-item';
                 let icon = ITEM_ICONS[name] ? `<img src="${ITEM_ICONS[name]}" class="item-icon">` : "";
                 
-                // --- 修复部分开始：按钮逻辑 ---
                 let actionBtn = "";
-                if (type === 'food') {
-                    actionBtn = `<button onclick="useItem('${name}')">使用</button>`;
-                }
-                // 专门给 下界传送门 加按钮
-                else if (name === "下界传送门") {
-                    actionBtn = `<button onclick="useItem('${name}')">放置</button>`;
-                }
-                // --- 修复部分结束 ---
+                if (type === 'food') actionBtn = `<button onclick="useItem('${name}')">使用</button>`;
 
                 row.innerHTML = `
                     <div style="flex:1;display:flex;align-items:center;gap:10px;">${icon}<b>${name}</b></div>
@@ -889,7 +884,6 @@ function renderStatsTab() {
         list.innerHTML = `<div style="padding:15px;text-align:center;color:#ccc;font-size:12px;">${label}</div>`;
     }
 }
-
 
 // 渲染装备页
 function renderEquipTab() {
