@@ -179,7 +179,7 @@ const BIOMES = {
     },
     PLAINS: { name: "平原", code: "bg-PLAINS", res: ["杂草", "小麦", "橡树", "蒲公英"], mobs: [{name:"牛", hp:10, atk:0, loot:"生牛肉"}, {name:"僵尸", hp:20, atk:3, loot:"腐肉"}, {name:"苦力怕", hp:20, atk:15, loot:"火药"}] },
     FOREST: { name: "森林", code: "bg-FOREST", res: ["橡树", "云杉", "木棍", "苹果", "蘑菇"], mobs: [{name:"猪", hp:10, atk:0, loot:"生猪排"}, {name:"骷髅", hp:20, atk:4, loot:"骨头"}, {name:"蜘蛛", hp:16, atk:3, loot:"线"}] },
-    DESERT: { name: "沙漠", code: "bg-DESERT", res: ["沙子", "仙人掌", "枯灌木", "岩浆源"], mobs: [{name:"尸壳", hp:20, atk:4, loot:"腐肉"}] },
+    DESERT: { name: "沙漠", code: "bg-DESERT", res: ["沙子", "仙人掌", "枯灌木", "岩浆源","仙人掌果子"], mobs: [{name:"尸壳", hp:20, atk:4, loot:"腐肉"}] },
     MOUNTAIN: { name: "山地", code: "bg-MOUNTAIN", res: ["石头", "铁矿石", "煤炭", "绿宝石矿"], mobs: [{name:"羊", hp:8, atk:0, loot:"生羊肉"}] },
     SNOWY: { name: "雪原", code: "bg-SNOWY", res: ["冰", "雪球", "云杉"], mobs: [{name:"流浪者", hp:20, atk:4, loot:"箭"}] },
     OCEAN: { name: "深海", code: "bg-OCEAN", res: ["水", "鳕鱼", "海带"], mobs: [{name:"溺尸", hp:20, atk:5, loot:"三叉戟"}, {name:"鱿鱼", hp:10, atk:0, loot:"墨囊"}] },
