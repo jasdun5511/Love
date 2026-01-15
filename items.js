@@ -245,9 +245,11 @@ const RECIPES = [
     { name: "铁剑", req: { "木棍": 1, "铁锭": 2 }, type: "equip", effect: "atk", val: 18, desc: "攻击力 18", station: "workbench" },
     { name: "钻石剑", req: { "木棍": 1, "钻石": 2 }, type: "equip", effect: "atk", val: 25, desc: "攻击力 25", station: "workbench" },
     { name: "下界合金剑", req: { "钻石剑": 1, "下界合金锭": 1 }, type: "equip", effect: "atk", val: 35, desc: "攻击力 35", station: "workbench" },
-    { name: "铁盔甲", req: { "铁锭": 5 }, type: "equip", effect: "def", val: 6, desc: "提供 6点 伤害减免", station: "workbench" },
-    { name: "钻石盔甲", req: { "钻石": 5 }, type: "equip", effect: "def", val: 9, desc: "提供 9点 伤害减免", station: "workbench" },
-    { name: "下界合金甲", req: { "钻石盔甲": 1, "下界合金锭": 1 }, type: "equip", effect: "def", val: 12, desc: "提供 12点 伤害减免", station: "workbench" },
+        // 在 RECIPES 数组里：
+    { name: "铁盔甲", req: { "铁锭": 5 }, type: "equip", effect: "hp_max", val: 50, desc: "生命上限 +50", station: "workbench" },
+    { name: "钻石盔甲", req: { "钻石": 5 }, type: "equip", effect: "hp_max", val: 100, desc: "生命上限 +100", station: "workbench" },
+    { name: "下界合金甲", req: { "钻石盔甲": 1, "下界合金锭": 1 }, type: "equip", effect: "hp_max", val: 150, desc: "生命上限 +150", station: "workbench" },
+
 
     // 在 items.js 的 RECIPES 里加这个：
     { name: "盾牌", req: { "原木": 6, "铁锭": 6 }, type: "item", desc: "25%几率抵挡伤害", station: "workbench" },
