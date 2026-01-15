@@ -36,7 +36,7 @@ const ITEM_ICONS = {
     // 地形方块
     "石头": "https://zh.minecraft.wiki/images/Stone_JE5_BE3.png",
     "沙子": "https://zh.minecraft.wiki/images/Sand_JE5_BE3.png",
-    "红沙": "https://zh.minecraft.wiki/images/Red_Sand_JE2_BE2.png",
+    "红沙": "https://zh.minecraft.wiki/images/Red_Sand_JE3_BE2.png?3c417",
     "粘土": "https://zh.minecraft.wiki/images/Clay_Ball_JE2_BE2.png",
     "冰": "https://zh.minecraft.wiki/images/Ice_JE2_BE3.png?0339d",
     "雪球": "https://zh.minecraft.wiki/images/Snowball_JE3_BE3.png",
@@ -62,7 +62,7 @@ const ITEM_ICONS = {
 
     // 生物
     "牛": "https://zh.minecraft.wiki/images/Cow_JE7_BE3.png?682ef",
-    "猪": "https://zh.minecraft.wiki/images/Pig_JE2_BE2.png",
+    "猪": "https://zh.minecraft.wiki/images/Pig_JE3_BE2.png?b39c8",
     "羊": "https://zh.minecraft.wiki/images/White_Sheep_JE5.png?ccbd6",
     "鱿鱼": "https://zh.minecraft.wiki/images/Squid_JE2_BE2.png",
     "僵尸": "https://zh.minecraft.wiki/images/Zombie_JE2_BE2.png?0893d",
@@ -130,7 +130,7 @@ const ITEM_ICONS = {
     "恶魂之泪": "https://zh.minecraft.wiki/images/Ghast_Tear_JE2_BE2.png",
     "末影珍珠": "https://zh.minecraft.wiki/images/Ender_Pearl_JE3_BE2.png",
     "火药": "https://zh.minecraft.wiki/images/Gunpowder_JE2_BE2.png",
-    "骨头": "https://zh.minecraft.wiki/images/Bone_JE2_BE2.png",
+    "骨头": "https://zh.minecraft.wiki/images/Bone_JE3_BE2.png?b4092",
     "线": "https://zh.minecraft.wiki/images/Invicon_String.png?e7cbf",
     "墨囊": "https://zh.minecraft.wiki/images/Ink_Sac_JE2_BE2.png",
     "粘液球": "https://zh.minecraft.wiki/images/Slimeball_JE2_BE2.png",
