@@ -1409,11 +1409,11 @@ function renderBigMap() {
 
 
 // ==========================================
-// 16. 存档系统 (全自动静默版)
+// 16. 存档系统 (防卡死修复版)
 // ==========================================
 const SAVE_KEY = "mc_text_survival_save_v1";
 
-// 检查存档状态（UI显示）
+// 状态显示
 function checkSaveStatus() {
     const statusEl = document.getElementById('save-status');
     if (!statusEl) return;
@@ -1423,47 +1423,49 @@ function checkSaveStatus() {
     }
 }
 
-// 保存游戏 (静默)
+// 保存 (带防抖锁)
+var _isSaving = false;
 window.saveGame = function() {
-    if (player.hp <= 0) return; // 死人不存档
-
-    const saveData = {
-        player: player,
-        gameTime: gameTime,
-        currentDimension: currentDimension,
-        currentQuestId: currentQuestId, // 保存任务进度
-        
-        // 兼容新旧地图变量
-        mapData: window.mapData || null,
-        exploredMapMain: window.exploredMapMain || {},
-        exploredMapNether: window.exploredMapNether || {},
-        buildingsMain: window.buildingsMain || {},
-        buildingsNether: window.buildingsNether || {},
-        playerPosMain: window.playerPosMain || {x:10, y:10},
-        playerPosNether: window.playerPosNether || {x:10, y:10}
-    };
+    if (_isSaving || player.hp <= 0) return; 
+    _isSaving = true;
 
     try {
+        const saveData = {
+            player: player,
+            gameTime: gameTime,
+            currentDimension: currentDimension,
+            currentQuestId: currentQuestId, 
+            // 兼容所有地图变量
+            mapData: window.mapData || null,
+            exploredMapMain: window.exploredMapMain || {},
+            exploredMapNether: window.exploredMapNether || {},
+            buildingsMain: window.buildingsMain || {},
+            buildingsNether: window.buildingsNether || {},
+            playerPosMain: window.playerPosMain || {x:10, y:10},
+            playerPosNether: window.playerPosNether || {x:10, y:10}
+        };
         localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
         checkSaveStatus();
-    } catch (e) { console.error("保存失败:", e); }
+    } catch (e) { 
+        console.error("保存失败:", e); 
+    } finally {
+        _isSaving = false;
+    }
 }
 
-// 读取游戏 (返回 true/false)
+// 读取
 window.loadGame = function() {
     const json = localStorage.getItem(SAVE_KEY);
-    if (!json) return false; // 没存档
+    if (!json) return false; 
 
     try {
         const data = JSON.parse(json);
-        
-        // 恢复核心数据
-        player = data.player;
-        gameTime = data.gameTime;
-        currentDimension = data.currentDimension;
+        // 恢复数据
+        player = data.player || player;
+        gameTime = data.gameTime || { day: 1, hour: 8 };
+        currentDimension = data.currentDimension || "OVERWORLD";
         currentQuestId = data.currentQuestId || 0;
 
-        // 恢复地图数据
         if (data.mapData) mapData = data.mapData;
         if (data.exploredMapMain) exploredMapMain = data.exploredMapMain;
         if (data.exploredMapNether) exploredMapNether = data.exploredMapNether;
@@ -1472,10 +1474,10 @@ window.loadGame = function() {
         if (data.playerPosMain) playerPosMain = data.playerPosMain;
         if (data.playerPosNether) playerPosNether = data.playerPosNether;
 
-        // 确保背包对象存在
+        // 修复背包为空的情况
         if (!player.inventory) player.inventory = {};
 
-        console.log("✅ 自动读档成功");
+        console.log("✅ 读档成功");
         return true;
     } catch (e) { 
         console.error("存档损坏:", e); 
@@ -1483,21 +1485,21 @@ window.loadGame = function() {
     }
 }
 
-// 重置游戏
+// 重置
 window.resetGame = function() {
-    if (confirm("⚠️ 警告：这将永久删除存档并重新开始！确定吗？")) {
+    if (confirm("⚠️ 确定要删档重来吗？")) {
         localStorage.removeItem(SAVE_KEY);
         location.reload();
     }
 }
 
-// --- ⚡️ 核心：自动保存钩子 ⚡️ ---
-// 这里的逻辑是：只要时间流逝（移动/采集），就立刻自动保存
-const _originalPassTime = window.passTime;
+// --- 自动保存钩子 (使用 var 防止重复定义报错) ---
+var _originalPassTime = window.passTime;
 window.passTime = function(hours) {
-    if (_originalPassTime) _originalPassTime(hours); // 执行原逻辑
-    saveGame(); // 立即保存
+    if (_originalPassTime) _originalPassTime(hours);
+    saveGame(); 
 };
+
 
 // ==========================================
 // 17. 初始化与其他
@@ -1510,184 +1512,86 @@ window.setHome = () => { player.home = {dim: currentDimension, x: player.x, y: p
 // ==========================================
 // 18. 任务系统 (QUEST SYSTEM)
 // ==========================================
-// 注意：currentQuestId 已经在前面定义过，这里不再重复定义
 
-// --- 剧情与任务配置表 ---
+// 防止 currentQuestId 未定义
+if (typeof currentQuestId === 'undefined') var currentQuestId = 0;
+
 const QUEST_DATA = [
     {
-        id: 0,
-        title: "欢迎来到文字荒野",
+        id: 0, title: "欢迎来到文字荒野",
         desc: "醒来时，你发现自己身处一个陌生而荒凉的世界。四周充满着未知的危险，但你的直觉告诉你，你必须活下去。<br><br>检查你的背包，那里有一把防身的武器。",
-        type: "check", 
-        target: null,
-        rewards: [{name: "木剑", count: 1}, {name: "面包", count: 2}, {name: "水瓶", count: 1},｛name:"下界传送门", count: 1｝],
+        type: "check", target: null,
+        rewards: [{name: "木剑", count: 1}, {name: "面包", count: 2}, {name: "水瓶", count: 1}],
         btnText: "开始旅程"
     },
-    {
-        id: 1,
-        title: "武装自己",
-        desc: "这个世界并不安全。打开背包（点击底部“背包”），在装备栏中<b>装备木剑</b>。<br>只有手中握着武器，你才有底气面对怪物的嘶吼。",
-        type: "equip",
-        target: "木剑",
-        rewards: [{name: "苹果", count: 3}, {name: "经验瓶", count: 1}],
-        btnText: "领取奖励"
-    },
-    {
-        id: 2,
-        title: "生存第一步",
-        desc: "你需要资源来制作工具。去砍一些树，收集<b>3个原木</b>。<br>（点击“探索”页面的橡树或云杉）",
-        type: "item",
-        target: "原木",
-        count: 3,
-        rewards: [{name: "木镐", count: 1}, {name: "工作台", count: 1}],
-        btnText: "领取奖励"
-    },
-    {
-        id: 3,
-        title: "工欲善其事",
-        desc: "有了木镐，你可以开采石头了。制作一个<b>工作台</b>。<br><b>注意：</b>工作台不需要放置，<span style='color:#d35400'>只要放在背包里</span>，就能随时解锁石制工具的制作。",
-        type: "item", 
-        target: "石镐",
-        count: 1,
-        rewards: [{name: "熟牛肉", count: 2}, {name: "煤炭", count: 5}],
-        btnText: "领取奖励"
-    },
-    {
-        id: 4,
-        title: "铁器时代",
-        desc: "木石工具太脆弱了。去寻找<b>铁矿石</b>，并制作一个<b>熔炉</b>。<br><b>注意：</b>熔炉同样<span style='color:#d35400'>放在背包里</span>即可解锁烧炼功能。",
-        type: "item",
-        target: "铁锭",
-        count: 3,
-        rewards: [{name: "铁桶", count: 1}, {name: "盾牌", count: 1}],
-        btnText: "领取奖励"
-    },
-    {
-        id: 5,
-        title: "全副武装",
-        desc: "怪物在夜间变得更加凶猛。你需要一套护甲。<br>制作并装备<b>铁盔甲</b>。",
-        type: "equip",
-        target: "铁盔甲",
-        rewards: [{name: "金苹果", count: 1}, {name: "经验瓶", count: 2}],
-        btnText: "领取奖励"
-    },
-    {
-        id: 6,
-        title: "寻找珍宝",
-        desc: "传闻地底深处埋藏着蓝色的宝石。前往<b>矿井</b>或深层地下，寻找<b>钻石</b>！<br>拥有了钻石，你就拥有了挑战强者的资格。",
-        type: "item",
-        target: "钻石",
-        count: 1,
-        rewards: [{name: "钻石", count: 2}, {name: "书架", count: 1}], 
-        btnText: "领取奖励"
-    },
-    {
-        id: 7,
-        title: "黑曜石之门",
-        desc: "你需要前往下界寻找更强的力量。用水桶浇灭岩浆获得<b>黑曜石</b>。<br>收集10个黑曜石，并制作<b>打火石</b>。",
-        type: "item",
-        target: "黑曜石",
-        count: 10,
-        rewards: [{name: "打火石", count: 1}, {name: "抗火药水", count: 1}],
-        btnText: "领取奖励"
-    },
-    {
-        id: 8,
-        title: "深入地狱",
-        desc: "搭建并激活下界传送门（在建筑栏放置），然后<b>进入下界</b>。<br>警告：那里充满了岩浆和危险的猪人。",
-        type: "dimension",
-        target: "NETHER",
-        rewards: [{name: "金锭", count: 5}], 
-        btnText: "领取奖励"
-    },
-    {
-        id: 9,
-        title: "烈焰的试炼",
-        desc: "在下界的熔岩海寻找烈焰人，击败它们获得<b>烈焰棒</b>。<br>这是通往末地的钥匙。",
-        type: "item",
-        target: "烈焰棒",
-        count: 1,
-        rewards: [{name: "末影珍珠", count: 3}, {name: "力量药水", count: 1}],
-        btnText: "领取奖励"
-    },
-    {
-        id: 10,
-        title: "终末之眼",
-        desc: "合成<b>12个末影之眼</b>（需要烈焰粉和末影珍珠）。<br>万事俱备，只欠东风。",
-        type: "item",
-        target: "末影之眼", 
-        count: 12,
-        rewards: [{name: "金苹果", count: 5}, {name: "钻石剑", count: 1}], 
-        btnText: "前往末地"
-    },
-    {
-        id: 11,
-        title: "屠龙者",
-        desc: "击败<b>末影龙</b>！<br>结束这一切，成为这个世界的传说。",
-        type: "kill",
-        target: "末影龙",
-        rewards: [{name: "龙蛋", count: 1}],
-        btnText: "通关游戏"
-    }
+    { id: 1, title: "武装自己", desc: "打开背包，装备<b>木剑</b>。", type: "equip", target: "木剑", rewards: [{name: "苹果", count: 3}, {name: "经验瓶", count: 1}] },
+    { id: 2, title: "生存第一步", desc: "去砍树，收集<b>3个原木</b>。", type: "item", target: "原木", count: 3, rewards: [{name: "木镐", count: 1}, {name: "工作台", count: 1}] },
+    { id: 3, title: "工欲善其事", desc: "制作一个<b>工作台</b>。<br>注意：放在背包里即可。", type: "item", target: "石镐", count: 1, rewards: [{name: "熟牛肉", count: 2}, {name: "煤炭", count: 5}] },
+    { id: 4, title: "铁器时代", desc: "寻找铁矿石，制作<b>熔炉</b>。<br>注意：放在背包里即可。", type: "item", target: "铁锭", count: 3, rewards: [{name: "铁桶", count: 1}, {name: "盾牌", count: 1}] },
+    { id: 5, title: "全副武装", desc: "制作并装备<b>铁盔甲</b>。", type: "equip", target: "铁盔甲", rewards: [{name: "金苹果", count: 1}, {name: "经验瓶", count: 2}] },
+    { id: 6, title: "寻找珍宝", desc: "寻找<b>钻石</b>！", type: "item", target: "钻石", count: 1, rewards: [{name: "钻石", count: 2}, {name: "书架", count: 1}] },
+    { id: 7, title: "黑曜石之门", desc: "用水桶浇灭岩浆获得<b>黑曜石</b> (需10个)，并制作<b>打火石</b>。", type: "item", target: "黑曜石", count: 10, rewards: [{name: "打火石", count: 1}, {name: "抗火药水", count: 1}] },
+    { id: 8, title: "深入地狱", desc: "搭建传送门进入下界。", type: "dimension", target: "NETHER", rewards: [{name: "金锭", count: 5}] },
+    { id: 9, title: "烈焰的试炼", desc: "击败烈焰人获得<b>烈焰棒</b>。", type: "item", target: "烈焰棒", count: 1, rewards: [{name: "末影珍珠", count: 3}, {name: "力量药水", count: 1}] },
+    { id: 10, title: "终末之眼", desc: "合成<b>12个末影之眼</b>。", type: "item", target: "末影之眼", count: 12, rewards: [{name: "金苹果", count: 5}, {name: "钻石剑", count: 1}] },
+    { id: 11, title: "屠龙者", desc: "击败<b>末影龙</b>！", type: "kill", target: "末影龙", rewards: [{name: "龙蛋", count: 1}], btnText: "通关游戏" }
 ];
-
-// --- 任务功能函数 ---
 
 function openQuestModal() {
     const modal = document.getElementById('quest-modal');
     if (!modal) return;
-
     const quest = QUEST_DATA[currentQuestId];
     
-    const titleEl = document.getElementById('quest-title');
-    const descEl = document.getElementById('quest-desc');
-    const progressEl = document.getElementById('quest-progress'); 
-    const rewardEl = document.getElementById('quest-reward-list');
-    const btnEl = document.getElementById('btn-claim-quest');
+    // DOM 元素获取
+    const els = {
+        title: document.getElementById('quest-title'),
+        desc: document.getElementById('quest-desc'),
+        prog: document.getElementById('quest-progress'),
+        rew: document.getElementById('quest-reward-list'),
+        btn: document.getElementById('btn-claim-quest')
+    };
 
     if (!quest) {
-        titleEl.innerText = "传奇终章";
-        descEl.innerHTML = "<b>你已完成所有冒险！</b><br>现在你可以自由探索这个世界了。";
-        progressEl.innerText = "";
-        rewardEl.innerHTML = "无";
-        btnEl.style.display = "none";
+        els.title.innerText = "传奇终章";
+        els.desc.innerHTML = "<b>你已完成所有冒险！</b>";
+        if(els.prog) els.prog.innerText = "";
+        els.rew.innerHTML = "无";
+        els.btn.style.display = "none";
     } else {
-        titleEl.innerText = `任务 ${quest.id + 1}: ${quest.title}`;
-        descEl.innerHTML = quest.desc;
-        btnEl.style.display = "block";
+        els.title.innerText = `任务 ${quest.id + 1}: ${quest.title}`;
+        els.desc.innerHTML = quest.desc;
+        els.btn.style.display = "block";
 
-        rewardEl.innerHTML = "";
+        els.rew.innerHTML = "";
         quest.rewards.forEach(r => {
             let icon = ITEM_ICONS[r.name] ? `<img src="${ITEM_ICONS[r.name]}" style="width:16px;vertical-align:middle">` : "";
-            rewardEl.innerHTML += `<div style="font-size:12px; margin-bottom:2px;">${icon} ${r.name} x${r.count}</div>`;
+            els.rew.innerHTML += `<div style="font-size:12px;">${icon} ${r.name} x${r.count}</div>`;
         });
 
         const isFinished = checkQuestCondition(quest);
-        
-        let progressText = "";
+        // 进度文本
+        let pTxt = "";
         if (quest.type === 'item') {
-            let current = player.inventory[quest.target] || 0;
-            if (quest.target === "原木") current = getInvCount("原木");
-            let req = quest.count || 1;
-            let color = current >= req ? "#4CAF50" : "#e74c3c"; 
-            progressText = `进度: <span style="color:${color}">${current} / ${req}</span>`;
+            let cur = player.inventory[quest.target] || 0;
+            if (quest.target==="原木") cur = getInvCount("原木");
+            let req = quest.count||1;
+            pTxt = `进度: <span style="color:${cur>=req?'#4CAF50':'#e74c3c'}">${cur}/${req}</span>`;
         } else if (quest.type === 'equip') {
             let done = (player.equipWeapon === quest.target || player.equipArmor === quest.target);
-            progressText = done ? `<span style="color:#4CAF50">✅ 已装备</span>` : `<span style="color:#e74c3c">❌ 未装备</span>`;
+            pTxt = done ? `<span style="color:#4CAF50">✅ 已装备</span>` : `<span style="color:#e74c3c">❌ 未装备</span>`;
         } else if (quest.type === 'dimension') {
-            progressText = (currentDimension === quest.target) ? `<span style="color:#4CAF50">✅ 已到达</span>` : `<span style="color:#e74c3c">❌ 未到达</span>`;
+            pTxt = currentDimension === quest.target ? `<span style="color:#4CAF50">✅ 已到达</span>` : `<span style="color:#e74c3c">❌ 未到达</span>`;
         }
-        if(progressEl) progressEl.innerHTML = progressText;
+        if(els.prog) els.prog.innerHTML = pTxt;
 
         if (isFinished || quest.id === 0) {
-            btnEl.innerText = quest.btnText || "领取奖励";
-            btnEl.disabled = false;
+            els.btn.innerText = quest.btnText || "领取奖励";
+            els.btn.disabled = false;
         } else {
-            btnEl.innerText = "未完成";
-            btnEl.disabled = true;
+            els.btn.innerText = "未完成";
+            els.btn.disabled = true;
         }
     }
-    
     modal.classList.remove('hidden');
     const bookBtn = document.querySelector('.quest-book-btn');
     if(bookBtn) bookBtn.classList.remove('notify');
@@ -1698,6 +1602,7 @@ function closeQuestModal() {
 }
 
 function checkQuestCondition(quest) {
+    if (!quest) return false;
     if (quest.type === 'check') return true;
     if (quest.type === 'item') {
         let count = (player.inventory[quest.target] || 0);
@@ -1705,109 +1610,102 @@ function checkQuestCondition(quest) {
         if (quest.target === "原木") count = getInvCount("原木");
         return count >= (quest.count || 1);
     }
-    if (quest.type === 'equip') {
-        return player.equipWeapon === quest.target || player.equipArmor === quest.target;
-    }
-    if (quest.type === 'dimension') {
-        return currentDimension === quest.target;
-    }
+    if (quest.type === 'equip') return player.equipWeapon === quest.target || player.equipArmor === quest.target;
+    if (quest.type === 'dimension') return currentDimension === quest.target;
     return false;
 }
 
 function checkAndClaimQuest() {
     const quest = QUEST_DATA[currentQuestId];
     if (!quest) return;
-
-    if (quest.id !== 0 && !checkQuestCondition(quest)) {
-        log("任务条件未达成！请仔细阅读说明。", "red");
-        return;
-    }
-
-    quest.rewards.forEach(r => {
-        addItemToInventory(r.name, r.count);
-    });
-    log(`✨ 完成任务：${quest.title}！`, "gold");
-    
+    if (quest.id !== 0 && !checkQuestCondition(quest)) return log("条件未达成！", "red");
+    quest.rewards.forEach(r => addItemToInventory(r.name, r.count));
+    log(`任务完成！`, "gold");
     currentQuestId++;
-    openQuestModal(); 
+    openQuestModal();
 }
 
-// 任务系统钩子 (用于亮红点)
-const _originalEquipItem = window.equipItem;
+// 任务系统 Hooks (使用 var 防止重复定义)
+var _originalEquipItem = window.equipItem;
 window.equipItem = function(name) {
     if(_originalEquipItem) _originalEquipItem(name);
     setTimeout(() => {
         const q = QUEST_DATA[currentQuestId];
-        if (q && q.type === 'equip' && q.target === name) {
-            document.querySelector('.quest-book-btn')?.classList.add('notify');
-        }
+        if (q && q.type === 'equip' && q.target === name) document.querySelector('.quest-book-btn')?.classList.add('notify');
     }, 100);
 }
 
-const _originalAddItem = window.addItemToInventory;
+var _originalAddItem = window.addItemToInventory;
 window.addItemToInventory = function(name, count) {
     if(_originalAddItem) _originalAddItem(name, count);
     const q = QUEST_DATA[currentQuestId];
     if (q && q.type === 'item' && q.target === name) {
          let has = (player.inventory[name] || 0);
          if (name === "原木") has = getInvCount("原木");
-         if (has >= (q.count || 1)) {
-             document.querySelector('.quest-book-btn')?.classList.add('notify');
-         }
+         if (has >= (q.count || 1)) document.querySelector('.quest-book-btn')?.classList.add('notify');
     }
 }
 
-const _originalUsePortal = window.usePortal;
+var _originalUsePortal = window.usePortal;
 window.usePortal = function() {
     if(_originalUsePortal) _originalUsePortal();
     const q = QUEST_DATA[currentQuestId];
-    if (q && q.type === 'dimension' && currentDimension === q.target) {
-        document.querySelector('.quest-book-btn')?.classList.add('notify');
-    }
+    if (q && q.type === 'dimension' && currentDimension === q.target) document.querySelector('.quest-book-btn')?.classList.add('notify');
 }
 
 
 // ==========================================
-// 最终初始化 (整合版：自动读档入口)
+// 最终初始化 (安全入口)
 // ==========================================
 window.init = function() {
-    console.log("正在初始化游戏...");
+    console.log("游戏启动中...");
 
-    // 1. 尝试读档 (核心逻辑！)
+    // 1. 尝试读档
     const hasSave = loadGame();
     
     if (!hasSave) {
-        // --- 只有在没有存档时，才发新手装备 ---
-        console.log("无存档，初始化新游戏...");
+        console.log("初始化新游戏数据...");
+        // 强制重置核心变量，防止旧数据残留
+        player = { 
+            x: 10, y: 10, hp: 100, maxHp: 100, hunger: 100, maxHunger: 100, water: 100, maxWater: 100, sanity: 100, maxSanity: 100, atk: 5, 
+            level: 1, exp: 0, maxExp: 10, statPoints: 0, inventory: {}, home: null 
+        };
+        gameTime = { day: 1, hour: 8 };
+        currentDimension = "OVERWORLD";
+        currentQuestId = 0;
         
-        // 确保基础数据完整
+        // 重置地图
+        exploredMapMain = {}; exploredMapNether = {};
+        buildingsMain = {}; buildingsNether = {};
+        
+        // 生成出生点
         if(typeof generateScene === 'function') generateScene(getBiome(0, 0));
         
+        // 发新手装
         addItemToInventory("木剑", 1);
         addItemToInventory("面包", 2);
-    } 
-    // --- 如果有存档，loadGame 已经把所有变量都覆盖好了，不需要再发装备 ---
+    }
 
-    // 2. 加载底部图标
+    // 2. 加载UI资源
     const navMapping = { 0: "导航_背包", 1: "导航_制作", 2: "导航_探索", 3: "导航_地图", 4: "导航_系统" };
     document.querySelectorAll('.bottom-nav .nav-icon').forEach((img, i) => {
         if(ITEM_ICONS[navMapping[i]]) img.src = ITEM_ICONS[navMapping[i]];
     });
 
-    // 3. 刷新所有界面
+    // 3. 刷新界面
     if (typeof refreshLocation === 'function') refreshLocation();
     if (typeof updateStatsUI === 'function') updateStatsUI();
     if (typeof updateInventoryUI === 'function') updateInventoryUI();
     if (typeof updateDayNightCycle === 'function') updateDayNightCycle();
     if (typeof checkSaveStatus === 'function') checkSaveStatus();
 
-    // 4. 任务书弹窗 (仅在新游戏且第一个任务时弹出)
+    // 4. 新手任务弹窗
     setTimeout(() => {
-        if (typeof currentQuestId !== 'undefined' && currentQuestId === 0 && !hasSave) {
+        if (currentQuestId === 0 && !hasSave) {
             if (typeof openQuestModal === 'function') openQuestModal();
         }
     }, 500);
 };
 
-// --- 启动游戏 ---
+// 启动
 init();
