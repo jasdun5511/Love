@@ -830,14 +830,11 @@ function renderStatsTab() {
     const pct = (player.exp / player.maxExp) * 100;
     document.getElementById('stat-exp-bar').style.width = `${pct}%`;
 
-    // 属性面板数值 (优化：饥饿和水分现在显示 当前/上限)
+    // 属性面板数值
     document.getElementById('val-hp').innerText = player.hp;
     document.getElementById('val-max-hp').innerText = player.maxHp;
-    
-    // 修改点：实时显示饥饿和水分状态
     document.getElementById('val-max-hunger').innerText = `${player.hunger} / ${player.maxHunger}`;
     document.getElementById('val-max-water').innerText = `${player.water} / ${player.maxWater}`;
-    
     document.getElementById('val-atk').innerText = player.atk;
     document.getElementById('val-sanity').innerText = player.sanity;
 
@@ -880,8 +877,6 @@ function renderStatsTab() {
                 }
                 // --- 修复部分结束 ---
 
-
-
                 row.innerHTML = `
                     <div style="flex:1;display:flex;align-items:center;gap:10px;">${icon}<b>${name}</b></div>
                     <div><b style="color:#999;margin-right:10px;">x${count}</b>${actionBtn}</div>`;
@@ -894,6 +889,7 @@ function renderStatsTab() {
         list.innerHTML = `<div style="padding:15px;text-align:center;color:#ccc;font-size:12px;">${label}</div>`;
     }
 }
+
 
 // 渲染装备页
 function renderEquipTab() {
