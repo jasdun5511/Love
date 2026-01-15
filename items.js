@@ -265,5 +265,14 @@ const RECIPES = [
     // 2. 做绷带：4个藤蔓 -> 1个简易绷带
     { name: "简易绷带", req: { "藤蔓": 4 }, type: "use", effect: "heal", val: 15, desc: "止血包扎 (HP +15)" },
 
+{ 
+    name: "魔法糖冰棍", 
+    req: { "冰": 4 }, 
+    type: "use", 
+    effect: "magic_candy", // 特殊效果标记
+    desc: "充满魔力的五彩糖果。全属性大幅提升！(HP/理智全满 + 攻击力提升)" 
+},
+
+
 ];
 
