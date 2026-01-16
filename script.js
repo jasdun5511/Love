@@ -1610,7 +1610,7 @@ window.saveGame = function() {
             buildingsMain: window.buildingsMain || {},
             buildingsNether: window.buildingsNether || {},
             playerPosMain: window.playerPosMain || {x:10, y:10},
-            playerPosNether: window.playerPosNether || {x:10, y:10}
+            playerPosNether: window.playerPosNether || {x:5, y:5}
         };
         localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
         checkSaveStatus();
