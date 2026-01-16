@@ -85,6 +85,13 @@ const ITEM_ICONS = {
     "疣猪兽": "https://zh.minecraft.wiki/images/Hoglin_JE2.png?a1d9a",
      "烈焰人": "https://zh.minecraft.wiki/images/Blaze_BE.gif?f0c6f", // <--- 之前这里少了 ",
     "岩浆怪": "https://zh.minecraft.wiki/images/Magma_Cube_JE2_BE2.png?38c60",
+    // ... 在现有代码下面添加 ...
+    "凋零骷髅": "https://zh.minecraft.wiki/images/Wither_Skeleton_JE3_BE2.png",
+    "凋零头颅": "https://zh.minecraft.wiki/images/Wither_Skeleton_Skull_%28item%29_JE2_BE2.png",
+    "凋灵": "https://zh.minecraft.wiki/images/Wither_JE2_BE2.png",
+    "下界之星": "https://zh.minecraft.wiki/images/Nether_Star_JE2_BE2.png",
+    "下界要塞": "https://zh.minecraft.wiki/images/Nether_Fortress_JE2_BE2.png", // 地形图标
+
 
     // 装备与工具
     "木剑": "https://zh.minecraft.wiki/images/Wooden_Sword_JE2_BE2.png",
@@ -212,6 +219,17 @@ const BIOMES = {
             {name:"岩浆怪", hp:16, atk:4, loot:"岩浆膏"}
         ] 
     },
+    // ... 在 NETHER_WASTES 下面添加 ...
+    NETHER_FORTRESS: { 
+        name: "要塞", 
+        code: "bg-LAVA", // 使用深红色背景
+        res: ["下界要塞", "地狱疣", "岩浆源", "宝箱"], 
+        mobs: [
+            {name:"烈焰人", hp:35, atk:12, loot:"烈焰棒"}, 
+            {name:"凋零骷髅", hp:50, atk:18, loot:"凋零头颅"} // 掉落头颅
+        ] 
+    },
+
     
     CRIMSON_FOREST: { name: "绯红", code: "bg-CRIMSON", res: ["绯红菌柄", "地狱疣", "萤石"], mobs: [{name:"猪灵", hp:16, atk:6, loot:"金锭"}, {name:"疣猪兽", hp:40, atk:8, loot:"生猪排"}] },
     SOUL_SAND_VALLEY: { name: "灵魂", code: "bg-SOUL", res: ["灵魂沙", "骨块", "玄武岩"], mobs: [{name:"骷髅", hp:20, atk:5, loot:"骨头"}] },
