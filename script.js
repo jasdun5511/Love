@@ -435,13 +435,15 @@ function collectResource(index) {
             addItemToInventory(food, foodCount);
             log(`发现了 [水瓶] 和 [${food} x${foodCount}]！`, "gold");
 
-            // 3. 额外珍贵战利品
-            if (Math.random() < 0.8) { addItemToInventory("金锭", 3); log("获得了 金锭"); }
+            // 3. 额外珍贵战利品 (已增加：铁锭 & 金锭)
+            if (Math.random() < 0.8) { addItemToInventory("金锭", 3); log("获得了 金锭 x3", "gold"); }
+            if (Math.random() < 0.8) { addItemToInventory("铁锭", 3); log("获得了 铁锭 x3", "white"); } // 新增
+            
             if (Math.random() < 0.5) { addItemToInventory("钻石", 1); log("获得了 💎钻石"); }
             if (Math.random() < 0.4) { addItemToInventory("烈焰棒", 2); log("获得了 烈焰棒"); }
             if (Math.random() < 0.3) { addItemToInventory("下界合金碎片", 1); log("✨ 竟然有 下界合金碎片！", "purple"); }
             if (Math.random() < 0.2) { addItemToInventory("凋零头颅", 1); log("💀 获得了 凋零头颅", "red"); }
-        } 
+
         
         // === 分支 B：普通宝箱 (主世界/普通地狱) ===
         else {
@@ -473,6 +475,21 @@ function collectResource(index) {
         finishCollect(index, item);
         return;
     }
+    // --- 新增：沙砾 -> 概率掉燧石 ---
+    if (item.name === "沙砾") {
+        doCollectWork();
+        // 50% 几率掉燧石，50% 掉沙砾本身
+        if (Math.random() < 0.5) {
+            addItemToInventory("燧石", 1);
+            log("运气不错！挖掘沙砾发现了 燧石。", "gold");
+        } else {
+            addItemToInventory("沙砾", 1);
+            log("挖掘了 沙砾。");
+        }
+        finishCollect(index, item);
+        return;
+    }
+
 
 
     // --- 新增：岩浆源互动逻辑 ---
