@@ -256,13 +256,17 @@ function getBiome(x, y) {
         return "VILLAGE"; 
 
     } else {
+        // 下界地形生成算法 (已添加：下界要塞)
         const val = Math.abs(Math.sin(x * 37 + y * 19) * 1000) % 1;
-        if (val < 0.4) return "NETHER_WASTES";
-        if (val < 0.7) return "LAVA_SEA";
-        if (val < 0.9) return "CRIMSON_FOREST";
-        return "SOUL_SAND_VALLEY";
+        
+        if (val < 0.35) return "NETHER_WASTES";    // 35% 荒地
+        if (val < 0.60) return "LAVA_SEA";         // 25% 熔岩海
+        if (val < 0.80) return "CRIMSON_FOREST";   // 20% 绯红森林
+        if (val < 0.95) return "SOUL_SAND_VALLEY"; // 15% 灵魂沙峡谷
+        return "NETHER_FORTRESS";                  // 5% 下界要塞 (稀有)
     }
 }
+
 
 
 
