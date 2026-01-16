@@ -395,13 +395,13 @@ function renderScene() {
 
 
 
-// 8. 交互：资源采集 (修正：水浇岩浆 -> 黑曜石)
+// 8. 交互：资源采集 (修复版：宝箱逻辑大括号已补全)
 // ------------------------------------------
 function collectResource(index) {
     if (!currentSceneItems || !currentSceneItems[index]) return;
     const item = currentSceneItems[index];
 
-    // 1. 采集惊扰机制 (保持不变)
+    // 1. 采集惊扰机制
     if (Math.random() < 0.1 && item.name !== "宝箱") {
         const biomeKey = getBiome(player.x, player.y);
         const biome = BIOMES[biomeKey];
@@ -412,38 +412,36 @@ function collectResource(index) {
         return; 
     }
 
-        // 2. 宝箱逻辑 (已增强：要塞宝箱掉落优化)
+    // 2. 宝箱逻辑 (这里就是之前容易出错的地方)
     if (item.name === "宝箱") {
         log("📦 打开了宝箱...", "gold");
         
-        // 获取当前地形，判断是不是要塞
+        // 获取当前地形
         const currentBiome = getBiome(player.x, player.y);
 
         // === 分支 A：下界要塞的宝箱 (富裕！) ===
         if (currentBiome === "NETHER_FORTRESS") {
             log("🔥 这是一个古老的要塞宝箱！", "orange");
             
-            // 1. 必掉：救命的水瓶 (100%几率)
+            // 必掉水瓶
             addItemToInventory("水瓶", 1);
 
-            // 2. 高概率掉落：金苹果、熟牛肉、谜之炖菜
-            // 数组里塞多几个金苹果，提高抽中概率
+            // 食物
             const richFood = ["金苹果", "金苹果", "熟牛肉", "熟牛肉", "熟牛肉", "谜之炖菜", "魔法糖冰棍"];
             let food = richFood[Math.floor(Math.random() * richFood.length)];
-            let foodCount = Math.floor(Math.random() * 2) + 2; // 2~3个
-            
+            let foodCount = Math.floor(Math.random() * 2) + 2; 
             addItemToInventory(food, foodCount);
             log(`发现了 [水瓶] 和 [${food} x${foodCount}]！`, "gold");
 
-            // 3. 额外珍贵战利品 (已增加：铁锭 & 金锭)
+            // 稀有掉落
             if (Math.random() < 0.8) { addItemToInventory("金锭", 3); log("获得了 金锭 x3", "gold"); }
-            if (Math.random() < 0.8) { addItemToInventory("铁锭", 3); log("获得了 铁锭 x3", "white"); } // 新增
-            
+            if (Math.random() < 0.8) { addItemToInventory("铁锭", 3); log("获得了 铁锭 x3", "white"); }
             if (Math.random() < 0.5) { addItemToInventory("钻石", 1); log("获得了 💎钻石"); }
             if (Math.random() < 0.4) { addItemToInventory("烈焰棒", 2); log("获得了 烈焰棒"); }
             if (Math.random() < 0.3) { addItemToInventory("下界合金碎片", 1); log("✨ 竟然有 下界合金碎片！", "purple"); }
             if (Math.random() < 0.2) { addItemToInventory("凋零头颅", 1); log("💀 获得了 凋零头颅", "red"); }
-
+        
+        } // <--- ⚠️ 之前就是这里少了这个大括号！一定要有！
         
         // === 分支 B：普通宝箱 (主世界/普通地狱) ===
         else {
@@ -456,7 +454,6 @@ function collectResource(index) {
             if (Math.random() < 0.3) { addItemToInventory("铁锭", 1); log("获得了 铁锭"); }
             if (Math.random() < 0.4) { addItemToInventory("经验瓶", 1); log("获得了 ✨经验瓶✨", "purple"); }
             
-            // 普通箱子很难开出金苹果和钻石
             if (Math.random() < 0.05) { addItemToInventory("金苹果", 1); log("运气爆棚！获得了 金苹果", "gold"); }
             if (Math.random() < 0.05) { addItemToInventory("钻石", 1); log("获得了 💎钻石！", "cyan"); }
         }
@@ -468,7 +465,6 @@ function collectResource(index) {
     // --- 新增：枯灌木 -> 木棍 ---
     if (item.name === "枯灌木") {
         doCollectWork();
-        // 随机获得 1 到 2 个木棍
         const count = Math.floor(Math.random() * 2) + 1;
         addItemToInventory("木棍", count);
         log(`折断了枯灌木，获得 木棍 x${count}。`, "green");
@@ -478,7 +474,6 @@ function collectResource(index) {
     // --- 新增：沙砾 -> 概率掉燧石 ---
     if (item.name === "沙砾") {
         doCollectWork();
-        // 50% 几率掉燧石，50% 掉沙砾本身
         if (Math.random() < 0.5) {
             addItemToInventory("燧石", 1);
             log("运气不错！挖掘沙砾发现了 燧石。", "gold");
@@ -490,21 +485,13 @@ function collectResource(index) {
         return;
     }
 
-
-
     // --- 新增：岩浆源互动逻辑 ---
     if (item.name === "岩浆源") {
-        // 检查是否有 "水" (在物品代码中，装了水的铁桶叫 "水")
-        if (player.inventory["水"] > 0) {
+        if (player.inventory["水"] > 0) { // 也就是铁桶(水)
             log("💦 滋——！你用水浇灭了岩浆。", "blue");
-            
-            // 直接修改场景中的物品，变为黑曜石
             item.name = "黑曜石";
             item.count = 1; 
-            
-            // 刷新场景显示 (岩浆图片 -> 黑曜石图片)
             renderScene();
-            // 注意：不消耗水，也不调用 finishCollect(不移除物品)，而是等玩家下次点击来挖掘
             return; 
         } else {
             log("太烫了！你需要一桶 [水] 来冷却它。", "red");
@@ -512,7 +499,7 @@ function collectResource(index) {
         }
     }
 
-    // 3. 镐子挖掘等级限制 (黑曜石等级设为 4)
+    // 3. 镐子挖掘等级限制
     const ORE_LEVEL = {
         "石头": 1, "煤炭": 1, 
         "铁矿石": 2, "青石矿": 2,
@@ -532,7 +519,7 @@ function collectResource(index) {
             let need = "木镐";
             if(ORE_LEVEL[item.name]===2) need="石镐";
             if(ORE_LEVEL[item.name]===3) need="铁镐";
-            if(ORE_LEVEL[item.name]===4) need="钻石镐"; // 黑曜石会提示这个
+            if(ORE_LEVEL[item.name]===4) need="钻石镐";
             log(`你的镐子太差了！需要 [${need}] 才能开采。`, "red");
             return;
         }
@@ -548,18 +535,12 @@ function collectResource(index) {
         finishCollect(index, item); return; 
     }
     
-        // 矿物采集 (修复：铁/金矿石掉落原矿，钻石等掉落成品)
+    // 矿物采集
     if (ORE_LEVEL[item.name] || item.name === "绿宝石矿") {
         doCollectWork();
-        
-        let drop = item.name; // 默认掉落原物品 (如：铁矿石 -> 铁矿石)
-
-        // 特殊矿物掉落成品
+        let drop = item.name; 
         if (item.name === "钻石矿") drop = "钻石";
         else if (item.name === "绿宝石矿") drop = "绿宝石";
-        else if (item.name === "煤炭") drop = "煤炭"; // 煤炭名字符合
-        else if (item.name === "红石") drop = "红石";
-        else if (item.name === "石头") drop = "石头"; 
         
         addItemToInventory(drop, 1);
         addExp(2);
@@ -567,7 +548,6 @@ function collectResource(index) {
         finishCollect(index, item);
         return;
     }
-
 
     // 装水逻辑
     if (item.name === "水") { 
