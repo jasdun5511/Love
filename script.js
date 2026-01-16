@@ -207,22 +207,35 @@ function updateDayNightCycle() {
 }
 
 
-// 5. 移动与地形算法 (伪随机生成)
-// ------------------------------------------
+// 5. 移动与地形算法
 function move(dx, dy) {
-    if(currentEnemy && document.getElementById('combat-view').className.indexOf('hidden') === -1) {
-        return log("战斗中无法移动！", "red");
+    // --- 战斗锁 ---
+    if (currentEnemy) {
+        if (currentEnemy.hp > 0) {
+            log("🚫 战斗中无法移动！", "red");
+            if(document.getElementById('combat-view').classList.contains('hidden')) switchView('combat');
+            return;
+        } else { currentEnemy = null; }
     }
+
     if (player.hp <= 0) return log("你已经倒下了。", "red");
+    
     const newX = player.x + dx;
     const newY = player.y + dy;
-    if (newX < 0 || newX >= MAP_SIZE || newY < 0 || newY >= MAP_SIZE) return log("前方是世界的尽头。");
+    
+    // --- 动态边界检查 ---
+    const mapLimit = currentDimension === "OVERWORLD" ? 20 : 10;
+    
+    if (newX < 0 || newX >= mapLimit || newY < 0 || newY >= mapLimit) {
+        return log("前方是世界的尽头。");
+    }
 
     player.x = newX;
     player.y = newY;
     passTime(1); 
     refreshLocation();
 }
+
 
 // 5. 地形算法 (新增：矿井生成)
 // ------------------------------------------
