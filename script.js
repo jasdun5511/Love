@@ -412,20 +412,57 @@ function collectResource(index) {
         return; 
     }
 
-    // 2. 宝箱逻辑 (保持不变)
+        // 2. 宝箱逻辑 (已增强：要塞宝箱掉落优化)
     if (item.name === "宝箱") {
         log("📦 打开了宝箱...", "gold");
-        const foods = ["面包","水瓶", "熟牛肉", "苹果", "金苹果"];
-        let food = foods[Math.floor(Math.random() * foods.length)];
-        addItemToInventory(food, Math.floor(Math.random()*2)+1);
-        log(`获得了 ${food}`);
-        if (Math.random() < 0.6) { addItemToInventory("煤炭", Math.floor(Math.random()*3)+1); log("获得了 煤炭"); }
-        if (Math.random() < 0.4) { addItemToInventory("经验瓶", 1); log("获得了 ✨经验瓶✨", "purple"); }
-        if (Math.random() < 0.2) { addItemToInventory("绿宝石", 1); log("获得了 💎绿宝石", "green"); }
-        if (Math.random() < 0.1) { addItemToInventory("钻石", 1); log("获得了 💎钻石！", "cyan"); }
+        
+        // 获取当前地形，判断是不是要塞
+        const currentBiome = getBiome(player.x, player.y);
+
+        // === 分支 A：下界要塞的宝箱 (富裕！) ===
+        if (currentBiome === "NETHER_FORTRESS") {
+            log("🔥 这是一个古老的要塞宝箱！", "orange");
+            
+            // 1. 必掉：救命的水瓶 (100%几率)
+            addItemToInventory("水瓶", 1);
+
+            // 2. 高概率掉落：金苹果、熟牛肉、谜之炖菜
+            // 数组里塞多几个金苹果，提高抽中概率
+            const richFood = ["金苹果", "金苹果", "熟牛肉", "熟牛肉", "熟牛肉", "谜之炖菜", "魔法糖冰棍"];
+            let food = richFood[Math.floor(Math.random() * richFood.length)];
+            let foodCount = Math.floor(Math.random() * 2) + 2; // 2~3个
+            
+            addItemToInventory(food, foodCount);
+            log(`发现了 [水瓶] 和 [${food} x${foodCount}]！`, "gold");
+
+            // 3. 额外珍贵战利品
+            if (Math.random() < 0.8) { addItemToInventory("金锭", 3); log("获得了 金锭"); }
+            if (Math.random() < 0.5) { addItemToInventory("钻石", 1); log("获得了 💎钻石"); }
+            if (Math.random() < 0.4) { addItemToInventory("烈焰棒", 2); log("获得了 烈焰棒"); }
+            if (Math.random() < 0.3) { addItemToInventory("下界合金碎片", 1); log("✨ 竟然有 下界合金碎片！", "purple"); }
+            if (Math.random() < 0.2) { addItemToInventory("凋零头颅", 1); log("💀 获得了 凋零头颅", "red"); }
+        } 
+        
+        // === 分支 B：普通宝箱 (主世界/普通地狱) ===
+        else {
+            const foods = ["面包", "水瓶", "熟牛肉", "金苹果"];
+            let food = foods[Math.floor(Math.random() * foods.length)];
+            addItemToInventory(food, Math.floor(Math.random()*2)+1);
+            log(`获得了 ${food}`);
+            
+            if (Math.random() < 0.6) { addItemToInventory("煤炭", Math.floor(Math.random()*3)+1); log("获得了 煤炭"); }
+            if (Math.random() < 0.3) { addItemToInventory("铁锭", 1); log("获得了 铁锭"); }
+            if (Math.random() < 0.4) { addItemToInventory("经验瓶", 1); log("获得了 ✨经验瓶✨", "purple"); }
+            
+            // 普通箱子很难开出金苹果和钻石
+            if (Math.random() < 0.05) { addItemToInventory("金苹果", 1); log("运气爆棚！获得了 金苹果", "gold"); }
+            if (Math.random() < 0.05) { addItemToInventory("钻石", 1); log("获得了 💎钻石！", "cyan"); }
+        }
+
         finishCollect(index, item);
         return;
     }
+
     // --- 新增：枯灌木 -> 木棍 ---
     if (item.name === "枯灌木") {
         doCollectWork();
