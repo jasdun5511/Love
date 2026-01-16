@@ -167,7 +167,7 @@ const ITEM_ICONS = {
     // --- 新增：怪物 ---
     "毒蜘蛛": "https://zh.minecraft.wiki/images/Cave_Spider_JE2_BE2.png",
     "末影人": "https://zh.minecraft.wiki/images/Enderman_JE3_BE1.png?b5299",
-    "治疗药水": "https://zh.minecraft.wiki/images/Potion_of_Healing_JE2_BE2.png",
+    "治疗药水": "https://zh.minecraft.wiki/images/Invicon_Potion_of_Healing.png?8562d",
     "沙砾": "https://zh.minecraft.wiki/images/Gravel_JE5_BE4.png?a6d50",
 
 
