@@ -766,23 +766,21 @@ function combatAttack() {
     box.classList.add('shake');
 
     if (currentEnemy.hp <= 0) {
+    // ... 在 combatAttack 函数内部，if (currentEnemy.hp <= 0) 胜利判断里 ...
+
         const loot = currentEnemy.loot;
         const expGain = (currentEnemy.baseExp || 5) + currentEnemy.level * 2;
         combatLog(`胜利！获得 ${loot}，EXP +${expGain}`, "gold");
 
-    // ... 在 combatLog("胜利！...") 后面添加：
-
-    // --- 任务检测 ---
-    if (typeof QUEST_DATA !== 'undefined') {
-        const q = QUEST_DATA[currentQuestId];
-        // 如果是击杀末影龙的任务
-        if (q && q.type === 'kill' && currentEnemy.name === q.target) {
-            log("🏆 恭喜！你击败了末影龙！", "gold");
-            // 这里可以做一个更华丽的通关结算，暂时先直接完成任务
-            checkAndClaimQuest();
+        // === 新增：BOSS 击杀状态更新 ===
+        if (currentEnemy.name === "凋灵") {
+            document.getElementById('boss-status-wither').innerHTML = `<span style="color:gray;text-decoration:line-through">凋灵: 已击败</span>`;
         }
-    }
-    
+        if (currentEnemy.name === "末影龙") {
+            document.getElementById('boss-status-dragon').innerHTML = `<span style="color:gray;text-decoration:line-through">末影龙: 已击败</span>`;
+        }
+        // ============================
+
     // ... 继续原本的 addItemToInventory ...
 
         
