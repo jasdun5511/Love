@@ -83,7 +83,7 @@ const ITEM_ICONS = {
     "恶魂": "https://zh.minecraft.wiki/images/Ghast_JE2_BE2.png",
     "猪灵": "https://zh.minecraft.wiki/images/Piglin_JE1.png?b639e",
     "疣猪兽": "https://zh.minecraft.wiki/images/Hoglin_JE2.png?a1d9a",
-    "烈焰人": "https://zh.minecraft.wiki/images/Blaze_BE.gif?f0c6f
+     "烈焰人": "https://zh.minecraft.wiki/images/Blaze_BE.gif?f0c6f", // <--- 之前这里少了 ",
     "岩浆怪": "https://zh.minecraft.wiki/images/Magma_Cube_JE2_BE2.png?38c60",
 
     // 装备与工具
