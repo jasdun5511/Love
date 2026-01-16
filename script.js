@@ -1639,9 +1639,19 @@ function search() {
     refreshLocation(); 
     log("搜索完成。"); 
 }
- refreshLocation(); log("搜索完成。"); }
-function die() { alert("你死亡了！刷新页面重来。"); localStorage.removeItem(SAVE_KEY); location.reload(); }
-window.setHome = () => { player.home = {dim: currentDimension, x: player.x, y: player.y}; log("已安家。", "gold"); refreshLocation(); }
+
+function die() { 
+    alert("你死亡了！刷新页面重来。"); 
+    localStorage.removeItem(SAVE_KEY); 
+    location.reload(); 
+}
+
+window.setHome = () => { 
+    player.home = {dim: currentDimension, x: player.x, y: player.y}; 
+    log("已安家。", "gold"); 
+    refreshLocation(); 
+}
+
 
 
 // ==========================================
