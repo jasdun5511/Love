@@ -1413,32 +1413,40 @@ function usePortal() {
 }
 
 
-// 15. UI 更新与通用功能 (已修复：亡灵突袭检测)
-// ------------------------------------------
+// 15. UI 更新与通用功能 -> 刷新地点
 function refreshLocation() {
     let currentMap = getCurrExplored();
     const offsets = [{dx:0,dy:0},{dx:0,dy:-1},{dx:0,dy:1},{dx:-1,dy:0},{dx:1,dy:0}];
-    offsets.forEach(o => { let nx=player.x+o.dx, ny=player.y+o.dy; if(nx>=0&&nx<MAP_SIZE&&ny>=0&&ny<MAP_SIZE) currentMap[`${nx},${ny}`] = true; });
+    
+    // --- 动态边界 ---
+    const mapLimit = currentDimension === "OVERWORLD" ? 20 : 10;
+
+    offsets.forEach(o => { 
+        let nx = player.x + o.dx;
+        let ny = player.y + o.dy; 
+        if(nx >= 0 && nx < mapLimit && ny >= 0 && ny < mapLimit) {
+            currentMap[`${nx},${ny}`] = true; 
+        }
+    });
 
     const biomeKey = getBiome(player.x, player.y);
-    const biome = BIOMES[biomeKey];
+    // 增加判空防止报错
+    const biome = BIOMES[biomeKey] || BIOMES["PLAINS"]; 
+    
     document.getElementById('loc-name').innerHTML = currentDimension==="NETHER" ? `<span style="color:#e74c3c">🔥${biome.name}</span>` : biome.name;
     document.getElementById('coord').innerText = `${player.x},${player.y}`;
     document.body.style.backgroundColor = currentDimension==="NETHER" ? "#2c0505" : "#333";
 
     generateScene(biomeKey);
     
-    // --- 新增：检测是否有怪在埋伏 (Move/Search 触发) ---
     const ambusher = currentSceneItems.find(item => item.type === 'mob' && item.isAmbush);
     
     renderScene();
-    updateMiniMap();
+    updateMiniMap(); // 这里也需要对应修改，见下一步
     if (!document.getElementById('map-modal').classList.contains('hidden')) renderBigMap();
 
-    // 如果有伏击怪，强制进入战斗
     if (ambusher) {
         log(`⚠️ 遭遇突袭！${ambusher.name} 主动发起了攻击！`, "red");
-        // 延迟 200ms 让玩家先看一眼地图，然后进战斗
         setTimeout(() => {
             startCombat(ambusher, currentSceneItems.indexOf(ambusher));
         }, 200);
@@ -1502,15 +1510,21 @@ function openMap() { document.getElementById('map-modal').classList.remove('hidd
 function closeMap() { document.getElementById('map-modal').classList.add('hidden'); }
 
 function updateMiniMap() {
+    // --- 动态边界 ---
+    const mapLimit = currentDimension === "OVERWORLD" ? 20 : 10;
+
     const getBName = (x, y) => {
-        if (x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE) return "边界";
-        return BIOMES[getBiome(x, y)].name.substring(0, 2);
+        if (x < 0 || x >= mapLimit || y < 0 || y >= mapLimit) return "边界";
+        // 增加判空
+        const b = BIOMES[getBiome(x, y)];
+        return b ? b.name.substring(0, 2) : "未知";
     };
     document.getElementById('dir-n').innerText = getBName(player.x, player.y - 1);
     document.getElementById('dir-s').innerText = getBName(player.x, player.y + 1);
     document.getElementById('dir-w').innerText = getBName(player.x - 1, player.y);
     document.getElementById('dir-e').innerText = getBName(player.x + 1, player.y);
 }
+
 
 // 渲染大地图 (已修复：地狱10x10，主世界20x20)
 function renderBigMap() {
