@@ -167,6 +167,8 @@ const ITEM_ICONS = {
     // --- 新增：怪物 ---
     "毒蜘蛛": "https://zh.minecraft.wiki/images/Cave_Spider_JE2_BE2.png",
     "末影人": "https://zh.minecraft.wiki/images/Enderman_JE3_BE1.png?b5299",
+    "治疗药水": "https://zh.minecraft.wiki/images/Potion_of_Healing_JE2_BE2.png",
+
 
 
 };
@@ -316,6 +318,15 @@ const RECIPES = [
         type: "boss", // 标记为特殊类型
         desc: "⚠️ 警告：消耗材料直接召唤BOSS！" 
     },
+    // ... 在 RECIPES 里添加 ...
+    { 
+        name: "治疗药水", 
+        req: { "水瓶": 1, "地狱疣": 3 }, 
+        type: "use", 
+        desc: "强效恢复 (血+100 饱食+20 水分+30)", 
+        station: "furnace" // 需要在熔炉旁制作
+    },
+
 
 
 ];
