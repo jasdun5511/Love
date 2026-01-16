@@ -55,13 +55,13 @@ const ITEM_ICONS = {
     "铁锭": "https://zh.minecraft.wiki/images/Iron_Ingot_JE3_BE2.png",
     "金矿石": "https://zh.minecraft.wiki/images/Gold_Ore_JE7_BE4.png",
     "金锭": "https://zh.minecraft.wiki/images/Gold_Ingot_JE4_BE2.png",
-    "金粒": "https://zh.minecraft.wiki/images/Gold_Nugget_JE3_BE2.png",
+    "金粒": "https://zh.minecraft.wiki/images/Gold_Nugget_JE2_BE2.png?370b3",
     "钻石矿": "https://zh.minecraft.wiki/images/Diamond_Ore_JE5_BE5.png?73a76",
     "钻石": "https://zh.minecraft.wiki/images/Diamond_JE2_BE2.png?36a4d",
     "绿宝石矿": "https://zh.minecraft.wiki/images/Emerald_Ore_JE4_BE3.png",
     "红石": "https://zh.minecraft.wiki/images/Redstone_Dust_JE2_BE2.png",
     "燧石": "https://zh.minecraft.wiki/images/Flint_JE3_BE3.png",
-    "远古残骸": "https://zh.minecraft.wiki/w/%E8%BF%9C%E5%8F%A4%E6%AE%8B%E9%AA%B8#/media/File%3AAncient_Debris_JE1_BE1.png",
+    "远古残骸": "https://zh.minecraft.wiki/images/Ancient_Debris_JE1_BE1.png?f0633",
     "下界合金碎片": "https://zh.minecraft.wiki/images/Netherite_Scrap_JE2_BE2.png",
     "下界合金锭": "https://zh.minecraft.wiki/images/Netherite_Ingot_JE1_BE2.png?df0f5",
 
@@ -131,7 +131,7 @@ const ITEM_ICONS = {
     "石英矿": "https://zh.minecraft.wiki/images/Nether_Quartz_Ore_JE3_BE2.png",
     "绯红菌柄": "https://zh.minecraft.wiki/images/Crimson_Stem_Axis_Y_JE2_BE1.gif?eb702",
     "地狱疣": "https://zh.minecraft.wiki/images/Invicon_Nether_Wart.png?2605c",
-    "萤石": "https://zh.minecraft.wiki/images/Glowstone_JE3_BE2.png",
+    "萤石": "https://zh.minecraft.wiki/images/Glowstone_BE3.png?22fe6",
     "灵魂沙": "https://zh.minecraft.wiki/images/Soul_Sand_JE2_BE2.png?f1135",
     "骨块": "https://zh.minecraft.wiki/images/Bone_Block_JE2_BE2.png",
     "玄武岩": "https://zh.minecraft.wiki/images/Invicon_Basalt.png?94149",
@@ -168,6 +168,8 @@ const ITEM_ICONS = {
     "毒蜘蛛": "https://zh.minecraft.wiki/images/Cave_Spider_JE2_BE2.png",
     "末影人": "https://zh.minecraft.wiki/images/Enderman_JE3_BE1.png?b5299",
     "治疗药水": "https://zh.minecraft.wiki/images/Potion_of_Healing_JE2_BE2.png",
+    "沙砾": "https://zh.minecraft.wiki/images/Gravel_JE5_BE4.png?a6d50",
+
 
 
 
@@ -213,7 +215,7 @@ const BIOMES = {
     NETHER_WASTES: { 
         name: "荒地", 
         code: "bg-MESA", // 暂时复用恶地的颜色(红褐色)，比较像地狱岩
-        res: ["地狱岩", "石英矿", "金粒", "岩浆源", "萤石"], 
+        res: ["地狱岩", "石英矿", "金粒", "沙砾","岩浆源", "萤石"], 
         mobs: [
             {name:"僵尸猪人", hp:22, atk:5, loot:"金粒"}, 
             {name:"恶魂", hp:10, atk:10, loot:"火药"},
