@@ -1499,26 +1499,50 @@ function updateMiniMap() {
     document.getElementById('dir-e').innerText = getBName(player.x + 1, player.y);
 }
 
+// 渲染大地图 (已修复：地狱10x10，主世界20x20)
 function renderBigMap() {
     const mapEl = document.getElementById('big-grid');
     if (!mapEl) return;
+    
+    // 动态获取当前地图大小
+    const size = currentDimension === "OVERWORLD" ? 20 : 10;
+    
     mapEl.innerHTML = '';
-    mapEl.style.gridTemplateColumns = `repeat(${MAP_SIZE}, 1fr)`;
-    mapEl.style.gridTemplateRows = `repeat(${MAP_SIZE}, 1fr)`;
+    // CSS网格布局动态调整
+    mapEl.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+    mapEl.style.gridTemplateRows = `repeat(${size}, 1fr)`;
+    
     const currentExplored = getCurrExplored();
-    for (let y = 0; y < MAP_SIZE; y++) {
-        for (let x = 0; x < MAP_SIZE; x++) {
+    
+    for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) {
             const cell = document.createElement('div');
             const key = `${x},${y}`;
+            
+            // 检查探索状态
             if (currentExplored[key]) {
                 const type = getBiome(x, y);
-                cell.className = `map-cell ${BIOMES[type].code}`;
-                cell.innerText = BIOMES[type].name.substring(0, 2);
-                if(getCurrBuildings()[key]?.some(b => b.name === "下界传送门")) {
-                    cell.style.border = "2px solid #8e44ad"; cell.innerText = "门";
+                if (BIOMES[type]) {
+                    cell.className = `map-cell ${BIOMES[type].code}`;
+                    cell.innerText = BIOMES[type].name.substring(0, 2);
+                } else {
+                    cell.className = 'map-cell'; // 兜底防止报错
                 }
-            } else { cell.className = 'map-cell fog'; }
-            if (x === player.x && y === player.y) { cell.classList.add('player'); cell.innerText = "我"; }
+
+                // 显示传送门
+                if(getCurrBuildings()[key]?.some(b => b.name === "下界传送门")) {
+                    cell.style.border = "2px solid #8e44ad"; 
+                    cell.innerText = "门";
+                }
+            } else { 
+                cell.className = 'map-cell fog'; 
+            }
+            
+            // 显示玩家位置
+            if (x === player.x && y === player.y) { 
+                cell.classList.add('player'); 
+                cell.innerText = "我"; 
+            }
             mapEl.appendChild(cell);
         }
     }
