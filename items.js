@@ -89,8 +89,7 @@ const ITEM_ICONS = {
     "凋零骷髅": "https://zh.minecraft.wiki/images/Wither_Skeleton_JE3_BE2.png",
     "凋零头颅": "https://zh.minecraft.wiki/images/Wither_Skeleton_Skull_%28item%29_JE2_BE2.png",
     "凋灵": "https://zh.minecraft.wiki/images/Wither_JE2_BE2.png",
-    "下界之星": "https://zh.minecraft.wiki/images/Nether_Star_JE2_BE2.png",
-    "下界要塞": "https://zh.minecraft.wiki/images/Nether_Fortress_JE2_BE2.png", // 地形图标
+    "下界之星": "https://zh.minecraft.wiki/images/Nether_Star_JE2_BE2.png",    
 
 
     // 装备与工具
@@ -223,7 +222,7 @@ const BIOMES = {
     NETHER_FORTRESS: { 
         name: "要塞", 
         code: "bg-LAVA", // 使用深红色背景
-        res: ["下界要塞", "地狱疣", "岩浆源", "宝箱"], 
+        res: ["地狱疣", "岩浆源", "宝箱"], 
         mobs: [
             {name:"烈焰人", hp:35, atk:12, loot:"烈焰棒"}, 
             {name:"凋零骷髅", hp:50, atk:18, loot:"凋零头颅"} // 掉落头颅
