@@ -1239,26 +1239,71 @@ function updateCraftUI() {
 }
 
 function craftItem(recipe) {
-    // 同样在执行制作时进行背包检测
+    // --- 特殊逻辑：召唤凋灵 ---
+    if (recipe.name === "召唤凋灵") {
+        // 1. 检查材料是否足够 (再次确认，防止作弊)
+        for (let [mat, qty] of Object.entries(recipe.req)) { 
+            if(getInvCount(mat) < qty) return log(`材料不足！需要 ${mat} x${qty}`, "red");
+        }
+        // 2. 消耗召唤材料
+        for (let [mat, qty] of Object.entries(recipe.req)) { 
+            consumeInvItem(mat, qty); 
+        }
+
+        // 3. 定义 BOSS 数据
+        let boss = { 
+            name: "凋灵", 
+            type: "mob", 
+            level: 99, 
+            hp: 600,       // 超厚血量
+            maxHp: 600, 
+            atk: 45,       // 超高攻击
+            loot: "下界之星", 
+            baseExp: 2000,
+            isAmbush: true // 召唤即突袭
+        };
+
+        log("😱 天地变色... 凋灵降临了！！！", "red");
+        updateInventoryUI(); // 刷新背包显示(材料已扣除)
+        
+        // 4. 延迟 0.5秒 进入战斗
+        setTimeout(() => {
+            startCombat(boss, -1); 
+        }, 500);
+        return; // 阻止后续的普通物品制作流程
+    }
+    // -------------------------
+
+    // --- 普通物品制作逻辑 ---
+    
+    // 1. 检查站点需求 (工作台/熔炉)
     const hasWorkbench = (player.inventory["工作台"] || 0) > 0;
     const hasFurnace = (player.inventory["熔炉"] || 0) > 0;
 
     if (recipe.station === 'workbench' && !hasWorkbench) return log("你需要背包里有工作台！", "red");
     if (recipe.station === 'furnace' && !hasFurnace) return log("你需要背包里有熔炉！", "red");
 
+    // 2. 检查材料 (双重保险)
     for (let [mat, qty] of Object.entries(recipe.req)) { 
         if(getInvCount(mat) < qty) return; 
     }
+    
+    // 3. 消耗材料
     for (let [mat, qty] of Object.entries(recipe.req)) { 
         consumeInvItem(mat, qty); 
     } 
     
+    // 4. 给予成品
     const count = recipe.count || 1;
     addItemToInventory(recipe.name, count);
     log(`制作成功: ${recipe.name} ${count > 1 ? "x"+count : ""}`);
     
-    updateInventoryUI(); updateCraftUI(); updateStatsUI();
+    // 5. 刷新界面
+    updateInventoryUI(); 
+    updateCraftUI(); 
+    updateStatsUI();
 }
+
 
 
 // 12. 交互：交易系统
