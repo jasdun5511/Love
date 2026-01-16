@@ -200,7 +200,19 @@ const BIOMES = {
             {name:"骷髅", hp:40, atk:12, loot:"骨头"},
             {name:"苦力怕", hp:30, atk:25, loot:"火药"},
             {name:"末影人", hp:80, atk:20, loot:"末影珍珠"}] },
-
+   
+    
+    NETHER_WASTES: { 
+        name: "荒地", 
+        code: "bg-MESA", // 暂时复用恶地的颜色(红褐色)，比较像地狱岩
+        res: ["地狱岩", "石英矿", "金粒", "岩浆源", "萤石"], 
+        mobs: [
+            {name:"僵尸猪人", hp:22, atk:5, loot:"金粒"}, 
+            {name:"恶魂", hp:10, atk:10, loot:"火药"},
+            {name:"岩浆怪", hp:16, atk:4, loot:"岩浆膏"}
+        ] 
+    },
+    
     CRIMSON_FOREST: { name: "绯红", code: "bg-CRIMSON", res: ["绯红菌柄", "地狱疣", "萤石"], mobs: [{name:"猪灵", hp:16, atk:6, loot:"金锭"}, {name:"疣猪兽", hp:40, atk:8, loot:"生猪排"}] },
     SOUL_SAND_VALLEY: { name: "灵魂", code: "bg-SOUL", res: ["灵魂沙", "骨块", "玄武岩"], mobs: [{name:"骷髅", hp:20, atk:5, loot:"骨头"}] },
     LAVA_SEA: { name: "熔岩", code: "bg-LAVA", res: ["岩浆源", "黑石", "远古残骸"], mobs: [{name:"烈焰人", hp:20, atk:6, loot:"烈焰棒"}, {name:"岩浆怪", hp:16, atk:4, loot:"岩浆膏"}] }
