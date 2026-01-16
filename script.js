@@ -1104,6 +1104,18 @@ function useItem(name) {
         document.body.style.filter = "hue-rotate(90deg)";
         setTimeout(() => document.body.style.filter = "none", 500);
     }
+    // ... 在 useItem 函数内部 ...
+
+    // --- 新增：治疗药水逻辑 ---
+    else if (name === "治疗药水") {
+        player.hp = Math.min(player.maxHp, player.hp + 100);
+        player.hunger = Math.min(player.maxHunger, player.hunger + 20);
+        player.water = Math.min(player.maxWater, player.water + 30);
+        log("✨ 咕嘟咕嘟... 感觉焕然一新！(HP+100, 饱食+20, 水分+30)", "green");
+    }
+    
+    // else if (name === "金苹果") ... (原本的代码)
+
 
     // 2. 特殊物品：金苹果
     else if (name === "金苹果") { 
