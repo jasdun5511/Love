@@ -178,6 +178,9 @@ const ITEM_ICONS = {
     "末影龙": "https://zh.minecraft.wiki/images/Ender_Dragon.gif",
     "龙蛋": "https://zh.minecraft.wiki/images/Dragon_Egg_JE2_BE2.png",
     "紫颂果": "https://zh.minecraft.wiki/images/Chorus_Fruit_JE2_BE2.png"
+    // 让“末地祭坛”直接显示为空框架的图片
+    "末地祭坛": "https://zh.minecraft.wiki/images/End_Portal_Frame_JE4_BE3.png?d1c54",
+
 };
 
 // ==========================================
