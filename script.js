@@ -1,21 +1,15 @@
-// ==========================================
-// 逻辑内核 (Script.js) - 终极修复版
-// ==========================================
-
 // 1. 游戏状态与数据定义
 // ------------------------------------------
 let player = { 
     x: 10, y: 10, 
     hp: 100, maxHp: 100, 
     hunger: 100, maxHunger: 100,
-    water: 100, maxWater: 100,
+    water: 100, maxWater: 100, // <--- 【修复】这里之前少了一个逗号！
     sanity: 100, maxSanity: 100,
     atk: 5,  
     def: 0,
-    // ... (前面的属性保持不变) 
-    isPoisoned: false, // <--- 新增：中毒状态
-    // ... (后面的属性保持不变)
-
+    isPoisoned: false, 
+    
     // RPG 属性
     level: 1,
     exp: 0,
@@ -2217,7 +2211,7 @@ function summonEnderDragon() {
 
 
 // ==========================================
-// 最终初始化 (安全入口)
+// 最终初始化 (安全入口) - 已修复变量重置
 // ==========================================
 window.init = function() {
     console.log("游戏启动中...");
@@ -2229,12 +2223,17 @@ window.init = function() {
         console.log("初始化新游戏数据...");
         // 强制重置核心变量，防止旧数据残留
         player = { 
-            x: 10, y: 10, hp: 100, maxHp: 100, hunger: 100, maxHunger: 100, water: 100, maxWater: 100, sanity: 100, maxSanity: 100, atk: 5, 
-            level: 1, exp: 0, maxExp: 10, statPoints: 0, inventory: {}, home: null 
+            x: 10, y: 10, hp: 100, maxHp: 100, hunger: 100, maxHunger: 100, water: 100, maxWater: 100, sanity: 100, maxSanity: 100, atk: 5, def: 0, isPoisoned: false,
+            level: 1, exp: 0, maxExp: 10, statPoints: 0, inventory: {}, home: null, equipWeapon: null, equipArmor: null
         };
         gameTime = { day: 1, hour: 8 };
         currentDimension = "OVERWORLD";
         currentQuestId = 0;
+        
+        // --- 【新增】重置特殊地形与Boss状态 ---
+        strongholdPos = null;
+        endCrystalsData = [1,1,1,1,1,1,1,1]; // 重置8个水晶
+        isDragonDead = false;                // 重置龙的状态
         
         // 重置地图
         exploredMapMain = {}; exploredMapNether = {};
@@ -2271,4 +2270,3 @@ window.init = function() {
 
 // 启动
 init();
-
