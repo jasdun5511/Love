@@ -77,7 +77,7 @@ const ITEM_ICONS = {
     "溺尸": "https://zh.minecraft.wiki/images/Drowned_with_Trident.png?ce04b",
     "史莱姆": "https://zh.minecraft.wiki/images/Slime_JE2_BE2.png",
     "女巫": "https://zh.minecraft.wiki/images/Witch_JE4.png?c2f4f",
-    "僵尸猪人": "https://zh.minecraft.wiki/images/Zombified_Piglin_JE2_BE2.png",
+    "僵尸猪人": "https://zh.minecraft.wiki/images/Zombified_Piglin_JE9.png?a25c1",
     "恶魂": "https://zh.minecraft.wiki/images/Ghast_JE2_BE2.png",
     "猪灵": "https://zh.minecraft.wiki/images/Piglin_JE1.png?b639e",
     "疣猪兽": "https://zh.minecraft.wiki/images/Hoglin_JE2.png?a1d9a",
