@@ -2191,6 +2191,29 @@ function enterTheEnd() {
     switchView('scene');
     refreshLocation();
 }
+function summonEnderDragon() {
+    // 强制把玩家拉到中心点 (2,2) 进行决战
+    player.x = 2; player.y = 2;
+    currentDimension = "THE_END";
+    
+    let dragon = { 
+        type: 'mob', 
+        name: "末影龙", 
+        level: 100, 
+        hp: 1000,        // 比凋灵(600)强
+        maxHp: 1000, 
+        atk: 60,         // 比凋灵(45)高
+        loot: "龙蛋", 
+        baseExp: 5000,
+        isAmbush: true,
+        index: -1
+    };
+    
+    // 强制开始战斗
+    startCombat(dragon, -1);
+    combatLog("🐲 吼——————！", "red");
+}
+
 
 
 // ==========================================
