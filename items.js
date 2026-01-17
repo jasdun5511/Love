@@ -174,6 +174,12 @@ const ITEM_ICONS = {
     "填充的框架": "https://zh.minecraft.wiki/images/End_Portal_Frame_%28Eye%29_JE4_BE3.png?6fada",
     "末地传送门": "https://zh.minecraft.wiki/images/End_Portal_%28Active%29.png?99291&format=original",
     // ...
+    // ... 在 ITEM_ICONS 任意位置添加 ...
+    "末影之眼": "https://zh.minecraft.wiki/images/Ender_Eye_JE2_BE2.png?4be4d",
+    "书架": "https://zh.minecraft.wiki/images/Bookshelf_JE4_BE2.png",
+    "铁栅栏": "https://zh.minecraft.wiki/images/Iron_Bars_JE4_BE2.png",
+    "蠹虫": "https://zh.minecraft.wiki/images/Silverfish_JE5_BE3.png", // 要塞怪物
+
 
 
 
@@ -340,6 +346,8 @@ const RECIPES = [
         desc: "强效恢复 (血+100 饱食+20 水分+30)", 
         station: "furnace" // 需要在熔炉旁制作
     },
+    { name: "末影之眼", req: { "末影珍珠": 1, "烈焰棒": 1 }, type: "item", desc: "寻找要塞与激活传送门", station: "workbench" },
+
 
 
 
