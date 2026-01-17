@@ -60,7 +60,7 @@ const ITEM_ICONS = {
     "红石": "https://zh.minecraft.wiki/images/Redstone_Dust_JE2_BE2.png",
     "燧石": "https://zh.minecraft.wiki/images/Flint_JE3_BE3.png",
     "远古残骸": "https://zh.minecraft.wiki/images/Ancient_Debris_JE1_BE1.png?f0633",
-    "下界合金碎片": "https://zh.minecraft.wiki/images/Netherite_Scrap_JE2_BE2.png",
+    "下界合金碎片": "https://zh.minecraft.wiki/images/Netherite_Scrap_JE2_BE1.png?4442e",
     "下界合金锭": "https://zh.minecraft.wiki/images/Netherite_Ingot_JE1_BE2.png?df0f5",
 
     // 生物
@@ -84,7 +84,7 @@ const ITEM_ICONS = {
     "烈焰人": "https://zh.minecraft.wiki/images/Blaze_BE.gif?f0c6f", 
     "岩浆怪": "https://zh.minecraft.wiki/images/Magma_Cube_JE2_BE2.png?38c60",
     "凋零骷髅": "https://zh.minecraft.wiki/images/Wither_Skeleton_JE3_BE2.png",
-    "凋零头颅": "https://zh.minecraft.wiki/images/Wither_Skeleton_Skull_%28item%29_JE2_BE2.png",
+    "凋零头颅": "https://zh.minecraft.wiki/images/Wither_Skull_JE3_BE3.png?fd688",
     "凋灵": "https://zh.minecraft.wiki/images/Wither_JE2_BE2.png",
     "下界之星": "https://zh.minecraft.wiki/images/Nether_Star_JE2_BE2.png",    
 
@@ -128,7 +128,7 @@ const ITEM_ICONS = {
     "地狱疣": "https://zh.minecraft.wiki/images/Invicon_Nether_Wart.png?2605c",
     "萤石": "https://zh.minecraft.wiki/images/Glowstone_BE3.png?22fe6",
     "灵魂沙": "https://zh.minecraft.wiki/images/Soul_Sand_JE2_BE2.png?f1135",
-    "骨块": "https://zh.minecraft.wiki/images/Bone_Block_JE2_BE2.png",
+    "骨块": "https://zh.minecraft.wiki/images/Bone_Block_%28UD%29_JE2_BE2.png?75844",
     "玄武岩": "https://zh.minecraft.wiki/images/Invicon_Basalt.png?94149",
     "黑石": "https://zh.minecraft.wiki/images/Blackstone_JE3_BE2.png?463a4",
     "烈焰棒": "https://zh.minecraft.wiki/images/Blaze_Rod_JE1_BE1.png?d06fc",
@@ -168,7 +168,7 @@ const ITEM_ICONS = {
     "末地传送门框架": "https://zh.minecraft.wiki/images/End_Portal_Frame_JE4_BE3.png?d1c54",
     "填充的框架": "https://zh.minecraft.wiki/images/End_Portal_Frame_%28Eye%29_JE4_BE3.png?6fada",
     "末地传送门": "https://zh.minecraft.wiki/images/End_Portal_%28Active%29.png?99291&format=original",
-    "末影之眼": "https://zh.minecraft.wiki/images/Ender_Eye_JE2_BE2.png?4be4d",
+    "末影之眼": "https://zh.minecraft.wiki/images/Eye_of_Ender_JE2_BE2.png?b62ac",
     "书架": "https://zh.minecraft.wiki/images/Bookshelf_JE4_BE2.png",
     "铁栅栏": "https://zh.minecraft.wiki/images/Iron_Bars_JE4_BE2.png",
     "蠹虫": "https://zh.minecraft.wiki/images/Silverfish_JE5_BE3.png", 
