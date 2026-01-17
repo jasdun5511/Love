@@ -86,7 +86,7 @@ const ITEM_ICONS = {
     "凋零骷髅": "https://zh.minecraft.wiki/images/Wither_Skeleton_JE3_BE2.png",
     "凋零头颅": "https://zh.minecraft.wiki/images/Wither_Skull_JE3_BE3.png?fd688",
     "凋灵": "https://zh.minecraft.wiki/images/Wither_JE2_BE2.png",
-    "下界之星": "https://zh.minecraft.wiki/images/Nether_Star_JE2_BE2.png",    
+    "下界之星": "https://zh.minecraft.wiki/images/Nether_Star.gif?ad381",    
 
     // 装备与工具
     "木剑": "https://zh.minecraft.wiki/images/Wooden_Sword_JE2_BE2.png",
