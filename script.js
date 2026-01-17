@@ -207,7 +207,7 @@ function updateDayNightCycle() {
 }
 
 
-// 5. 移动与地形算法
+// 5. 移动与地形算法 (修复版：正确处理下界边界)
 function move(dx, dy) {
     // --- 战斗锁 ---
     if (currentEnemy) {
@@ -223,19 +223,20 @@ function move(dx, dy) {
     const newX = player.x + dx;
     const newY = player.y + dy;
     
-    // --- 动态边界检查 ---
+    // --- ★★★ 关键修复：动态边界检查 ★★★ ---
+    // 只有主世界是 20x20，下界和末地都是 10x10
     const mapLimit = currentDimension === "OVERWORLD" ? 20 : 10;
     
     if (newX < 0 || newX >= mapLimit || newY < 0 || newY >= mapLimit) {
-        return log("前方是世界的尽头。");
+        return log("前方是世界的尽头 (边界)。");
     }
 
     player.x = newX;
     player.y = newY;
+    
     passTime(1); 
     refreshLocation();
 }
-
 
 function getBiome(x, y) {
     // 1. 要塞判定 (保持不变)
