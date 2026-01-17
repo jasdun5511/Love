@@ -169,6 +169,12 @@ const ITEM_ICONS = {
     "末影人": "https://zh.minecraft.wiki/images/Enderman_JE3_BE1.png?b5299",
     "治疗药水": "https://zh.minecraft.wiki/images/Invicon_Potion_of_Healing.png?8562d",
     "沙砾": "https://zh.minecraft.wiki/images/Gravel_JE5_BE4.png?a6d50",
+    // ... 在 ITEM_ICONS 里添加 ...
+    "末地传送门框架": "https://zh.minecraft.wiki/images/End_Portal_Frame_JE4_BE3.png?d1c54",
+    "填充的框架": "https://zh.minecraft.wiki/images/End_Portal_Frame_%28Eye%29_JE4_BE3.png?6fada",
+    "末地传送门": "https://zh.minecraft.wiki/images/End_Portal_%28Active%29.png?99291&format=original",
+    // ...
+
 
 
 
