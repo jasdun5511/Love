@@ -1968,31 +1968,46 @@ window.setHome = () => {
 
 
 // ==========================================
-// 18. 任务系统 (QUEST SYSTEM)
+// 18. 任务系统 (QUEST SYSTEM) - 终极完善版
 // ==========================================
 
 // 防止 currentQuestId 未定义
 if (typeof currentQuestId === 'undefined') var currentQuestId = 0;
 
 const QUEST_DATA = [
+    // --- 第一阶段：生存基础 ---
     {
         id: 0, title: "欢迎来到文字荒野",
-        desc: "醒来时，你发现自己身处一个陌生而荒凉的世界。四周充满着未知的危险，但你的直觉告诉你，你必须活下去。<br><br>检查你的背包，那里有一把防身的武器。",
+        desc: "醒来时，你发现自己身处一个陌生而荒凉的世界。检查你的背包，那里有一把防身的武器。",
         type: "check", target: null,
         rewards: [{name: "木剑", count: 1}, {name: "面包", count: 2}, {name: "水瓶", count: 1}],
         btnText: "开始旅程"
     },
     { id: 1, title: "武装自己", desc: "打开背包，装备<b>木剑</b>。", type: "equip", target: "木剑", rewards: [{name: "苹果", count: 3}, {name: "经验瓶", count: 1}] },
     { id: 2, title: "生存第一步", desc: "去砍树，收集<b>3个原木</b>。", type: "item", target: "原木", count: 3, rewards: [{name: "木镐", count: 1}, {name: "工作台", count: 1}] },
-    { id: 3, title: "工欲善其事", desc: "制作一个<b>工作台</b>。<br>注意：放在背包里即可。", type: "item", target: "工作台", count: 1, rewards: [{name: "熟牛肉", count: 2}, {name: "煤炭", count: 5}] },
-    { id: 4, title: "铁器时代", desc: "寻找铁矿石，制作<b>熔炉</b>。<br>注意：放在背包里即可。", type: "item", target: "铁锭", count: 3, rewards: [{name: "铁桶", count: 1}, {name: "盾牌", count: 1}] },
-    { id: 5, title: "全副武装", desc: "制作并装备<b>铁盔甲</b>。", type: "equip", target: "铁盔甲", rewards: [{name: "金苹果", count: 1}, {name: "经验瓶", count: 2}] },
-    { id: 6, title: "寻找珍宝", desc: "寻找<b>钻石</b>！", type: "item", target: "钻石", count: 1, rewards: [{name: "钻石", count: 2}, {name: "书架", count: 1}] },
+    { id: 3, title: "工欲善其事", desc: "制作一个<b>工作台</b>。<br>注意：放在背包里即可解锁更多配方。", type: "item", target: "工作台", count: 1, rewards: [{name: "熟牛肉", count: 2}, {name: "煤炭", count: 5}] },
+    { id: 4, title: "铁器时代", desc: "寻找铁矿石，制作<b>熔炉</b>。", type: "item", target: "熔炉", count: 1, rewards: [{name: "铁桶", count: 1}, {name: "盾牌", count: 1}] },
+    
+    // --- 第二阶段：进阶与附魔 ---
+    { id: 5, title: "全副武装", desc: "制作并装备<b>铁盔甲</b>以增加生命上限。", type: "equip", target: "铁盔甲", rewards: [{name: "金苹果", count: 1}, {name: "经验瓶", count: 2}] },
+    { id: 6, title: "寻找珍宝", desc: "在地下深处寻找<b>钻石</b>！", type: "item", target: "钻石", count: 1, rewards: [{name: "钻石", count: 2}, {name: "书架", count: 1}] },
     { id: 7, title: "黑曜石之门", desc: "用水桶浇灭岩浆获得<b>黑曜石</b> (需10个)，并制作<b>打火石</b>。", type: "item", target: "黑曜石", count: 10, rewards: [{name: "打火石", count: 1}, {name: "抗火药水", count: 1}] },
-    { id: 8, title: "深入地狱", desc: "搭建传送门进入下界。", type: "dimension", target: "NETHER", rewards: [{name: "金锭", count: 5}] },
-    { id: 9, title: "烈焰的试炼", desc: "击败烈焰人获得<b>烈焰棒</b>。", type: "item", target: "烈焰棒", count: 1, rewards: [{name: "末影珍珠", count: 3}, {name: "力量药水", count: 1}] },
-    { id: 10, title: "终末之眼", desc: "合成<b>12个末影之眼</b>。", type: "item", target: "末影之眼", count: 12, rewards: [{name: "金苹果", count: 5}, {name: "钻石剑", count: 1}] },
-    { id: 11, title: "屠龙者", desc: "击败<b>末影龙</b>！", type: "kill", target: "末影龙", rewards: [{name: "龙蛋", count: 1}], btnText: "通关游戏" }
+    
+    // --- 第三阶段：下界探险 ---
+    { id: 8, title: "深入地狱", desc: "搭建传送门进入下界。<br>提示：将黑曜石摆成门框形状（或直接在背包点击下界传送门使用）。", type: "dimension", target: "NETHER", rewards: [{name: "金锭", count: 5}] },
+    { id: 9, title: "烈焰的试炼", desc: "在下界要塞寻找烈焰人，获得<b>烈焰棒</b>。", type: "item", target: "烈焰棒", count: 1, rewards: [{name: "末影珍珠", count: 3}, {name: "力量药水", count: 1}] },
+    
+    // --- 第四阶段：召唤凋灵 (本游戏特殊流程：杀凋灵 -> 出要塞) ---
+    { id: 10, title: "黑暗的前奏", desc: "去下界要塞击杀凋零骷髅，收集<b>3个凋零头颅</b>，并准备<b>4个灵魂沙</b>。", type: "item", target: "凋零头颅", count: 3, rewards: [{name: "治疗药水", count: 2}, {name: "金苹果", count: 2}] },
+    { id: 11, title: "灾厄降临", desc: "在工作台合成【召唤凋灵】并击败它！<br><b>奖励：</b>击败凋灵将使主世界生成【末地要塞】。", type: "item", target: "下界之星", count: 1, rewards: [{name: "钻石剑", count: 1}, {name: "经验瓶", count: 5}] },
+    
+    // --- 第五阶段：开启末地 ---
+    { id: 12, title: "寻眼之旅", desc: "合成<b>9个末影之眼</b>。<br>配方：末影珍珠 + 烈焰棒。", type: "item", target: "末影之眼", count: 9, rewards: [{name: "魔法糖冰棍", count: 1}, {name: "下界合金剑", count: 1}] },
+    { id: 13, title: "寻找要塞", desc: "在主世界寻找【要塞】地形（可能需要多探索），找到【末地祭坛】并将末影之眼填入9个框架中，最后<b>进入末地</b>。", type: "dimension", target: "THE_END", rewards: [{name: "金苹果", count: 10}] },
+    
+    // --- 第六阶段：决战末影龙 ---
+    { id: 14, title: "破除封印", desc: "末影龙被结界保护着！探索末地周围的<b>黑曜石柱</b>，摧毁全部<b>8个末地水晶</b>。", type: "crystal_clear", target: null, rewards: [{name: "治疗药水", count: 5}], desc_progress: true },
+    { id: 15, title: "屠龙者", desc: "击败<b>末影龙</b>，拾取龙蛋！", type: "item", target: "龙蛋", count: 1, rewards: [{name: "三叉戟", count: 1}, {name: "下界之星", count: 1}], btnText: "通关游戏" }
 ];
 
 function openQuestModal() {
@@ -2011,8 +2026,8 @@ function openQuestModal() {
 
     if (!quest) {
         els.title.innerText = "传奇终章";
-        els.desc.innerHTML = "<b>你已完成所有冒险！</b>";
-        if(els.prog) els.prog.innerText = "";
+        els.desc.innerHTML = "<b>你已征服了这个世界！<br>感谢游玩文字生存之旅。</b>";
+        if(els.prog) els.prog.innerText = "完成度: 100%";
         els.rew.innerHTML = "无";
         els.btn.style.display = "none";
     } else {
@@ -2026,20 +2041,32 @@ function openQuestModal() {
             els.rew.innerHTML += `<div style="font-size:12px;">${icon} ${r.name} x${r.count}</div>`;
         });
 
+        // 检查进度
         const isFinished = checkQuestCondition(quest);
-        // 进度文本
         let pTxt = "";
+
         if (quest.type === 'item') {
             let cur = player.inventory[quest.target] || 0;
             if (quest.target==="原木") cur = getInvCount("原木");
             let req = quest.count||1;
             pTxt = `进度: <span style="color:${cur>=req?'#4CAF50':'#e74c3c'}">${cur}/${req}</span>`;
-        } else if (quest.type === 'equip') {
+        } 
+        else if (quest.type === 'equip') {
             let done = (player.equipWeapon === quest.target || player.equipArmor === quest.target);
             pTxt = done ? `<span style="color:#4CAF50">✅ 已装备</span>` : `<span style="color:#e74c3c">❌ 未装备</span>`;
-        } else if (quest.type === 'dimension') {
+        } 
+        else if (quest.type === 'dimension') {
             pTxt = currentDimension === quest.target ? `<span style="color:#4CAF50">✅ 已到达</span>` : `<span style="color:#e74c3c">❌ 未到达</span>`;
         }
+        else if (quest.type === 'crystal_clear') {
+            // 特殊：检查末地水晶剩余数量
+            let remaining = 8;
+            if (typeof endCrystalsData !== 'undefined') {
+                remaining = endCrystalsData.filter(x => x === 1).length;
+            }
+            pTxt = `剩余水晶: <span style="color:${remaining===0?'#4CAF50':'#e74c3c'}">${remaining}/8</span>`;
+        }
+
         if(els.prog) els.prog.innerHTML = pTxt;
 
         if (isFinished || quest.id === 0) {
@@ -2059,17 +2086,31 @@ function closeQuestModal() {
     document.getElementById('quest-modal').classList.add('hidden');
 }
 
+// 核心检测逻辑
 function checkQuestCondition(quest) {
     if (!quest) return false;
     if (quest.type === 'check') return true;
+    
     if (quest.type === 'item') {
         let count = (player.inventory[quest.target] || 0);
+        // 特殊判断：如果任务是收集下界之星（证明杀了凋灵），即使玩家把星星用掉了（例如做信标），也算完成？
+        // 这里简化逻辑：必须持有。
         if (player.equipWeapon === quest.target) count = 1; 
         if (quest.target === "原木") count = getInvCount("原木");
         return count >= (quest.count || 1);
     }
+    
     if (quest.type === 'equip') return player.equipWeapon === quest.target || player.equipArmor === quest.target;
+    
     if (quest.type === 'dimension') return currentDimension === quest.target;
+    
+    // 新增：检测水晶是否全部清除
+    if (quest.type === 'crystal_clear') {
+        if (typeof endCrystalsData === 'undefined') return false;
+        // 如果没有一个存活的(都是0)，则任务完成
+        return endCrystalsData.every(x => x === 0);
+    }
+
     return false;
 }
 
@@ -2077,13 +2118,16 @@ function checkAndClaimQuest() {
     const quest = QUEST_DATA[currentQuestId];
     if (!quest) return;
     if (quest.id !== 0 && !checkQuestCondition(quest)) return log("条件未达成！", "red");
+    
     quest.rewards.forEach(r => addItemToInventory(r.name, r.count));
-    log(`任务完成！`, "gold");
+    log(`✨ 任务完成！`, "gold");
+    
+    // 特效
     currentQuestId++;
     openQuestModal();
 }
 
-// 任务系统 Hooks (使用 var 防止重复定义)
+// 任务系统 Hooks (自动红点提示)
 var _originalEquipItem = window.equipItem;
 window.equipItem = function(name) {
     if(_originalEquipItem) _originalEquipItem(name);
@@ -2110,6 +2154,15 @@ window.usePortal = function() {
     const q = QUEST_DATA[currentQuestId];
     if (q && q.type === 'dimension' && currentDimension === q.target) document.querySelector('.quest-book-btn')?.classList.add('notify');
 }
+
+// 新增：进入末地的Hook
+var _originalEnterEnd = window.enterTheEnd;
+window.enterTheEnd = function() {
+    if (_originalEnterEnd) _originalEnterEnd();
+    const q = QUEST_DATA[currentQuestId];
+    if (q && q.type === 'dimension' && q.target === 'THE_END') document.querySelector('.quest-book-btn')?.classList.add('notify');
+}
+
 
 // ==========================================
 // 末地传送门系统
