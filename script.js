@@ -955,20 +955,23 @@ function combatAttack() {
             }
         }
 
-        // --- 特殊分支 C：末影龙 (通关) ---
+         // --- 特殊分支 C：末影龙 (通关) ---
         if (currentEnemy.name === "末影龙") {
             isDragonDead = true;
             const statusEl = document.getElementById('boss-status-dragon');
             if(statusEl) statusEl.innerHTML = `<span style="color:gray;text-decoration:line-through">末影龙: 已击败</span>`;
             
-            // 生成回城传送门 (在末地中心)
-            // 假设末地复用 buildingsNether 或者你有独立的 buildingsEnd
-            // 这里为了确保能用，我们写进 buildingsNether (因为 getCurrBuildings 在末地可能指向它，或者我们需要强行写)
+            // 生成回城传送门
             if (typeof buildingsNether !== 'undefined') {
                 buildingsNether[`2,2`] = [{name: "下界传送门", content:{}}];
             }
+            
+            // --- ★★★ 新增：播放胜利动画与提示 ★★★ ---
+            showVictoryAnimation();
             log("🏆 屠龙者！末地中心出现了返回传送门。", "gold");
+            log("💡 提示：你获得了 [龙蛋]！在末地使用它可以【再次召唤】末影龙挑战。", "purple");
         }
+
 
         // --- 发放奖励 ---
         addItemToInventory(loot, 1);
@@ -1020,6 +1023,10 @@ function combatFlee() {
 // 10. 交互：物品与背包系统 (数据处理与分类)
 // ------------------------------------------
 function getItemType(name) {
+    // --- ★★★ 新增：让龙蛋显示为可使用 (food类型会有使用按钮) ★★★ ---
+    if (name === "龙蛋") return 'food'; 
+    // -----------------------------------------------------------
+
     let r = RECIPES.find(x => x.name === name);
     if (r) {
         if (r.type === 'equip') return 'equip';
@@ -1028,10 +1035,11 @@ function getItemType(name) {
     }
     // 兜底关键词判断
     if (name.includes("剑") || name.includes("甲") || name.includes("镐") || name.includes("三叉戟") || name.includes("弩") || name.includes("斧")) return 'equip';
-        if (name.includes("肉") || name.includes("排") || name.includes("鱼") || name.includes("苹果") || name.includes("传送门") ||name.includes("瓶") || name.includes("面包") || name.includes("马铃薯") || name.includes("仙人掌果子")) return 'food';
+    if (name.includes("肉") || name.includes("排") || name.includes("鱼") || name.includes("苹果") || name.includes("传送门") ||name.includes("瓶") || name.includes("面包") || name.includes("马铃薯") || name.includes("仙人掌果子")) return 'food';
 
     return 'material';
 }
+
 
 function addItemToInventory(name, count) {
     if (!player.inventory[name]) player.inventory[name] = 0;
@@ -1272,13 +1280,45 @@ window.equipItem = function(name) {
 
 
 
-// 交互：使用物品 (已增强：魔法糖冰棍 + 全食物回血)
+// 交互：使用物品 (已增强：魔法糖冰棍 + 全食物回血 + 龙蛋召唤)
 function useItem(name) {
     if (!player.inventory[name]) return;
     let recipe = RECIPES.find(r => r.name === name);
 
     // 1. 建筑类
     if (recipe && recipe.type === 'build') { placeBuilding(name); return; }
+
+    // ==========================================
+    // ★★★ 新增：使用龙蛋复活末影龙 ★★★
+    // ==========================================
+    if (name === "龙蛋") {
+        if (currentDimension !== "THE_END") {
+            log("龙蛋似乎只在末地才有反应...", "red");
+            return;
+        }
+        
+        if (!confirm("⚠️ 再次召唤末影龙？\n这将消耗龙蛋，并立即开始Boss战！")) return;
+
+        // 消耗龙蛋
+        player.inventory["龙蛋"]--;
+        if (player.inventory["龙蛋"] <= 0) delete player.inventory["龙蛋"];
+        
+        log("🥚 龙蛋破裂，黑色的气息冲天而起...", "purple");
+        
+        // 播放震动或特效
+        document.body.classList.add('shake');
+        setTimeout(() => document.body.classList.remove('shake'), 500);
+
+        // 延迟召唤
+        setTimeout(() => {
+            if (typeof summonEnderDragon === 'function') summonEnderDragon();
+        }, 1000);
+        
+        updateInventoryUI();
+        return;
+    }
+    // ==========================================
+
 
     // --- 新增：魔法糖冰棍 (星露谷神级Buff) ---
     if (name === "魔法糖冰棍") {
@@ -1295,7 +1335,6 @@ function useItem(name) {
         document.body.style.filter = "hue-rotate(90deg)";
         setTimeout(() => document.body.style.filter = "none", 500);
     }
-    // ... 在 useItem 函数内部 ...
 
     // --- 新增：治疗药水逻辑 ---
     else if (name === "治疗药水") {
@@ -1304,9 +1343,6 @@ function useItem(name) {
         player.water = Math.min(player.maxWater, player.water + 30);
         log("✨ 咕嘟咕嘟... 感觉焕然一新！(HP+100, 饱食+20, 水分+30)", "green");
     }
-    
-    // else if (name === "金苹果") ... (原本的代码)
-
 
     // 2. 特殊物品：金苹果
     else if (name === "金苹果") { 
@@ -2384,6 +2420,29 @@ function summonEnderDragon() {
     // 强制开始战斗
     startCombat(dragon, -1);
     combatLog("🐲 吼——————！(末影龙降临)", "red");
+}
+
+function showVictoryAnimation() {
+    // 创建遮罩
+    const overlay = document.createElement('div');
+    overlay.className = 'victory-overlay';
+    
+    overlay.innerHTML = `
+        <div class="victory-title">VICTORY!</div>
+        <div class="victory-sub">你击败了末影龙</div>
+        <div style="color:#aaa;font-size:12px;margin-top:10px;">(点击任意处关闭)</div>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    // 点击或3秒后自动关闭
+    const close = () => {
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.remove(), 1000);
+    };
+    
+    overlay.onclick = close;
+    setTimeout(close, 4000); // 4秒后自动消失
 }
 
 
