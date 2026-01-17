@@ -243,17 +243,33 @@ function move(dx, dy) {
 }
 
 
-// 5. 地形算法 (最终修复版)
 function getBiome(x, y) {
-    // 1. 优先判定：要塞地形强制覆盖
-    if (currentDimension === "OVERWORLD" && typeof strongholdPos !== 'undefined' && strongholdPos && x === strongholdPos.x && y === strongholdPos.y) {
+    // 1. 要塞判定 (保持不变)
+    if (currentDimension === "OVERWORLD" && strongholdPos && x === strongholdPos.x && y === strongholdPos.y) {
         return "STRONGHOLD";
     }
 
-    // 2. 末地地形 (防止报错)
+    // === 新增：末地地形逻辑 ===
     if (currentDimension === "THE_END") {
-        return "NETHER_WASTES"; // 暂时复用荒地地形，或者你可以自己去 BIOMES 加一个 END_ISLAND
+        // 5x5 地图范围是 (0,0) 到 (4,4)
+        // 定义8根柱子的坐标 (围着中心 2,2 一圈)
+        const pillars = [
+            "1,1", "2,1", "3,1",
+            "1,2",        "3,2",
+            "1,3", "2,3", "3,3"
+        ];
+        
+        // 如果是柱子坐标
+        if (pillars.includes(`${x},${y}`)) {
+            return "END_PILLAR";
+        }
+        
+        return "THE_END"; // 其他地方是普通末地
     }
+    // ========================
+
+    // ... (主世界和下界的逻辑保持不变) ...
+
 
     // 3. 主世界常规地形生成
     if (currentDimension === "OVERWORLD") {
