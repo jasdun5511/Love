@@ -737,41 +737,64 @@ function startCombat(mob, index) {
 
 function updateCombatUI() {
     if(!currentEnemy) return;
+    
+    // 1. 更新血条和数值
     const hpPct = (currentEnemy.hp / currentEnemy.maxHp) * 100;
     document.getElementById('enemy-hp-bar').style.width = `${hpPct}%`;
     document.getElementById('enemy-stats').innerText = `HP: ${currentEnemy.hp}/${currentEnemy.maxHp}`;
     
+    // 2. 更新物品栏
     const c = document.getElementById('combat-consumables');
+    
+    // 移除旧的提示（如果有）
+    const oldHint = document.getElementById('combat-scroll-hint');
+    if(oldHint) oldHint.remove();
+
     if (c) {
         c.innerHTML = '';
+        let hasItem = false;
+
         for (let [name, count] of Object.entries(player.inventory)) {
             let r = RECIPES.find(x => x.name === name);
             
-            // --- 关键修改：确保 magic_candy 和所有 food 都能在战斗显示 ---
-            // 只要是 'use' 类型，并且有效果，或者名字里包含"瓶"、"苹果"等关键词
+            // 筛选可用物品
             let isUsable = false;
-            
             if (r && r.type === 'use') {
-                if (r.effect === 'heal' || r.effect === 'food' || r.effect === 'drink' || r.effect === 'super_food' || r.effect === 'magic_candy') {
-                    isUsable = true;
-                }
+                if (['heal', 'food', 'drink', 'super_food', 'magic_candy'].includes(r.effect)) isUsable = true;
             } else if (!r && (name.includes("苹果") || name.includes("面包") || name.includes("肉"))) {
-                // 允许没有配方的生食
                 isUsable = true;
             }
 
             if (isUsable) {
+                hasItem = true;
                 const btn = document.createElement('div');
                 btn.className = 'heal-btn';
-                let icon = ITEM_ICONS[name] ? `<img src="${ITEM_ICONS[name]}">` : "";
-                btn.innerHTML = `${icon} ${name} x${count}`;
-                // 点击吃药
+                let icon = ITEM_ICONS[name] ? `<img src="${ITEM_ICONS[name]}">` : "💊";
+                // 按钮内容
+                btn.innerHTML = `${icon} <div>${name}<br><span style="color:#bbb">x${count}</span></div>`;
                 btn.onclick = () => { if(!isCombatBusy) combatUseItem(name); };
                 c.appendChild(btn);
             }
         }
+
+        // --- ★★★ 关键修改：如果没有物品，隐藏栏位；如果有，显示提示 ★★★ ---
+        if (hasItem) {
+            c.style.display = "flex";
+            
+            // 插入提示文字到 bar 的上方
+            const hint = document.createElement('div');
+            hint.id = 'combat-scroll-hint';
+            hint.className = 'scroll-hint';
+            hint.innerText = "⬅ 左右滑动使用物品 ➡";
+            // 插入到 consumables 元素的前面
+            c.parentNode.insertBefore(hint, c);
+            
+        } else {
+            c.style.display = "none";
+        }
     }
 }
+
 
 // --- 核心：敌人回合 (极速版) ---
 function enemyTurnLogic(actionType) {
