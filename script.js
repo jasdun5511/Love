@@ -403,13 +403,41 @@ function generateScene(biomeKey) {
 
 
 
-// 7. 场景渲染 (已优化：建筑显示图标)
+// 7. 场景渲染 (已加入：末地祭坛自动修复机制)
 // ------------------------------------------
 function renderScene() {
     const grid = document.getElementById('scene-grid');
+    if (!grid) return;
     grid.innerHTML = '';
 
     const key = `${player.x},${player.y}`;
+    
+    // === ★★★ 自动修复：如果要塞没有祭坛，强制生成 ★★★ ===
+    // 1. 获取当前地形
+    const currentBiome = getBiome(player.x, player.y);
+    
+    // 2. 如果是末地要塞地形
+    if (currentBiome === "STRONGHOLD") {
+        // 3. 确保该坐标有建筑列表
+        if (!buildingsMain[key]) buildingsMain[key] = [];
+        
+        // 4. 检查是否有“末地祭坛”
+        const hasAltar = buildingsMain[key].some(b => b.name === "末地祭坛");
+        
+        // 5. 如果没有，补发一个（带9个空框架）
+        if (!hasAltar) {
+            console.log("检测到祭坛丢失，正在修复...");
+            buildingsMain[key].push({
+                name: "末地祭坛",
+                frames: [0,0,0,0,0,0,0,0,0] // 重置为9个空框架
+            });
+            // 立即保存修复结果
+            saveGame(); 
+        }
+    }
+    // ====================================================
+
+    // 获取建筑列表 (主世界/下界)
     const buildings = getCurrBuildings()[key] || [];
     
     // 渲染建筑
@@ -418,13 +446,12 @@ function renderScene() {
         btn.className = `grid-btn build`;
         
         if (b.name === "下界传送门") {
-            // 传送门保持特效
-            btn.innerHTML = `<img src="${ITEM_ICONS['下界传送门']}" class="item-icon"> 下界传送门`;
+            btn.innerHTML = `<img src="${ITEM_ICONS['下界传送门'] || ''}" class="item-icon"> 下界传送门`;
             btn.style.borderColor = "#8e44ad"; 
             btn.style.color = "#8e44ad";
             btn.onclick = () => usePortal(); 
         } else {
-            // --- 修改点：尝试获取图标，没有则显示盒子emoji ---
+            // 图标显示逻辑
             let icon = ITEM_ICONS[b.name] ? `<img src="${ITEM_ICONS[b.name]}" class="item-icon">` : "📦";
             btn.innerHTML = `${icon} ${b.name}`;
             btn.onclick = () => openBuilding(b, idx);
@@ -450,7 +477,6 @@ function renderScene() {
             btn.onclick = () => collectResource(index, btn);
         } else {
             let mobIconHtml = ITEM_ICONS[item.name] ? `<img src="${ITEM_ICONS[item.name]}" class="mob-icon">` : "";
-            // 确保不带前缀，直接显示图片
             btn.innerHTML = `${mobIconHtml}${item.name} <span class="lv-tag">Lv.${item.level}</span>`;
             btn.classList.add('mob');
             btn.onclick = () => startCombat(item, index);
@@ -458,6 +484,7 @@ function renderScene() {
         grid.appendChild(btn);
     });
 }
+
 
 
 
