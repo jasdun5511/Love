@@ -239,14 +239,20 @@ function move(dx, dy) {
 }
 
 
-// 5. 地形算法 (新增：矿井生成)
+// 5. 地形算法 (修复版)
 // ------------------------------------------
 function getBiome(x, y) {
-    // --- 新增：要塞地形强制覆盖 ---
+    // 1. 优先判定：要塞地形强制覆盖
+    // 如果当前是主世界，且坐标匹配要塞坐标，强制返回要塞地形
     if (currentDimension === "OVERWORLD" && strongholdPos && x === strongholdPos.x && y === strongholdPos.y) {
         return "STRONGHOLD";
     }
-    // ... 原本的代码 ...
+
+    // 2. 主世界常规地形生成
+    if (currentDimension === "OVERWORLD") {
+        // ⚠️ 之前丢失的部分：必须先计算 val 随机值
+        const dot = x * 12.9898 + y * 78.233;
+        const val = Math.abs(Math.sin(dot) * 43758.5453) % 1;
 
 
         if (val < 0.20) return "OCEAN";
