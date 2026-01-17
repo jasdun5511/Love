@@ -9,8 +9,8 @@ const ITEM_ICONS = {
     "导航_地图": "https://zh.minecraft.wiki/images/Invicon_Locked_Map.png?af5e7",   
     "导航_系统": "https://zh.minecraft.wiki/images/Impulse_Command_Block.gif?e65a3", 
 
-    // --- 新增/修改：自然资源别名 ---
-    "橡树": "https://zh.minecraft.wiki/images/Oak.png?cbe39", // 地图上显示为树苗或原木皆可
+    // 自然资源别名
+    "橡树": "https://zh.minecraft.wiki/images/Oak.png?cbe39", 
     "云杉": "https://zh.minecraft.wiki/images/Spruce.png?88690",
     "小麦": "https://zh.minecraft.wiki/images/Wheat_JE2_BE2.png", 
 
@@ -45,11 +45,9 @@ const ITEM_ICONS = {
     "水": "https://zh.minecraft.wiki/images/Water_BE_%28animated%29.png?6cf9b",
 
     // 矿物
-    
     "青金石矿": "https://zh.minecraft.wiki/images/Lapis_Lazuli_Ore_JE2_BE2.png",
-    "青石矿": "https://zh.minecraft.wiki/images/Lapis_Lazuli_Ore_JE2_BE2.png", // 兼容旧名称
+    "青石矿": "https://zh.minecraft.wiki/images/Lapis_Lazuli_Ore_JE2_BE2.png", 
     "青金石": "https://zh.minecraft.wiki/images/Lapis_Lazuli_JE2_BE2.png",
-
     "煤炭": "https://zh.minecraft.wiki/images/Coal_JE3_BE2.png?b473d",
     "铁矿石": "https://zh.minecraft.wiki/images/Iron_Ore_JE6_BE4.png",
     "铁锭": "https://zh.minecraft.wiki/images/Iron_Ingot_JE3_BE2.png",
@@ -83,14 +81,12 @@ const ITEM_ICONS = {
     "恶魂": "https://zh.minecraft.wiki/images/Ghast_JE2_BE2.png",
     "猪灵": "https://zh.minecraft.wiki/images/Piglin_JE1.png?b639e",
     "疣猪兽": "https://zh.minecraft.wiki/images/Hoglin_JE2.png?a1d9a",
-     "烈焰人": "https://zh.minecraft.wiki/images/Blaze_BE.gif?f0c6f", // <--- 之前这里少了 ",
+    "烈焰人": "https://zh.minecraft.wiki/images/Blaze_BE.gif?f0c6f", 
     "岩浆怪": "https://zh.minecraft.wiki/images/Magma_Cube_JE2_BE2.png?38c60",
-    // ... 在现有代码下面添加 ...
     "凋零骷髅": "https://zh.minecraft.wiki/images/Wither_Skeleton_JE3_BE2.png",
     "凋零头颅": "https://zh.minecraft.wiki/images/Wither_Skeleton_Skull_%28item%29_JE2_BE2.png",
     "凋灵": "https://zh.minecraft.wiki/images/Wither_JE2_BE2.png",
     "下界之星": "https://zh.minecraft.wiki/images/Nether_Star_JE2_BE2.png",    
-
 
     // 装备与工具
     "木剑": "https://zh.minecraft.wiki/images/Wooden_Sword_JE2_BE2.png",
@@ -111,7 +107,6 @@ const ITEM_ICONS = {
     "铁镐": "https://zh.minecraft.wiki/images/Iron_Pickaxe_JE3_BE2.png",
     "钻石镐": "https://zh.minecraft.wiki/images/Diamond_Pickaxe_JE3_BE3.png",
     "盾牌": "https://zh.minecraft.wiki/images/Shield_JE2_BE1.png",
-
 
     // 食物与杂项
     "仙人掌果子": "https://stardewvalleywiki.com/mediawiki/images/3/32/Cactus_Fruit.png",
@@ -159,37 +154,30 @@ const ITEM_ICONS = {
     "弩": "https://zh.minecraft.wiki/images/Crossbow_JE2_BE2.png",
     "铁斧": "https://zh.minecraft.wiki/images/Iron_Axe_JE2_BE2.png",
     "简易绷带": "https://zh.minecraft.wiki/images/Paper_JE2_BE2.png",
+    
     // --- 新增：矿井与宝箱 ---
-    "矿井": "https://zh.minecraft.wiki/images/Stone_JE5_BE3.png", // 地形图标
+    "矿井": "https://zh.minecraft.wiki/images/Stone_JE5_BE3.png", 
     "宝箱": "https://zh.minecraft.wiki/images/Chest_JE2_BE3.gif?4e19c",
     "经验瓶": "https://zh.minecraft.wiki/images/Bottle_o%27_Enchanting.gif?21a90",
     
-    // --- 新增：怪物 ---
+    // --- 新增：怪物与末地资源 ---
     "毒蜘蛛": "https://zh.minecraft.wiki/images/Cave_Spider_JE2_BE2.png",
     "末影人": "https://zh.minecraft.wiki/images/Enderman_JE3_BE1.png?b5299",
     "治疗药水": "https://zh.minecraft.wiki/images/Invicon_Potion_of_Healing.png?8562d",
     "沙砾": "https://zh.minecraft.wiki/images/Gravel_JE5_BE4.png?a6d50",
-    // ... 在 ITEM_ICONS 里添加 ...
     "末地传送门框架": "https://zh.minecraft.wiki/images/End_Portal_Frame_JE4_BE3.png?d1c54",
     "填充的框架": "https://zh.minecraft.wiki/images/End_Portal_Frame_%28Eye%29_JE4_BE3.png?6fada",
     "末地传送门": "https://zh.minecraft.wiki/images/End_Portal_%28Active%29.png?99291&format=original",
-    // ...
-    // ... 在 ITEM_ICONS 任意位置添加 ...
     "末影之眼": "https://zh.minecraft.wiki/images/Ender_Eye_JE2_BE2.png?4be4d",
     "书架": "https://zh.minecraft.wiki/images/Bookshelf_JE4_BE2.png",
     "铁栅栏": "https://zh.minecraft.wiki/images/Iron_Bars_JE4_BE2.png",
-    "蠹虫": "https://zh.minecraft.wiki/images/Silverfish_JE5_BE3.png", // 要塞怪物
+    "蠹虫": "https://zh.minecraft.wiki/images/Silverfish_JE5_BE3.png", 
     "末地石": "https://zh.minecraft.wiki/images/End_Stone_JE3_BE2.png",
-    "黑曜石柱": "https://zh.minecraft.wiki/images/Obsidian_JE3_BE2.png", // 地形图
+    "黑曜石柱": "https://zh.minecraft.wiki/images/Obsidian_JE3_BE2.png", 
     "末地水晶": "https://zh.minecraft.wiki/images/End_Crystal_JE3_BE3.gif",
     "末影龙": "https://zh.minecraft.wiki/images/Ender_Dragon.gif",
     "龙蛋": "https://zh.minecraft.wiki/images/Dragon_Egg_JE2_BE2.png",
-    "紫颂果": "https://zh.minecraft.wiki/images/Chorus_Fruit_JE2_BE2.png",
-
-
-
-
-
+    "紫颂果": "https://zh.minecraft.wiki/images/Chorus_Fruit_JE2_BE2.png"
 };
 
 // ==========================================
@@ -198,7 +186,6 @@ const ITEM_ICONS = {
 const MAP_SIZE = 20;
 
 const BIOMES = {
-    // 这里的资源已更新为“橡树”、“云杉”、“小麦”
     VILLAGE: { 
         name: "村庄", code: "bg-VILLAGE", 
         res: ["橡树", "小麦", "马铃薯", "虞美人"], 
@@ -219,19 +206,20 @@ const BIOMES = {
     MESA: { name: "恶地", code: "bg-MESA", res: ["红沙", "金矿石", "枯灌木"], mobs: [{name:"蜘蛛", hp:16, atk:3, loot:"线"}] },
 
     MINE: { 
-        name: "矿井", code: "bg-MOUNTAIN", // 复用山地背景色
+        name: "矿井", code: "bg-MOUNTAIN", 
         res: ["宝箱", "煤炭", "铁矿石", "金矿石", "红石", "钻石矿", "青石矿"], 
         mobs: [
-            {name:"毒蜘蛛", hp:30, atk:8, loot:"线"}, // 会中毒
+            {name:"毒蜘蛛", hp:30, atk:8, loot:"线"}, 
             {name:"僵尸", hp:40, atk:10, loot:"腐肉"}, 
             {name:"骷髅", hp:40, atk:12, loot:"骨头"},
             {name:"苦力怕", hp:30, atk:25, loot:"火药"},
-            {name:"末影人", hp:80, atk:20, loot:"末影珍珠"}] },
+            {name:"末影人", hp:80, atk:20, loot:"末影珍珠"}
+        ] 
+    },
    
-    
     NETHER_WASTES: { 
         name: "荒地", 
-        code: "bg-MESA", // 暂时复用恶地的颜色(红褐色)，比较像地狱岩
+        code: "bg-MESA", 
         res: ["地狱岩", "石英矿", "金粒", "沙砾","岩浆源", "萤石"], 
         mobs: [
             {name:"僵尸猪人", hp:22, atk:5, loot:"金粒"}, 
@@ -239,27 +227,27 @@ const BIOMES = {
             {name:"岩浆怪", hp:16, atk:4, loot:"岩浆膏"}
         ] 
     },
-    // ... 在 NETHER_WASTES 下面添加 ...
+
     NETHER_FORTRESS: { 
         name: "要塞", 
-        code: "bg-LAVA", // 使用深红色背景
+        code: "bg-LAVA", 
         res: ["地狱疣", "岩浆源", "宝箱"], 
         mobs: [
             {name:"烈焰人", hp:35, atk:12, loot:"烈焰棒"}, 
-            {name:"凋零骷髅", hp:50, atk:18, loot:"凋零头颅"} // 掉落头颅
+            {name:"凋零骷髅", hp:50, atk:18, loot:"凋零头颅"} 
         ] 
     },
     STRONGHOLD: { 
         name: "要塞", 
-        code: "bg-MOUNTAIN", // 用深色背景
+        code: "bg-MOUNTAIN", 
         res: ["书架", "铁栅栏", "宝箱"], 
-        mobs: [{name:"蠹虫", hp:10, atk:2, loot:"经验瓶"}] // 要塞特产蠹虫
+        mobs: [{name:"蠹虫", hp:10, atk:2, loot:"经验瓶"}] 
     },
-// 2. 在 BIOMES 里添加两个地形
+
     // 普通末地 (5x5 基础地形)
     THE_END: { 
         name: "末地", 
-        code: "bg-MESA", // 暂时复用深色背景
+        code: "bg-MESA",
         res: ["末地石", "紫颂果"], 
         mobs: [{name:"末影人", hp:40, atk:8, loot:"末影珍珠"}] 
     },
@@ -267,10 +255,9 @@ const BIOMES = {
     END_PILLAR: {
         name: "黑曜石柱",
         code: "bg-MOUNTAIN",
-        res: ["黑曜石"], // 没有任何资源，只有黑曜石摆设
-        mobs: [] // 怪物由代码特殊生成(水晶)
-    }
-
+        res: ["黑曜石"], 
+        mobs: [] 
+    }, // <--- 【修复】这里之前少了一个逗号！！！
     
     CRIMSON_FOREST: { name: "绯红", code: "bg-CRIMSON", res: ["绯红菌柄", "地狱疣", "萤石"], mobs: [{name:"猪灵", hp:16, atk:6, loot:"金锭"}, {name:"疣猪兽", hp:40, atk:8, loot:"生猪排"}] },
     SOUL_SAND_VALLEY: { name: "灵魂", code: "bg-SOUL", res: ["灵魂沙", "骨块", "玄武岩"], mobs: [{name:"骷髅", hp:20, atk:5, loot:"骨头"}] },
@@ -282,7 +269,6 @@ const BIOMES = {
 // ==========================================
 const RECIPES = [
     // === 建筑类 ===
-// 请用这两行替换原来的工作台和熔炉配置：
     { name: "工作台", req: { "原木": 4 }, type: "item", desc: "【被动】放在背包内即可解锁高级合成" }, 
     { name: "熔炉", req: { "石头": 8 }, type: "item", desc: "【被动】放在背包内即可解锁烧炼", station: "workbench" }, 
 
@@ -303,7 +289,6 @@ const RECIPES = [
     { name: "打火石", req: { "铁锭": 1, "燧石": 1 }, type: "item", desc: "点火工具", station: "workbench" },
     { name: "铁桶", req: { "铁锭": 3 }, type: "item", desc: "装流体用", station: "workbench" },
     
-
     // === 镐子 ===
     { name: "木镐", req: { "木棍": 2, "原木": 3 }, type: "equip", effect: "tool", val: 1, desc: "采矿工具 LV1", station: "workbench" },
     { name: "石镐", req: { "木棍": 2, "石头": 3 }, type: "equip", effect: "tool", val: 2, desc: "采矿工具 LV2", station: "workbench" },
@@ -316,13 +301,11 @@ const RECIPES = [
     { name: "铁剑", req: { "木棍": 1, "铁锭": 2 }, type: "equip", effect: "atk", val: 18, desc: "攻击力 18", station: "workbench" },
     { name: "钻石剑", req: { "木棍": 1, "钻石": 2 }, type: "equip", effect: "atk", val: 25, desc: "攻击力 25", station: "workbench" },
     { name: "下界合金剑", req: { "钻石剑": 1, "下界合金锭": 1 }, type: "equip", effect: "atk", val: 35, desc: "攻击力 35", station: "workbench" },
-        // 在 RECIPES 数组里：
+    
     { name: "铁盔甲", req: { "铁锭": 5 }, type: "equip", effect: "hp_max", val: 50, desc: "生命上限 +50", station: "workbench" },
     { name: "钻石盔甲", req: { "钻石": 5 }, type: "equip", effect: "hp_max", val: 100, desc: "生命上限 +100", station: "workbench" },
     { name: "下界合金甲", req: { "钻石盔甲": 1, "下界合金锭": 1 }, type: "equip", effect: "hp_max", val: 150, desc: "生命上限 +150", station: "workbench" },
 
-
-    // 在 items.js 的 RECIPES 里加这个：
     { name: "盾牌", req: { "原木": 6, "铁锭": 6 }, type: "item", desc: "25%几率抵挡伤害", station: "workbench" },
 
     // === 食物 ===
@@ -331,45 +314,33 @@ const RECIPES = [
     { name: "烤猪排", req: { "生猪排": 1, "煤炭": 1 }, type: "use", effect: "food", val: 40, desc: "恢复 40 饥饿", station: "furnace" },
     { name: "金苹果", req: { "苹果": 1, "金锭": 8 }, type: "use", effect: "heal", val: 100, desc: "瞬间恢复 100 HP", station: "workbench" },
     { name: "烤马铃薯", req: { "马铃薯": 1, "煤炭": 1 }, type: "use", effect: "food", val: 35, desc: "恢复 35 饥饿", station: "furnace" },
-    // === 新增：谜之炖菜 ===
-    // 配方1：用蘑菇做 (需熔炉)
-    { name: "谜之炖菜", req: { "蘑菇": 6 }, type: "use", desc: "恢复10饥饿和水分", station: "furnace" },
-    // 配方2：用仙人掌做 (需熔炉)
-    { name: "谜之炖菜", req: { "仙人掌": 6 }, type: "use", desc: "恢复10饥饿和水分", station: "furnace" },
-    // === 更新：藤蔓的用途 (调整比例) ===
-    // 1. 搓绳子：2个藤蔓 -> 1个线
-    { name: "线", req: { "藤蔓": 2 }, type: "item", desc: "手工编织的绳线" },
     
-    // 2. 做绷带：4个藤蔓 -> 1个简易绷带
+    { name: "谜之炖菜", req: { "蘑菇": 6 }, type: "use", desc: "恢复10饥饿和水分", station: "furnace" },
+    { name: "谜之炖菜", req: { "仙人掌": 6 }, type: "use", desc: "恢复10饥饿和水分", station: "furnace" },
+    
+    { name: "线", req: { "藤蔓": 2 }, type: "item", desc: "手工编织的绳线" },
     { name: "简易绷带", req: { "藤蔓": 4 }, type: "use", effect: "heal", val: 15, desc: "止血包扎 (HP +15)" },
 
-{ 
-    name: "魔法糖冰棍", 
-    req: { "冰": 4 }, 
-    type: "use", 
-    effect: "magic_candy", // 特殊效果标记
-    desc: "充满魔力的五彩糖果。全属性大幅提升！(HP/理智全满 + 攻击力提升)" 
-},
+    { 
+        name: "魔法糖冰棍", 
+        req: { "冰": 4 }, 
+        type: "use", 
+        effect: "magic_candy", 
+        desc: "充满魔力的五彩糖果。全属性大幅提升！(HP/理智全满 + 攻击力提升)" 
+    },
 
-    // ... 在 RECIPES 数组末尾添加 ...
     { 
         name: "召唤凋灵", 
         req: { "凋零头颅": 3, "灵魂沙": 4 }, 
-        type: "boss", // 标记为特殊类型
+        type: "boss", 
         desc: "⚠️ 警告：消耗材料直接召唤BOSS！" 
     },
-    // ... 在 RECIPES 里添加 ...
     { 
         name: "治疗药水", 
         req: { "水瓶": 1, "地狱疣": 3 }, 
         type: "use", 
         desc: "强效恢复 (血+100 饱食+20 水分+30)", 
-        station: "furnace" // 需要在熔炉旁制作
+        station: "furnace" 
     },
-    { name: "末影之眼", req: { "末影珍珠": 1, "烈焰棒": 1 }, type: "item", desc: "寻找要塞与激活传送门", station: "workbench" },
-
-
-
-
+    { name: "末影之眼", req: { "末影珍珠": 1, "烈焰棒": 1 }, type: "item", desc: "寻找要塞与激活传送门", station: "workbench" }
 ];
-
