@@ -238,6 +238,12 @@ const BIOMES = {
             {name:"凋零骷髅", hp:50, atk:18, loot:"凋零头颅"} // 掉落头颅
         ] 
     },
+    STRONGHOLD: { 
+        name: "要塞", 
+        code: "bg-MOUNTAIN", // 用深色背景
+        res: ["书架", "铁栅栏", "宝箱"], 
+        mobs: [{name:"蠹虫", hp:10, atk:2, loot:"经验瓶"}] // 要塞特产蠹虫
+    },
 
     
     CRIMSON_FOREST: { name: "绯红", code: "bg-CRIMSON", res: ["绯红菌柄", "地狱疣", "萤石"], mobs: [{name:"猪灵", hp:16, atk:6, loot:"金锭"}, {name:"疣猪兽", hp:40, atk:8, loot:"生猪排"}] },
