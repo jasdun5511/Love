@@ -58,6 +58,8 @@ let buildingsMain = {};
 let buildingsNether = {};
 let playerPosMain = {x: 10, y: 10};
 let playerPosNether = {x: 10, y: 10}; 
+let strongholdPos = null; // 格式: {x: 5, y: 5}，初始没有
+
 
 // 获取当前维度的引用
 function getCurrBuildings() { return currentDimension === "OVERWORLD" ? buildingsMain : buildingsNether; }
@@ -1669,7 +1671,6 @@ function renderBigMap() {
 }
 
 
-// ==========================================
 // 16. 存档系统 (防卡死修复版)
 // ==========================================
 const SAVE_KEY = "mc_text_survival_save_v1";
@@ -1701,9 +1702,11 @@ window.saveGame = function() {
             exploredMapMain: window.exploredMapMain || {},
             exploredMapNether: window.exploredMapNether || {},
             buildingsMain: window.buildingsMain || {},
-            buildingsNether: window.buildingsNether || {},
+            buildingsNether: window.buildingsNether || {},            
             playerPosMain: window.playerPosMain || {x:10, y:10},
-            playerPosNether: window.playerPosNether || {x:5, y:5}
+            playerPosNether: window.playerPosNether || {x:5, y:5},
+            // --- 新增：保存要塞坐标 ---
+            strongholdPos: typeof strongholdPos !== 'undefined' ? strongholdPos : null
         };
         localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
         checkSaveStatus();
@@ -1734,6 +1737,9 @@ window.loadGame = function() {
         if (data.buildingsNether) buildingsNether = data.buildingsNether;
         if (data.playerPosMain) playerPosMain = data.playerPosMain;
         if (data.playerPosNether) playerPosNether = data.playerPosNether;
+        
+        // --- 新增：读取要塞坐标 ---
+        if (data.strongholdPos) strongholdPos = data.strongholdPos;
 
         // 修复背包为空的情况
         if (!player.inventory) player.inventory = {};
@@ -1771,6 +1777,7 @@ window.passTime = function(hours) {
     if (_originalPassTime) _originalPassTime(hours);
     saveGame(); 
 };
+
 
 
 // 17. 初始化与其他
