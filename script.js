@@ -932,8 +932,16 @@ function combatAttack() {
         // ★ 常规胜利结算 (掉落 + 经验)
         // ===========================================
         const loot = currentEnemy.loot;
+        
+        // --- ★★★ 新增：末影人掉落 2 个 ★★★ ---
+        let lootCount = 1;
+        if (currentEnemy.name === "末影人") {
+            lootCount = 2;
+        }
+        // ------------------------------------
+
         const expGain = (currentEnemy.baseExp || 5) + currentEnemy.level * 2;
-        combatLog(`胜利！获得 ${loot}，EXP +${expGain}`, "gold");
+        combatLog(`胜利！获得 ${loot} x${lootCount}，EXP +${expGain}`, "gold");
 
         // --- 特殊分支 B：凋灵 (生成要塞) ---
         if (currentEnemy.name === "凋灵") {
@@ -966,15 +974,15 @@ function combatAttack() {
                 buildingsNether[`2,2`] = [{name: "下界传送门", content:{}}];
             }
             
-            // --- ★★★ 新增：播放胜利动画与提示 ★★★ ---
-            showVictoryAnimation();
+            // --- 播放胜利动画与提示 ---
+            if (typeof showVictoryAnimation === 'function') showVictoryAnimation();
             log("🏆 屠龙者！末地中心出现了返回传送门。", "gold");
             log("💡 提示：你获得了 [龙蛋]！在末地使用它可以【再次召唤】末影龙挑战。", "purple");
         }
 
 
-        // --- 发放奖励 ---
-        addItemToInventory(loot, 1);
+        // --- 发放奖励 (已修改为 lootCount) ---
+        addItemToInventory(loot, lootCount);
         addExp(expGain); 
         
         // 移除怪物实体
@@ -1014,6 +1022,7 @@ function combatFlee() {
         enemyTurnLogic('flee');
     }
 }
+
 
 
 
