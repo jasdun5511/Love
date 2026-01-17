@@ -2176,12 +2176,13 @@ window.enterTheEnd = function() {
 
 
 // ==========================================
-// 末地传送门系统
+// 末地传送门系统 (修复版：自动保存+防丢)
 // ==========================================
 let activePortalBuilding = null; // 当前操作的祭坛数据引用
 
 // 1. 打开祭坛界面 (在 openBuilding 里调用)
 function openPortalUI(building) {
+    if (!building || !building.frames) return; // 安全检查
     activePortalBuilding = building;
     switchView('portal');
     renderPortalGrid();
@@ -2190,18 +2191,23 @@ function openPortalUI(building) {
 // 2. 渲染 9 个框架
 function renderPortalGrid() {
     const grid = document.getElementById('portal-grid');
+    if (!grid) return;
     grid.innerHTML = '';
     
-    // 检查是否全满了
+    if (!activePortalBuilding) return;
+
+    // 检查是否全满了 (9个都是1)
     const allFilled = activePortalBuilding.frames.every(state => state === 1);
 
     if (allFilled) {
         // 全满：显示激活的传送门大图
         const portal = document.createElement('div');
         portal.className = 'portal-active';
-        portal.style.backgroundImage = `url('${ITEM_ICONS["末地传送门"]}')`;
+        // 确保 ITEM_ICONS["末地传送门"] 已定义，否则用备用图
+        let src = ITEM_ICONS["末地传送门"] || "https://zh.minecraft.wiki/images/End_Portal_%28Active%29.png";
+        portal.style.backgroundImage = `url('${src}')`;
         portal.onclick = () => enterTheEnd();
-        portal.innerHTML = `<div style="color:white;text-align:center;padding-top:80px;font-weight:bold;text-shadow:0 0 5px black;">点击进入末地</div>`;
+        portal.innerHTML = `<div style="color:white;text-align:center;padding-top:80px;font-weight:bold;text-shadow:0 0 5px black;cursor:pointer;">点击进入末地</div>`;
         grid.appendChild(portal);
     } else {
         // 未满：显示 9 个格子
@@ -2213,23 +2219,36 @@ function renderPortalGrid() {
             let img = state === 0 ? ITEM_ICONS["末地传送门框架"] : ITEM_ICONS["填充的框架"];
             frame.style.backgroundImage = `url('${img}')`;
             
-            frame.onclick = () => fillFrame(index);
+            // 只有空的才能点击填充
+            if (state === 0) {
+                frame.onclick = () => fillFrame(index);
+                frame.style.cursor = "pointer";
+            }
             grid.appendChild(frame);
         });
     }
 }
 
-// 3. 填充逻辑
+// 3. 填充逻辑 (核心修复：填充后立即保存)
 function fillFrame(index) {
+    if (!activePortalBuilding) return;
     if (activePortalBuilding.frames[index] === 1) return; // 已经填了
     
     if ((player.inventory["末影之眼"] || 0) > 0) {
+        // 1. 扣除物品
         player.inventory["末影之眼"]--;
-        if (player.inventory["末影之眼"]<=0) delete player.inventory["末影之眼"];
+        if (player.inventory["末影之眼"] <= 0) delete player.inventory["末影之眼"];
         
+        // 2. 修改数据状态
         activePortalBuilding.frames[index] = 1;
-        log("放入了末影之眼。", "green");
-        renderPortalGrid(); // 刷新显示
+        
+        // 3. 立即保存！(防止退出后回档)
+        saveGame(); 
+        
+        log("放入了末影之眼 (已自动保存)。", "green");
+        
+        // 4. 刷新界面
+        renderPortalGrid(); 
         updateInventoryUI();
     } else {
         log("你没有 [末影之眼]！去打末影人或烈焰人合成吧。", "red");
@@ -2240,15 +2259,24 @@ function fillFrame(index) {
 function enterTheEnd() {
     log("🌀 空间扭曲... 你来到了末地！", "purple");
     currentDimension = "THE_END";
-    // 假设末地也是一张小地图，或者直接进入BOSS战
-    // 这里简单处理：重置位置到末地坐标，刷新场景
+    
+    // 重置位置到末地初始点 (假设是 5,5)
     player.x = 5; player.y = 5; 
     
-    // 你需要在 BIOMES 里加一个 THE_END 地形，或者直接复用
-    // 简单起见，我们暂时用 NETHER_WASTES 的样子，但是名字叫末地
+    // 触发任务进度更新 (如果你使用了任务系统)
+    if (typeof QUEST_DATA !== 'undefined' && typeof currentQuestId !== 'undefined') {
+        const q = QUEST_DATA[currentQuestId];
+        if (q && q.type === 'dimension' && q.target === 'THE_END') {
+            document.querySelector('.quest-book-btn')?.classList.add('notify');
+        }
+    }
+
     switchView('scene');
     refreshLocation();
+    saveGame(); // 进图后再保存一次
 }
+
+// 5. 召唤末影龙 (Boss战入口)
 function summonEnderDragon() {
     // 强制把玩家拉到中心点 (2,2) 进行决战
     player.x = 2; player.y = 2;
@@ -2258,18 +2286,18 @@ function summonEnderDragon() {
         type: 'mob', 
         name: "末影龙", 
         level: 100, 
-        hp: 1000,        // 比凋灵(600)强
+        hp: 1000,        
         maxHp: 1000, 
-        atk: 60,         // 比凋灵(45)高
+        atk: 60,         
         loot: "龙蛋", 
         baseExp: 5000,
-        isAmbush: true,
+        isAmbush: true, // 强制进入战斗
         index: -1
     };
     
     // 强制开始战斗
     startCombat(dragon, -1);
-    combatLog("🐲 吼——————！", "red");
+    combatLog("🐲 吼——————！(末影龙降临)", "red");
 }
 
 
