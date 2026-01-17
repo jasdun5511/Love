@@ -1659,23 +1659,44 @@ window.takeFromChest = function(n) {
 
 
 
-// 14. 交互：传送门
+// 14. 交互：传送门 (修复版：进下界重置坐标)
 // ------------------------------------------
 function usePortal() {
     if (currentDimension === "OVERWORLD") {
         log("穿过传送门... 进入下界！", "purple");
+        
+        // 1. 保存主世界坐标
         playerPosMain = {x: player.x, y: player.y};
-        currentDimension = "NETHER";
-        player.x = playerPosNether.x;
-        player.y = playerPosNether.y;
+        
+        // 2. 切换维度
+        currentDimension = "NETHER"; // 注意：这里必须和 getBiome 里的判断一致
+        
+        // 3. ★★★ 关键：如果之前没去过下界，强制传送到中心安全区 ★★★
+        if (!playerPosNether || (playerPosNether.x === 0 && playerPosNether.y === 0)) {
+            player.x = 5; 
+            player.y = 5;
+        } else {
+            // 如果去过，恢复上次的坐标 (但要检查是否越界)
+            player.x = Math.min(9, playerPosNether.x);
+            player.y = Math.min(9, playerPosNether.y);
+        }
+
     } else {
         log("回到主世界。", "blue");
+        
+        // 1. 保存下界坐标
         playerPosNether = {x: player.x, y: player.y};
+        
+        // 2. 切换维度
         currentDimension = "OVERWORLD";
+        
+        // 3. 恢复主世界坐标
         player.x = playerPosMain.x;
         player.y = playerPosMain.y;
     }
+    
     refreshLocation();
+    saveGame(); // 传送后自动保存，防止回档卡死
 }
 
 
@@ -1784,15 +1805,21 @@ function openMap() { document.getElementById('map-modal').classList.remove('hidd
 function closeMap() { document.getElementById('map-modal').classList.add('hidden'); }
 
 function updateMiniMap() {
-    // --- 动态边界 ---
+    // 1. 动态获取当前地图边界
+    // 主世界是 20，其他维度（下界/末地）统一为 10
     const mapLimit = currentDimension === "OVERWORLD" ? 20 : 10;
 
     const getBName = (x, y) => {
+        // 边界检查
         if (x < 0 || x >= mapLimit || y < 0 || y >= mapLimit) return "边界";
-        // 增加判空
-        const b = BIOMES[getBiome(x, y)];
+        
+        const key = getBiome(x, y);
+        const b = BIOMES[key];
+        // 如果获取不到地形数据，显示未知
         return b ? b.name.substring(0, 2) : "未知";
     };
+
+    // 2. 更新四个方向的文字
     document.getElementById('dir-n').innerText = getBName(player.x, player.y - 1);
     document.getElementById('dir-s').innerText = getBName(player.x, player.y + 1);
     document.getElementById('dir-w').innerText = getBName(player.x - 1, player.y);
