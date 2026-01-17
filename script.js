@@ -8,7 +8,7 @@ let player = {
     x: 10, y: 10, 
     hp: 100, maxHp: 100, 
     hunger: 100, maxHunger: 100,
-    water: 100, maxWater: 100,
+    water: 100, maxWater: 100
     sanity: 100, maxSanity: 100,
     atk: 5,  
     def: 0,
@@ -777,10 +777,29 @@ function combatAttack() {
         const expGain = (currentEnemy.baseExp || 5) + currentEnemy.level * 2;
         combatLog(`胜利！获得 ${loot}，EXP +${expGain}`, "gold");
 
-        // === 新增：BOSS 击杀状态更新 ===
+        // ... Inside combatAttack ...
         if (currentEnemy.name === "凋灵") {
             document.getElementById('boss-status-wither').innerHTML = `<span style="color:gray;text-decoration:line-through">凋灵: 已击败</span>`;
+            
+            // --- 新增：生成要塞逻辑 ---
+            if (!strongholdPos) {
+                // 随机找一个坐标 (0~19)
+                let sx = Math.floor(Math.random() * 20);
+                let sy = Math.floor(Math.random() * 20);
+                strongholdPos = {x: sx, y: sy};
+                
+                // 在该位置放置 "末地祭坛" 建筑，并初始化 9 个框架状态 (0=空, 1=有眼)
+                const key = `${sx},${sy}`;
+                if (!buildingsMain[key]) buildingsMain[key] = [];
+                buildingsMain[key].push({
+                    name: "末地祭坛",
+                    frames: [0,0,0,0,0,0,0,0,0] // 9个状态
+                });
+                
+                log(`🌍 大地剧烈震动... 主世界某处 [${sx},${sy}] 升起了一座要塞！`, "purple");
+            }
         }
+
         if (currentEnemy.name === "末影龙") {
             document.getElementById('boss-status-dragon').innerHTML = `<span style="color:gray;text-decoration:line-through">末影龙: 已击败</span>`;
         }
@@ -1448,6 +1467,7 @@ function openBuilding(b, idx) {
         // updateCraftUI会自动检测到 hasStation('furnace')，从而解锁烧炼配方
         log("打开了熔炉，可以进行烧炼和烹饪了。", "orange");
     }
+    else if (b.name === "末地祭坛") { openPortalUI(b); log("你站在传送门框架前，感受到了虚空的召唤。", "purple"); }
     // 如果以后加了"箱子"，可以在这里写 else if (b.name === "箱子") switchView('chest');
     else {
         log("这个建筑暂时没有交互功能。");
@@ -1577,14 +1597,22 @@ function updateStatsUI() {
 }
 
 function switchView(viewName) {
-    ['scene','inventory','craft','combat','chest','trade','furnace','enchant','system'].forEach(v => document.getElementById(v+'-view')?.classList.add('hidden'));
+    // 隐藏所有视图（已包含 portal）
+    ['scene','inventory','craft','combat','chest','trade','furnace','enchant','system','portal'].forEach(v => document.getElementById(v+'-view')?.classList.add('hidden'));
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     
-    // 如果是打开背包，默认打开属性页
+    // 视图切换逻辑
     if (viewName === 'inventory') {
         document.getElementById('inventory-view').classList.remove('hidden');
         renderStatsTab();
-    } else {
+    } 
+    // --- 在这里精准插入你的 portal 逻辑 ---
+    else if (viewName === 'portal') { 
+        document.getElementById('portal-view').classList.remove('hidden'); 
+        if (typeof renderPortalGrid === 'function') renderPortalGrid(); // 建议加上这行以刷新格子状态
+    } 
+    // -------------------------------------
+    else {
         document.getElementById(viewName+'-view')?.classList.remove('hidden');
     }
 
@@ -1955,6 +1983,81 @@ window.usePortal = function() {
     if(_originalUsePortal) _originalUsePortal();
     const q = QUEST_DATA[currentQuestId];
     if (q && q.type === 'dimension' && currentDimension === q.target) document.querySelector('.quest-book-btn')?.classList.add('notify');
+}
+
+// ==========================================
+// 末地传送门系统
+// ==========================================
+let activePortalBuilding = null; // 当前操作的祭坛数据引用
+
+// 1. 打开祭坛界面 (在 openBuilding 里调用)
+function openPortalUI(building) {
+    activePortalBuilding = building;
+    switchView('portal');
+    renderPortalGrid();
+}
+
+// 2. 渲染 9 个框架
+function renderPortalGrid() {
+    const grid = document.getElementById('portal-grid');
+    grid.innerHTML = '';
+    
+    // 检查是否全满了
+    const allFilled = activePortalBuilding.frames.every(state => state === 1);
+
+    if (allFilled) {
+        // 全满：显示激活的传送门大图
+        const portal = document.createElement('div');
+        portal.className = 'portal-active';
+        portal.style.backgroundImage = `url('${ITEM_ICONS["末地传送门"]}')`;
+        portal.onclick = () => enterTheEnd();
+        portal.innerHTML = `<div style="color:white;text-align:center;padding-top:80px;font-weight:bold;text-shadow:0 0 5px black;">点击进入末地</div>`;
+        grid.appendChild(portal);
+    } else {
+        // 未满：显示 9 个格子
+        activePortalBuilding.frames.forEach((state, index) => {
+            const frame = document.createElement('div');
+            frame.className = 'portal-frame';
+            
+            // 0=空框架, 1=填充框架
+            let img = state === 0 ? ITEM_ICONS["末地传送门框架"] : ITEM_ICONS["填充的框架"];
+            frame.style.backgroundImage = `url('${img}')`;
+            
+            frame.onclick = () => fillFrame(index);
+            grid.appendChild(frame);
+        });
+    }
+}
+
+// 3. 填充逻辑
+function fillFrame(index) {
+    if (activePortalBuilding.frames[index] === 1) return; // 已经填了
+    
+    if ((player.inventory["末影之眼"] || 0) > 0) {
+        player.inventory["末影之眼"]--;
+        if (player.inventory["末影之眼"]<=0) delete player.inventory["末影之眼"];
+        
+        activePortalBuilding.frames[index] = 1;
+        log("放入了末影之眼。", "green");
+        renderPortalGrid(); // 刷新显示
+        updateInventoryUI();
+    } else {
+        log("你没有 [末影之眼]！去打末影人或烈焰人合成吧。", "red");
+    }
+}
+
+// 4. 进入末地
+function enterTheEnd() {
+    log("🌀 空间扭曲... 你来到了末地！", "purple");
+    currentDimension = "THE_END";
+    // 假设末地也是一张小地图，或者直接进入BOSS战
+    // 这里简单处理：重置位置到末地坐标，刷新场景
+    player.x = 5; player.y = 5; 
+    
+    // 你需要在 BIOMES 里加一个 THE_END 地形，或者直接复用
+    // 简单起见，我们暂时用 NETHER_WASTES 的样子，但是名字叫末地
+    switchView('scene');
+    refreshLocation();
 }
 
 
