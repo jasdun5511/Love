@@ -2208,8 +2208,16 @@ window.enterTheEnd = function() {
 let activePortalBuilding = null; // 当前操作的祭坛数据引用
 
 // 1. 打开祭坛界面 (在 openBuilding 里调用)
+// 1. 打开祭坛界面 (加强版)
 function openPortalUI(building) {
-    if (!building || !building.frames) return; // 安全检查
+    if (!building) return;
+    
+    // ★ 保险：如果 frames 数组不存在，初始化它
+    if (!building.frames || !Array.isArray(building.frames)) {
+        building.frames = [0,0,0,0,0,0,0,0,0];
+        saveGame(); // 修复后立即保存
+    }
+
     activePortalBuilding = building;
     switchView('portal');
     renderPortalGrid();
