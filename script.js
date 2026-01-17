@@ -242,9 +242,12 @@ function move(dx, dy) {
 // 5. 地形算法 (新增：矿井生成)
 // ------------------------------------------
 function getBiome(x, y) {
-    if (currentDimension === "OVERWORLD") {
-        const dot = x * 12.9898 + y * 78.233;
-        const val = Math.abs(Math.sin(dot) * 43758.5453) % 1;
+    // --- 新增：要塞地形强制覆盖 ---
+    if (currentDimension === "OVERWORLD" && strongholdPos && x === strongholdPos.x && y === strongholdPos.y) {
+        return "STRONGHOLD";
+    }
+    // ... 原本的代码 ...
+
 
         if (val < 0.20) return "OCEAN";
         if (val < 0.40) return "PLAINS";
