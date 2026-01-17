@@ -202,30 +202,50 @@ function passTime(hours) {
 }
 
 
-// 更新昼夜循环和图标
+// 更新昼夜循环 (修复版：自动切换背景色 + 新月亮图片)
 function updateDayNightCycle() {
     const isNight = gameTime.hour >= 20 || gameTime.hour < 6;
     
-    // 1. 切换黑夜模式背景 (保留你原有的逻辑)
+    // 1. 切换全局黑夜模式 (控制文字颜色等)
     document.body.classList.toggle('night-mode', isNight);
 
-    // 2. --- 新增：切换太阳/月亮图标 ---
+    // 2. 获取 UI 元素
     const iconEl = document.getElementById('sun-moon-icon');
-    if (iconEl) {
-        const SUN_URL = "https://zh.minecraft.wiki/images/Sun.png?21b05";
-        // 注意：月亮使用 GIF 动图
-        const MOON_URL = "https://zh.minecraft.wiki/images/Moon_Phases.gif?6ac51";
+    const barEl = document.querySelector('.season-bar');
 
-        const targetSrc = isNight ? MOON_URL : SUN_URL;
-        
-        // 只有当需要变化的 URL 和当前不一样时才修改，避免 GIF 动画重复重置
-        // 这里使用 includes 是因为浏览器有时候会自动补全 url 前缀
-        if (!iconEl.src.includes(targetSrc)) {
-             iconEl.src = targetSrc;
+    // 3. 定义资源
+    const SUN_URL = "https://zh.minecraft.wiki/images/Sun.png?21b05";
+    // ★★★ 修改点：换成了你指定的新月亮图片 ★★★
+    const MOON_URL = "https://zh.minecraft.wiki/images/EnvSprite_full-moon.png?de176";
+
+    // 4. 执行切换
+    if (iconEl && barEl) {
+        if (isNight) {
+            // === 晚上 ===
+            // 切换图片
+            if (!iconEl.src.includes(MOON_URL)) iconEl.src = MOON_URL;
+            
+            // 切换背景色 (深邃的夜空蓝)
+            barEl.style.backgroundColor = "#141432"; 
+            barEl.style.borderBottom = "1px solid #2c3e50";
+            
+            // 图标发光：月亮是清冷的白光
+            iconEl.style.filter = "drop-shadow(0 0 8px rgba(255, 255, 255, 0.8))";
+            
+        } else {
+            // === 白天 ===
+            // 切换图片
+            if (!iconEl.src.includes(SUN_URL)) iconEl.src = SUN_URL;
+            
+            // 切换背景色 (原本的天蓝)
+            barEl.style.backgroundColor = "#87CEEB"; 
+            barEl.style.borderBottom = "1px solid #fff";
+
+            // 图标发光：太阳是温暖的橙光
+            iconEl.style.filter = "drop-shadow(0 0 5px orange)";
         }
     }
 }
-
 
 
 // 5. 移动与地形算法 (修复版：正确处理下界边界)
