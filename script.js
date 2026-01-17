@@ -301,11 +301,52 @@ function getBiome(x, y) {
 
 
 
-// 6. 场景生成 (新增：末影人中立逻辑)
+// 6. 场景生成 (新增：末影人中立逻辑 + 末地水晶机制)
 // ------------------------------------------
 function generateScene(biomeKey) {
     currentSceneItems = [];
+    
+    // === 新增：末地水晶特殊生成逻辑 ===
+    if (biomeKey === "END_PILLAR") {
+        // 坐标映射列表，必须和 getBiome 里的顺序一致
+        const pillars = ["1,1", "2,1", "3,1", "1,2", "3,2", "1,3", "2,3", "3,3"];
+        const key = `${player.x},${player.y}`;
+        const index = pillars.indexOf(key);
+
+        if (index !== -1) {
+            // 检查这根柱子的水晶是否存活
+            // 注意：endCrystalsData 必须在第1序列已定义
+            if (endCrystalsData[index] === 1) {
+                // 生成水晶实体 (特殊怪物)
+                currentSceneItems.push({ 
+                    type: 'mob', 
+                    name: "末地水晶", 
+                    level: 1, hp: 1, maxHp: 1, atk: 0, 
+                    loot: "无", 
+                    baseExp: 0,
+                    pillarIndex: index, // 重要：用于战斗结束后更新状态
+                    desc: "散发着危险能量的水晶..." 
+                });
+                return; // 有水晶时，不生成其他东西，直接返回
+            } else {
+                // 水晶已炸，只有基岩/黑曜石
+                currentSceneItems.push({ type: 'res', name: "黑曜石", count: 1 });
+                log("这里只剩下一个熄灭的黑曜石基座。");
+                return;
+            }
+        }
+    }
+    
+    // === 新增：未击败龙之前，中心点提示 ===
+    if (currentDimension === "THE_END" && player.x === 2 && player.y === 2 && !isDragonDead) {
+         log("你来到了末地中心，空气中弥漫着龙息... 摧毁周围的水晶也许能引出它。", "purple");
+    }
+    // ===================================
+
     const biome = BIOMES[biomeKey];
+    // 防止地图数据未加载导致的报错
+    if (!biome) return; 
+
     const isNight = gameTime.hour >= 20 || gameTime.hour < 6;
 
     // 随机生成资源
@@ -324,10 +365,11 @@ function generateScene(biomeKey) {
     // 怪物生成
     let mobChance = isNight ? 0.8 : 0.3; 
     if (currentDimension === "NETHER") mobChance = 0.9;
+    if (currentDimension === "THE_END") mobChance = 0.6; // 末地刷怪率
     if (biomeKey === "VILLAGE") mobChance = 0.7; 
     if (biomeKey === "MINE") mobChance = 0.9; // 矿井怪物极多
 
-    if (Math.random() < mobChance) {
+    if (Math.random() < mobChance && biome.mobs.length > 0) {
         const mobTemplate = biome.mobs[Math.floor(Math.random() * biome.mobs.length)];
         
         const dist = Math.abs(player.x - 10) + Math.abs(player.y - 10);
@@ -349,7 +391,7 @@ function generateScene(biomeKey) {
         };
         
         // 亡灵主动攻击 (排除末影人)
-        const UNDEADS = ["僵尸", "骷髅", "尸壳", "流浪者", "溺尸", "僵尸猪人", "恶魂", "苦力怕", "烈焰人", "凋灵骷髅", "毒蜘蛛"];
+        const UNDEADS = ["僵尸", "骷髅", "尸壳", "流浪者", "溺尸", "僵尸猪人", "恶魂", "苦力怕", "烈焰人", "凋零骷髅", "毒蜘蛛"];
         if (UNDEADS.includes(mob.name) && mob.name !== "末影人") {
             if (Math.random() < 0.5) mob.isAmbush = true; 
         }
@@ -364,7 +406,6 @@ function generateScene(biomeKey) {
         currentSceneItems.push(mob);
     }
 }
-
 
 
 
@@ -787,74 +828,133 @@ function combatAttack() {
     
     isCombatBusy = true; // 上锁
 
+    // 1. 计算玩家伤害
     const pDmg = player.atk + Math.floor(Math.random() * 3);
     currentEnemy.hp -= pDmg;
     combatLog(`你造成 ${pDmg} 伤害`, "green");
     
+    // 震动特效
     const box = document.querySelector('.enemy-box');
-    box.classList.remove('shake'); 
-    void box.offsetWidth; 
-    box.classList.add('shake');
+    if (box) {
+        box.classList.remove('shake'); 
+        void box.offsetWidth; 
+        box.classList.add('shake');
+    }
 
+    // 2. 胜利判定
     if (currentEnemy.hp <= 0) {
-    // ... 在 combatAttack 函数内部，if (currentEnemy.hp <= 0) 胜利判断里 ...
 
+        // ===========================================
+        // ★ 特殊分支 A：末地水晶 (自爆 + 召唤判定)
+        // ===========================================
+        if (currentEnemy.name === "末地水晶") {
+            combatLog("💥 水晶被摧毁时发生了剧烈爆炸！", "red");
+            player.hp -= 20; // 爆炸扣血
+            combatLog("你受到 20 点爆炸伤害！", "red");
+
+            // 更新水晶状态数组
+            if (typeof currentEnemy.pillarIndex !== 'undefined' && typeof endCrystalsData !== 'undefined') {
+                endCrystalsData[currentEnemy.pillarIndex] = 0;
+            }
+
+            // 检查剩余水晶数量
+            const aliveCount = (typeof endCrystalsData !== 'undefined') ? endCrystalsData.filter(x => x === 1).length : 0;
+            
+            if (aliveCount > 0) {
+                log(`还剩 ${aliveCount} 个水晶维持着结界...`, "purple");
+                // 延时退出战斗
+                setTimeout(() => { switchView('scene'); renderScene(); }, 1000);
+            } else {
+                // 全部摧毁 -> 召唤末影龙
+                log("🌌 封印解除！末影龙降临！", "red");
+                combatLog("⚠️ 警告：末影龙正在接近...", "red");
+                
+                // 1秒后召唤
+                setTimeout(() => {
+                    if (typeof summonEnderDragon === 'function') summonEnderDragon();
+                }, 1000);
+            }
+
+            // 移除水晶实体
+            if (currentEnemy.index !== -1 && currentSceneItems[currentEnemy.index]) {
+                currentSceneItems.splice(currentEnemy.index, 1);
+            }
+            currentEnemy = null;
+            return; // 水晶分支结束，不执行后续掉落逻辑
+        }
+
+        // ===========================================
+        // ★ 常规胜利结算 (掉落 + 经验)
+        // ===========================================
         const loot = currentEnemy.loot;
         const expGain = (currentEnemy.baseExp || 5) + currentEnemy.level * 2;
         combatLog(`胜利！获得 ${loot}，EXP +${expGain}`, "gold");
 
-        // ... Inside combatAttack ...
+        // --- 特殊分支 B：凋灵 (生成要塞) ---
         if (currentEnemy.name === "凋灵") {
-            document.getElementById('boss-status-wither').innerHTML = `<span style="color:gray;text-decoration:line-through">凋灵: 已击败</span>`;
+            const statusEl = document.getElementById('boss-status-wither');
+            if(statusEl) statusEl.innerHTML = `<span style="color:gray;text-decoration:line-through">凋灵: 已击败</span>`;
             
-            // --- 新增：生成要塞逻辑 ---
             if (!strongholdPos) {
-                // 随机找一个坐标 (0~19)
                 let sx = Math.floor(Math.random() * 20);
                 let sy = Math.floor(Math.random() * 20);
                 strongholdPos = {x: sx, y: sy};
                 
-                // 在该位置放置 "末地祭坛" 建筑，并初始化 9 个框架状态 (0=空, 1=有眼)
                 const key = `${sx},${sy}`;
                 if (!buildingsMain[key]) buildingsMain[key] = [];
                 buildingsMain[key].push({
                     name: "末地祭坛",
-                    frames: [0,0,0,0,0,0,0,0,0] // 9个状态
+                    frames: [0,0,0,0,0,0,0,0,0]
                 });
-                
-                log(`🌍 大地剧烈震动... 主世界某处 [${sx},${sy}] 升起了一座要塞！`, "purple");
+                log(`🌍 大地剧烈震动... 要塞出现在 [${sx},${sy}]！`, "purple");
             }
         }
 
+        // --- 特殊分支 C：末影龙 (通关) ---
         if (currentEnemy.name === "末影龙") {
-            document.getElementById('boss-status-dragon').innerHTML = `<span style="color:gray;text-decoration:line-through">末影龙: 已击败</span>`;
+            isDragonDead = true;
+            const statusEl = document.getElementById('boss-status-dragon');
+            if(statusEl) statusEl.innerHTML = `<span style="color:gray;text-decoration:line-through">末影龙: 已击败</span>`;
+            
+            // 生成回城传送门 (在末地中心)
+            // 假设末地复用 buildingsNether 或者你有独立的 buildingsEnd
+            // 这里为了确保能用，我们写进 buildingsNether (因为 getCurrBuildings 在末地可能指向它，或者我们需要强行写)
+            if (typeof buildingsNether !== 'undefined') {
+                buildingsNether[`2,2`] = [{name: "下界传送门", content:{}}];
+            }
+            log("🏆 屠龙者！末地中心出现了返回传送门。", "gold");
         }
-        // ============================
 
-    // ... 继续原本的 addItemToInventory ...
-
-        
+        // --- 发放奖励 ---
         addItemToInventory(loot, 1);
         addExp(expGain); 
         
+        // 移除怪物实体
         if (currentEnemy.index !== -1 && currentSceneItems[currentEnemy.index]) {
             currentSceneItems.splice(currentEnemy.index, 1);
         }
         
-        currentEnemy = null; // 清空敌人防止连点
+        currentEnemy = null; // 清空
         
-        // 胜利结算稍快一点 (0.4秒)
+        // 0.4秒后返回场景
         setTimeout(() => { switchView('scene'); renderScene(); }, 400);
         return; 
     }
     
-    // 极速模式：0.05秒后敌人攻击
+    // 3. 敌人反击 (极速模式：0.05秒后)
     setTimeout(() => enemyTurnLogic('atk'), 50);
 }
 
 function combatFlee() {
     if (isCombatBusy || !currentEnemy) return;
     isCombatBusy = true;
+
+    // Boss 战无法逃跑 (可选)
+    if (currentEnemy.name === "末影龙" || currentEnemy.name === "凋灵") {
+        combatLog("🚫 Boss 战无法逃跑！", "red");
+        setTimeout(() => enemyTurnLogic('flee'), 200);
+        return;
+    }
 
     if (Math.random() > 0.5) { 
         log("逃跑成功！", "orange"); 
@@ -866,6 +966,7 @@ function combatFlee() {
         enemyTurnLogic('flee');
     }
 }
+
 
 
 
