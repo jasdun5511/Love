@@ -239,21 +239,22 @@ function move(dx, dy) {
 }
 
 
-// 5. 地形算法 (修复版)
-// ------------------------------------------
+// 5. 地形算法 (最终修复版)
 function getBiome(x, y) {
     // 1. 优先判定：要塞地形强制覆盖
-    // 如果当前是主世界，且坐标匹配要塞坐标，强制返回要塞地形
-    if (currentDimension === "OVERWORLD" && strongholdPos && x === strongholdPos.x && y === strongholdPos.y) {
+    if (currentDimension === "OVERWORLD" && typeof strongholdPos !== 'undefined' && strongholdPos && x === strongholdPos.x && y === strongholdPos.y) {
         return "STRONGHOLD";
     }
 
-    // 2. 主世界常规地形生成
+    // 2. 末地地形 (防止报错)
+    if (currentDimension === "THE_END") {
+        return "NETHER_WASTES"; // 暂时复用荒地地形，或者你可以自己去 BIOMES 加一个 END_ISLAND
+    }
+
+    // 3. 主世界常规地形生成
     if (currentDimension === "OVERWORLD") {
-        // ⚠️ 之前丢失的部分：必须先计算 val 随机值
         const dot = x * 12.9898 + y * 78.233;
         const val = Math.abs(Math.sin(dot) * 43758.5453) % 1;
-
 
         if (val < 0.20) return "OCEAN";
         if (val < 0.40) return "PLAINS";
@@ -261,20 +262,19 @@ function getBiome(x, y) {
         if (val < 0.65) return "DESERT";
         if (val < 0.75) return "MOUNTAIN";
         if (val < 0.85) return "SNOWY";
-        if (val < 0.90) return "SWAMP"; // 压缩沼泽
-        if (val < 0.95) return "MESA";  // 压缩恶地
-        if (val < 0.98) return "MINE";  // <--- 3% 几率生成矿井
+        if (val < 0.90) return "SWAMP"; 
+        if (val < 0.95) return "MESA";  
+        if (val < 0.98) return "MINE";  
         return "VILLAGE"; 
 
     } else {
-        // 下界地形生成算法 (已添加：下界要塞)
+        // 下界地形
         const val = Math.abs(Math.sin(x * 37 + y * 19) * 1000) % 1;
-        
-        if (val < 0.35) return "NETHER_WASTES";    // 35% 荒地
-        if (val < 0.60) return "LAVA_SEA";         // 25% 熔岩海
-        if (val < 0.80) return "CRIMSON_FOREST";   // 20% 绯红森林
-        if (val < 0.95) return "SOUL_SAND_VALLEY"; // 15% 灵魂沙峡谷
-        return "NETHER_FORTRESS";                  // 5% 下界要塞 (稀有)
+        if (val < 0.35) return "NETHER_WASTES";    
+        if (val < 0.60) return "LAVA_SEA";         
+        if (val < 0.80) return "CRIMSON_FOREST";   
+        if (val < 0.95) return "SOUL_SAND_VALLEY"; 
+        return "NETHER_FORTRESS";                  
     }
 }
 
