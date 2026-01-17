@@ -1957,7 +1957,7 @@ function renderBigMap() {
 }
 
 
-// 16. 存档系统 (防卡死修复版)
+// 16. 存档系统 (防卡死修复版 - 已修复地图不保存问题)
 // ==========================================
 const SAVE_KEY = "mc_text_survival_save_v1";
 
@@ -1983,15 +1983,19 @@ window.saveGame = function() {
             gameTime: gameTime,
             currentDimension: currentDimension,
             currentQuestId: currentQuestId, 
-            // 兼容所有地图变量
-            mapData: window.mapData || null,
-            exploredMapMain: window.exploredMapMain || {},
-            exploredMapNether: window.exploredMapNether || {},
-            buildingsMain: window.buildingsMain || {},
-            buildingsNether: window.buildingsNether || {},            
-            playerPosMain: window.playerPosMain || {x:10, y:10},
-            playerPosNether: window.playerPosNether || {x:5, y:5},
-            // --- 新增：保存要塞与末地数据 ---
+            
+            // --- ★★★ 关键修复：去掉了 window. 前缀 ★★★ ---
+            // 必须直接使用变量名，否则保存的是空对象，导致地图刷新
+            mapData: typeof mapData !== 'undefined' ? mapData : null,
+            exploredMapMain: exploredMapMain || {},
+            exploredMapNether: exploredMapNether || {},
+            buildingsMain: buildingsMain || {},
+            buildingsNether: buildingsNether || {},            
+            playerPosMain: playerPosMain || {x:10, y:10},
+            playerPosNether: playerPosNether || {x:5, y:5},
+            // ------------------------------------------
+
+            // --- 保存要塞与末地数据 ---
             strongholdPos: typeof strongholdPos !== 'undefined' ? strongholdPos : null,
             endCrystalsData: typeof endCrystalsData !== 'undefined' ? endCrystalsData : [1,1,1,1,1,1,1,1],
             isDragonDead: typeof isDragonDead !== 'undefined' ? isDragonDead : false
@@ -2026,7 +2030,7 @@ window.loadGame = function() {
         if (data.playerPosMain) playerPosMain = data.playerPosMain;
         if (data.playerPosNether) playerPosNether = data.playerPosNether;
         
-        // --- 新增：读取要塞与末地数据 ---
+        // --- 读取要塞与末地数据 ---
         if (data.strongholdPos) strongholdPos = data.strongholdPos;
         if (data.endCrystalsData) endCrystalsData = data.endCrystalsData;
         if (data.isDragonDead) isDragonDead = data.isDragonDead;
@@ -2067,6 +2071,7 @@ window.passTime = function(hours) {
     if (_originalPassTime) _originalPassTime(hours);
     saveGame(); 
 };
+
 
 
 
