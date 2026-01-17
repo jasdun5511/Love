@@ -255,6 +255,21 @@ const BIOMES = {
         res: ["书架", "铁栅栏", "宝箱"], 
         mobs: [{name:"蠹虫", hp:10, atk:2, loot:"经验瓶"}] // 要塞特产蠹虫
     },
+// 2. 在 BIOMES 里添加两个地形
+    // 普通末地 (5x5 基础地形)
+    THE_END: { 
+        name: "末地", 
+        code: "bg-MESA", // 暂时复用深色背景
+        res: ["末地石", "紫颂果"], 
+        mobs: [{name:"末影人", hp:40, atk:8, loot:"末影珍珠"}] 
+    },
+    // 特殊地形：黑曜石柱
+    END_PILLAR: {
+        name: "黑曜石柱",
+        code: "bg-MOUNTAIN",
+        res: ["黑曜石"], // 没有任何资源，只有黑曜石摆设
+        mobs: [] // 怪物由代码特殊生成(水晶)
+    }
 
     
     CRIMSON_FOREST: { name: "绯红", code: "bg-CRIMSON", res: ["绯红菌柄", "地狱疣", "萤石"], mobs: [{name:"猪灵", hp:16, atk:6, loot:"金锭"}, {name:"疣猪兽", hp:40, atk:8, loot:"生猪排"}] },
