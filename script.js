@@ -1773,7 +1773,7 @@ function updateMiniMap() {
 }
 
 
-// 渲染大地图 (已修复：地狱10x10，主世界20x20)
+// 渲染大地图 (已修复：地狱10x10，主世界20x20，要塞高亮红色)
 function renderBigMap() {
     const mapEl = document.getElementById('big-grid');
     if (!mapEl) return;
@@ -1799,6 +1799,17 @@ function renderBigMap() {
                 if (BIOMES[type]) {
                     cell.className = `map-cell ${BIOMES[type].code}`;
                     cell.innerText = BIOMES[type].name.substring(0, 2);
+                    
+                    // --- ★★★ 新增：强制高亮要塞 (红色) ★★★ ---
+                    if (type === "STRONGHOLD") {
+                        cell.style.backgroundColor = "#e74c3c"; // 鲜艳的红色
+                        cell.style.color = "#fff";              // 白色文字
+                        cell.style.fontWeight = "bold";         // 加粗
+                        cell.style.border = "2px solid #c0392b"; // 深红边框
+                        cell.innerText = "要塞";
+                    }
+                    // ------------------------------------------
+
                 } else {
                     cell.className = 'map-cell'; // 兜底防止报错
                 }
