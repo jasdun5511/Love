@@ -179,7 +179,12 @@ const ITEM_ICONS = {
     "书架": "https://zh.minecraft.wiki/images/Bookshelf_JE4_BE2.png",
     "铁栅栏": "https://zh.minecraft.wiki/images/Iron_Bars_JE4_BE2.png",
     "蠹虫": "https://zh.minecraft.wiki/images/Silverfish_JE5_BE3.png", // 要塞怪物
-
+    "末地石": "https://zh.minecraft.wiki/images/End_Stone_JE3_BE2.png",
+    "黑曜石柱": "https://zh.minecraft.wiki/images/Obsidian_JE3_BE2.png", // 地形图
+    "末地水晶": "https://zh.minecraft.wiki/images/End_Crystal_JE3_BE3.gif",
+    "末影龙": "https://zh.minecraft.wiki/images/Ender_Dragon.gif",
+    "龙蛋": "https://zh.minecraft.wiki/images/Dragon_Egg_JE2_BE2.png",
+    "紫颂果": "https://zh.minecraft.wiki/images/Chorus_Fruit_JE2_BE2.png",
 
 
 
