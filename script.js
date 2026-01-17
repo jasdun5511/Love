@@ -59,6 +59,10 @@ let buildingsNether = {};
 let playerPosMain = {x: 10, y: 10};
 let playerPosNether = {x: 10, y: 10}; 
 let strongholdPos = null; // 格式: {x: 5, y: 5}，初始没有
+// 在 strongholdPos 下面添加：
+let endCrystalsData = [1,1,1,1,1,1,1,1]; // 8个水晶的状态，1=存活，0=已炸
+let isDragonDead = false; // 龙是否已死
+
 
 
 // 获取当前维度的引用
@@ -1742,8 +1746,10 @@ window.saveGame = function() {
             buildingsNether: window.buildingsNether || {},            
             playerPosMain: window.playerPosMain || {x:10, y:10},
             playerPosNether: window.playerPosNether || {x:5, y:5},
-            // --- 新增：保存要塞坐标 ---
-            strongholdPos: typeof strongholdPos !== 'undefined' ? strongholdPos : null
+            // --- 新增：保存要塞与末地数据 ---
+            strongholdPos: typeof strongholdPos !== 'undefined' ? strongholdPos : null,
+            endCrystalsData: typeof endCrystalsData !== 'undefined' ? endCrystalsData : [1,1,1,1,1,1,1,1],
+            isDragonDead: typeof isDragonDead !== 'undefined' ? isDragonDead : false
         };
         localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
         checkSaveStatus();
@@ -1775,8 +1781,10 @@ window.loadGame = function() {
         if (data.playerPosMain) playerPosMain = data.playerPosMain;
         if (data.playerPosNether) playerPosNether = data.playerPosNether;
         
-        // --- 新增：读取要塞坐标 ---
+        // --- 新增：读取要塞与末地数据 ---
         if (data.strongholdPos) strongholdPos = data.strongholdPos;
+        if (data.endCrystalsData) endCrystalsData = data.endCrystalsData;
+        if (data.isDragonDead) isDragonDead = data.isDragonDead;
 
         // 修复背包为空的情况
         if (!player.inventory) player.inventory = {};
@@ -1814,6 +1822,7 @@ window.passTime = function(hours) {
     if (_originalPassTime) _originalPassTime(hours);
     saveGame(); 
 };
+
 
 
 
