@@ -981,24 +981,25 @@ body.night-mode .grid-btn.mob {
     border: 2px solid #a29bfe;
 }
 @keyframes pulse { 0% {box-shadow: 0 0 10px #a29bfe;} 50% {box-shadow: 0 0 20px #6c5ce7;} 100% {box-shadow: 0 0 10px #a29bfe;} }
-/* === 战斗物品栏 (修复版：强制横向滑动，防止挤压) === */
+
+/* === 战斗物品栏 (紧凑优化版) === */
 #combat-consumables {
     /* 1. 布局核心 */
     display: flex;
-    flex-direction: row; /* 强制横向排列 */
-    flex-wrap: nowrap;   /* ★★★ 关键：绝对禁止换行！ ★★★ */
-    align-items: center; /* 垂直居中 */
-    gap: 8px;            /* 物品之间的间距 */
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 6px;            /* 间距稍微改小一点 */
     
     /* 2. 滚动设置 */
-    overflow-x: auto;    /* 允许横向滚动 */
-    overflow-y: hidden;  /* 禁止纵向滚动 */
+    overflow-x: auto;
+    overflow-y: hidden;
     
-    /* 3. 尺寸与间距 (调大了高度) */
-    width: 100%;         /* 占满宽度 */
-    min-height: 85px;    /* ★★★ 调高高度，确保放得下按钮和滚动条 ★★★ */
-    padding: 10px 5px;   /* 内部留白 */
-    margin: 5px 0;
+    /* 3. 尺寸与间距 (重点修改区域) */
+    width: 100%;
+    min-height: 55px;    /* ★ 改小：从 85px 降到 55px，刚好够放按钮和滚动条 */
+    padding: 4px 5px;    /* ★ 改小：上下留白从 10px 降到 4px */
+    margin: 2px 0;       /* ★ 改小：外部间距也稍微收一点 */
     
     /* 4. 外观美化 */
     background: rgba(0, 0, 0, 0.3); 
@@ -1007,42 +1008,42 @@ body.night-mode .grid-btn.mob {
     box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
     
     /* 5. 滚动条体验 */
-    -webkit-overflow-scrolling: touch; /* 手机端丝滑滚动 */
+    -webkit-overflow-scrolling: touch;
     scrollbar-width: thin; 
 }
 
-/* 滚动条样式 (Chrome/Safari) */
+/* 滚动条样式保持不变，或者也可以稍微改细一点 */
 #combat-consumables::-webkit-scrollbar {
-    height: 6px; /* 滚动条高度 */
+    height: 4px; /* ★ 改小：滚动条高度从 6px 降到 4px，更不占地 */
 }
 #combat-consumables::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, 0.05); 
-    border-radius: 3px;
+    border-radius: 2px;
 }
 #combat-consumables::-webkit-scrollbar-thumb {
-    background: #e67e22; /* 橙色滚动条 */
-    border-radius: 3px;
+    background: #e67e22;
+    border-radius: 2px;
 }
 
-/* === 物品按钮样式 (优化版) === */
+/* === 物品按钮样式 (紧凑优化版) === */
 .heal-btn {
     /* 布局限制 */
-    flex: 0 0 auto;      /* ★★★ 关键：禁止按钮被压缩，保持原始宽度 ★★★ */
-    min-width: 110px;    /* 给一个固定的最小宽度，防止太窄 */
-    height: 50px;        /* 固定高度 */
+    flex: 0 0 auto;
+    min-width: 95px;     /* ★ 改小：宽度稍微收一点，看起来更精致 */
+    height: 38px;        /* ★ 改小：高度从 50px 降到 38px，这是省空间的关键 */
     
     /* 内部布局 */
     display: flex;
     align-items: center;
-    justify-content: flex-start; /* 内容靠左 */
-    gap: 8px;
+    justify-content: flex-start;
+    gap: 6px;
     
     /* 外观 */
     background: #34495e;
     border: 1px solid #7f8c8d;
-    padding: 5px 10px;
-    border-radius: 6px;
-    font-size: 12px;
+    padding: 2px 8px;    /* ★ 改小：内部填充减少 */
+    border-radius: 5px;
+    font-size: 11px;     /* ★ 微调：字体稍微改小一号适配高度 */
     color: white;
     box-shadow: 0 2px 4px rgba(0,0,0,0.3);
     cursor: pointer;
@@ -1055,16 +1056,16 @@ body.night-mode .grid-btn.mob {
 }
 
 .heal-btn img {
-    width: 24px;
-    height: 24px;
+    width: 20px;         /* ★ 改小：图标从 24px 降到 20px */
+    height: 20px;
     object-fit: contain;
 }
 
-/* 里面的文字部分 */
+/* 文字部分 */
 .heal-btn div {
     display: flex;
     flex-direction: column;
-    line-height: 1.2;
+    line-height: 1.1;    /* ★ 改小：行高收紧，防止两行文字撑开 */
 }
 
 /* 设置日月图标的大小 */
