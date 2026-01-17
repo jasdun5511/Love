@@ -1066,3 +1066,10 @@ body.night-mode .grid-btn.mob {
     flex-direction: column;
     line-height: 1.2;
 }
+
+/* 设置日月图标的大小 */
+#sun-moon-icon {
+    height: 28px; /* 根据你的顶部栏高度调整，建议比栏高小一点 */
+    width: auto;  /* 保持图片比例 */
+    filter: drop-shadow(0px 0px 2px rgba(255, 255, 200, 0.5)); /* 可选：加一点点发光效果 */
+}
