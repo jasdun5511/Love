@@ -8,7 +8,7 @@ let player = {
     x: 10, y: 10, 
     hp: 100, maxHp: 100, 
     hunger: 100, maxHunger: 100,
-    water: 100, maxWater: 100
+    water: 100, maxWater: 100,
     sanity: 100, maxSanity: 100,
     atk: 5,  
     def: 0,
